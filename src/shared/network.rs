@@ -100,7 +100,7 @@ impl Network
     
     pub fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Network
     {
-        let mut dn: Option<Network> = None;
+        let mut dj_dnet: Option<Network> = None;
         for (pv_count_1, (o, y)) in os.iter().zip(ys).enumerate() {
             let pv_count = pv_count_1 + 1;
             let depth = hs.len() - ys.len() - 1;
@@ -165,19 +165,19 @@ impl Network
             dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
             let dj_diw = &dj_dz * i.t();
             let dj_dib = &dj_dz * one;
-            match &mut dn {
-                Some(dn) => {
-                    dn.iw += dj_diw;
-                    dn.ib += dj_dib;
-                    dn.sw += dj_dsw;
-                    dn.sb += dj_dsb;
-                    dn.pw += dj_dpw;
-                    dn.pb += dj_dpb;
-                    dn.ow += dj_dow;
-                    dn.ob += dj_dob;
+            match &mut dj_dnet {
+                Some(dj_dnet) => {
+                    dj_dnet.iw += dj_diw;
+                    dj_dnet.ib += dj_dib;
+                    dj_dnet.sw += dj_dsw;
+                    dj_dnet.sb += dj_dsb;
+                    dj_dnet.pw += dj_dpw;
+                    dj_dnet.pb += dj_dpb;
+                    dj_dnet.ow += dj_dow;
+                    dj_dnet.ob += dj_dob;
                 },
                 None => {
-                    dn = Some(Network {
+                    dj_dnet = Some(Network {
                             iw: dj_diw,
                             ib: dj_dib,
                             sw: dj_dsw,
@@ -190,6 +190,6 @@ impl Network
                 },
             }
         }
-        dn.unwrap()
+        dj_dnet.unwrap()
     }
 }
