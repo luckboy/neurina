@@ -7,6 +7,32 @@
 //
 use crate::matrix::Matrix;
 
+//
+// output layer
+//   ^ ^ ^ ^
+//   |X|X|X|  ow * h[depth + pv_count] + ob
+//   pv layer
+//   ^ ^ ^ ^
+//   |X|X|X|  pw * h[depth + pv_count - 1] + pb
+//   pv layer -> ow * h[depth + pv_count - 1] + ob -> output layer
+//     ...
+//   pv layer -> ow * h[depth + 1] + ob -> output layer
+//   ^ ^ ^ ^
+//   |X|X|X|  pw * h[depth] + pb
+//   pv layer
+//   ^ ^ ^ ^
+//   |X|X|X|  sw * h[depth - 1] + sb
+// search layer
+//     ...
+// search layer
+//   ^ ^ ^ ^
+//   |X|X|X|  sw * h[0] + sb
+// search layer
+//   ^ ^ ^ ^
+//   |X|X|X|  iw * i + ib
+// input layer
+//
+
 pub struct Network
 {
     iw: Matrix,
@@ -70,5 +96,100 @@ impl Network
             let o = &self.ow * &h + &ob;
             of(o);
         }
+    }
+    
+    pub fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Network
+    {
+        let mut dn: Option<Network> = None;
+        for (pv_count_1, (o, y)) in os.iter().zip(ys).enumerate() {
+            let pv_count = pv_count_1 + 1;
+            let depth = hs.len() - ys.len() - 1;
+            let mut j = hs.len() - (os.len() - pv_count) - 1;
+            let dj_do = o.softmax() - y;
+            let dj_dow = &dj_do * hs[j].t();
+            let dj_dob = &dj_do * one;
+            // dj/dz = (pw^T * dj/do) (*) phi'(z)
+            let mut dj_dh = self.ow.t() * &dj_do;
+            let mut dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
+            j -= 1;
+            let (dj_dpw, dj_dpb) = if pv_count > 1 {
+                // dj/dpw = dj/dz * phi(z)^T 
+                // dj/dpb = dj/dz
+                let mut tmp_dj_dpw = &dj_dz * &hs[j].t();
+                let mut tmp_dj_dpb = &dj_dz * one;
+                let mut tmp = dj_dz.clone();
+                for _ in 1..pv_count {
+                    // dj/dpw += ((pw^T * dj/dz) (*) phi'(z)) * h^T
+                    // dj/dpb += (pw^T * dj/dz) (*) phi'(z)
+                    tmp = self.pw.t() * &tmp;
+                    tmp = tmp.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
+                    j -= 1;
+                    tmp_dj_dpw += &tmp * hs[j].t();
+                    tmp_dj_dpb += &tmp * one;
+                }
+                dj_dz = tmp;
+                (tmp_dj_dpw, tmp_dj_dpb)
+            } else {
+                let tmp_dj_dpw = &dj_dz * hs[j].t();
+                let tmp_dj_dpb = &dj_dz * one;
+                (tmp_dj_dpw, tmp_dj_dpb)
+            };
+            // dj/dz = (pw^T * dj/dz2) (*) phi'(z)
+            dj_dh = self.pw.t() * &dj_dz;
+            dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
+            j -= 1;
+            let (dj_dsw, dj_dsb) = if depth > 1 {
+                // dj/dsw = dj/dz * phi(z)^T 
+                // dj/dsb = dj/dz
+                let mut tmp_dj_dsw = &dj_dz * &hs[j].t();
+                let mut tmp_dj_dsb = &dj_dz * one;
+                let mut tmp = dj_dz.clone();
+                for _ in 1..depth {
+                    // dj/dsw += ((pw^T * dj/dz) (*) phi'(z)) * h^T
+                    // dj/dsb += (pw^T * dj/dz) (*) phi'(z)
+                    tmp = self.pw.t() * &tmp;
+                    tmp = tmp.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
+                    j -= 1;
+                    tmp_dj_dsw += &tmp * hs[j].t();
+                    tmp_dj_dsb += &tmp * one;
+                }
+                dj_dz = tmp;
+                (tmp_dj_dsw, tmp_dj_dsb)
+            } else {
+                let tmp_dj_dsw = &dj_dz * hs[j].t();
+                let tmp_dj_dsb = &dj_dz * one;
+                (tmp_dj_dsw, tmp_dj_dsb)
+            };
+            // dj/dz = (pw^T * dj/dz2) (*) phi'(z)
+            dj_dh = self.pw.t() * &dj_dz;
+            dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
+            let dj_diw = &dj_dz * i.t();
+            let dj_dib = &dj_dz * one;
+            match &mut dn {
+                Some(dn) => {
+                    dn.iw += dj_diw;
+                    dn.ib += dj_dib;
+                    dn.sw += dj_dsw;
+                    dn.sb += dj_dsb;
+                    dn.pw += dj_dpw;
+                    dn.pb += dj_dpb;
+                    dn.ow += dj_dow;
+                    dn.ob += dj_dob;
+                },
+                None => {
+                    dn = Some(Network {
+                            iw: dj_diw,
+                            ib: dj_dib,
+                            sw: dj_dsw,
+                            sb: dj_dsb,
+                            pw: dj_dpw,
+                            pb: dj_dpb,
+                            ow: dj_dow,
+                            ob: dj_dob,
+                    });
+                },
+            }
+        }
+        dn.unwrap()
     }
 }
