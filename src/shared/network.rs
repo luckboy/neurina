@@ -113,14 +113,14 @@ impl Network
             let mut dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
             j -= 1;
             let (dj_dpw, dj_dpb) = if pv_count > 1 {
-                // dj/dpw = dj/dz * phi(z)^T 
-                // dj/dpb = dj/dz
+                // dj/dpw = dj/dz2 * phi(z)^T
+                // dj/dpb = dj/dz2
                 let mut tmp_dj_dpw = &dj_dz * &hs[j].t();
                 let mut tmp_dj_dpb = &dj_dz * one;
                 let mut tmp = dj_dz.clone();
                 for _ in 1..pv_count {
-                    // dj/dpw += ((pw^T * dj/dz) (*) phi'(z)) * h^T
-                    // dj/dpb += (pw^T * dj/dz) (*) phi'(z)
+                    // dj/dpw += ((pw^T * dj/dz2) (*) phi'(z)) * h^T
+                    // dj/dpb += (pw^T * dj/dz2) (*) phi'(z)
                     tmp = self.pw.t() * &tmp;
                     tmp = tmp.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
                     j -= 1;
@@ -139,14 +139,14 @@ impl Network
             dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
             j -= 1;
             let (dj_dsw, dj_dsb) = if depth > 1 {
-                // dj/dsw = dj/dz * phi(z)^T 
-                // dj/dsb = dj/dz
+                // dj/dsw = dj/dz2 * phi(z)^T
+                // dj/dsb = dj/dz2
                 let mut tmp_dj_dsw = &dj_dz * &hs[j].t();
                 let mut tmp_dj_dsb = &dj_dz * one;
                 let mut tmp = dj_dz.clone();
                 for _ in 1..depth {
-                    // dj/dsw += ((pw^T * dj/dz) (*) phi'(z)) * h^T
-                    // dj/dsb += (pw^T * dj/dz) (*) phi'(z)
+                    // dj/dsw += ((pw^T * dj/dz2) (*) phi'(z)) * h^T
+                    // dj/dsb += (pw^T * dj/dz2) (*) phi'(z)
                     tmp = self.pw.t() * &tmp;
                     tmp = tmp.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
                     j -= 1;
