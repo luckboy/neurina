@@ -11,4 +11,9 @@ pub mod matrix_buffer;
 pub mod network;
 pub mod utils;
 
-pub struct Interruption;
+pub enum Interruption
+{
+    Timeout,
+    Stop,
+    CtrlC,
+}
