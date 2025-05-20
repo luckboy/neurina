@@ -9,7 +9,7 @@ use crate::chess::moves::uci;
 use crate::chess::moves::PromotePiece;
 use crate::chess::Color;
 use crate::chess::Move;
-use crate::shared::utils::coord_to_index;
+use crate::shared::utils::*;
 
 const MAILBOX: [isize; 120] = [
     -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1,   -1, -1,

@@ -5,6 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use crate::chess::Cell;
 use crate::chess::Color;
 use crate::chess::Coord;
 
@@ -19,4 +20,18 @@ pub fn coord_to_index(coord: Coord, color: Color) -> usize
             ((7 - rank_idx) << 3) | file_idx
         },
     }
+}
+
+pub fn cell_to_index(cell: Cell, color: Color) -> usize
+{
+    let tmp_cell = match color {
+        Color::White => cell,
+        Color::Black => {
+            match (cell.color(), cell.piece()) {
+                (Some(piece_color), Some(piece)) => Cell::from_parts(piece_color.inv(), piece),
+                (_, _) => cell,
+            }
+        },
+    };
+    tmp_cell.index()
 }
