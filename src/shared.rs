@@ -10,3 +10,5 @@ pub mod index_converter;
 pub mod matrix_buffer;
 pub mod network;
 pub mod utils;
+
+pub struct Interruption;

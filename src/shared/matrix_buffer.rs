@@ -7,6 +7,7 @@
 //
 use std::cmp::min;
 use crate::matrix::Matrix;
+use crate::shared::Interruption;
 
 pub struct MatrixBuffer<T>
 {
@@ -46,15 +47,19 @@ impl<T> MatrixBuffer<T>
     pub fn push(&mut self, elem: T)
     { self.elems.push(elem); }
     
-    pub fn do_elems<F, G>(&mut self, mut f: F, mut g: G)
-        where F: FnMut(&T, &mut [f32], usize, usize), G: FnMut(Matrix, &mut [T])
+    pub fn do_elems<F, G, H>(&mut self, mut f: F, mut g: G, mut h: H) -> Result<(), Interruption>
+        where F: FnMut() -> Result<(), Interruption>,
+            G: FnMut(&T, &mut [f32], usize, usize),
+            H: FnMut(Matrix, &mut [T])
     {
         for i in (0..self.elems.len()).step_by(self.max_col_count) {
+            f()?;
             let col_count = min(self.max_col_count, self.elems.len() - i);
             for j in 0..col_count {
-                f(&self.elems[i + j], self.buf.as_mut_slice(), j, col_count);
+                g(&self.elems[i + j], self.buf.as_mut_slice(), j, col_count);
             }
-            g(Matrix::new_with_elems(self.row_count, col_count, &self.buf[0..(self.row_count * col_count)]), &mut self.elems[i..(i + col_count)]);
+            h(Matrix::new_with_elems(self.row_count, col_count, &self.buf[0..(self.row_count * col_count)]), &mut self.elems[i..(i + col_count)]);
         }
+        Ok(())
     }
 }
