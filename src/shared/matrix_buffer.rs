@@ -34,7 +34,7 @@ impl<T> MatrixBuffer<T>
     pub fn max_col_count(&self) -> usize
     { self.max_col_count }
     
-    pub fn is_full_buf(&self) -> bool
+    pub fn is_full(&self) -> bool
     { self.elems.len() >= self.max_col_count }
     
     pub fn elems(&self) -> &[T]
