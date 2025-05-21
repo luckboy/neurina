@@ -7,7 +7,7 @@
 //
 use crate::shared::Interruption;
 
-pub trait IntrChecker
+pub trait IntrCheck
 {
     fn check(&self) -> Result<(), Interruption>;
 }
@@ -20,7 +20,7 @@ impl EmptyIntrChecker
     { EmptyIntrChecker }
 }
 
-impl IntrChecker for EmptyIntrChecker
+impl IntrCheck for EmptyIntrChecker
 {
     fn check(&self) -> Result<(), Interruption>
     { Ok(()) }

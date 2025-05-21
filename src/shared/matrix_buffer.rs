@@ -7,7 +7,7 @@
 //
 use std::cmp::min;
 use crate::matrix::Matrix;
-use crate::shared::intr_checker::*;
+use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
 pub struct MatrixBuffer<T>
@@ -55,7 +55,7 @@ impl<T> MatrixBuffer<T>
     pub fn push(&mut self, elem: T)
     { self.elems.push(elem); }
     
-    pub fn do_elems<F, G>(&mut self, intr_checker: &impl IntrChecker, mut f: F, mut g: G) -> Result<(), Interruption>
+    pub fn do_elems<F, G>(&mut self, intr_checker: &impl IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
         where F: FnMut(&T, &mut [f32], &mut [Vec<f32>], usize, usize),
             G: FnMut(Matrix, &[Matrix], &mut [T])
     {
