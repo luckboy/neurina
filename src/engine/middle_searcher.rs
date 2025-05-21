@@ -90,7 +90,7 @@ impl MiddleSearcher
         where F: FnMut(&Board, &[Move], usize) -> i32
     { self.nega_max_with_fun_ref(board, current_pv, pvs, node_count, leaf_count, ply, middle_depth, &mut f) }
 
-    pub fn search(&self, board: &Board, middle_depth: usize, depth: usize) -> Result<(i32, Vec<Move>, u64), Interruption>
+    pub fn search(&self, board: &Board, middle_depth: usize, depth: usize) -> Result<(i32, u64, Vec<Move>), Interruption>
     {
         let mut current_pv: Vec<Move> = Vec::new();
         let mut pvs: Vec<Vec<Move>> = vec![Vec::new(); middle_depth + 1];
@@ -101,12 +101,10 @@ impl MiddleSearcher
                 neural_pvs.push(pv.to_vec());
                 0
         })?;
-        if value <= MIN_EVAL_MATE_VALUE || value >= MAX_EVAL_MATE_VALUE {
-            return Ok((value, pvs[0].clone(), node_count));
+        if value <= MIN_EVAL_MATE_VALUE || value >= MAX_EVAL_MATE_VALUE || neural_pvs.is_empty() {
+            return Ok((value, node_count, pvs[0].clone()));
         }
-        if !neural_pvs.is_empty() {
-            self.neural_searcher.search(board, &mut neural_pvs, depth)?;
-        }
+        self.neural_searcher.search(board, &mut neural_pvs, depth)?;
         pvs = vec![Vec::new(); middle_depth + 1];
         leaf_count = 0usize;
         let (value, leaf_idx) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut node_count, &mut leaf_count, 0, middle_depth, |new_board, _, leaf_idx| {
@@ -139,8 +137,8 @@ impl MiddleSearcher
                 }
         })?;
         match leaf_idx {
-            Some(leaf_idx) => Ok((value, neural_pvs[leaf_idx].clone(), node_count)),
-            None => Ok((value, pvs[0].clone(), node_count)),
+            Some(leaf_idx) => Ok((value, node_count, neural_pvs[leaf_idx].clone())),
+            None => Ok((value, node_count, pvs[0].clone())),
         }
     }
 }
