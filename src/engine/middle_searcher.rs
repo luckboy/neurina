@@ -30,6 +30,12 @@ impl MiddleSearcher
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck>
     { self.neural_searcher.intr_checker() }
     
+    pub fn eval_fun(&self) -> &Arc<dyn Eval>
+    { &self.eval_fun }
+
+    pub fn neural_searcher(&self) -> &Arc<dyn NeuralSearch>
+    { &self.neural_searcher }
+    
     fn nega_max_with_fun_ref<F>(&self, board: &Board, current_pv: &mut Vec<Move>, pvs: &mut [Vec<Move>], node_count: &mut u64, leaf_count: &mut usize, ply: usize, middle_depth: usize, f: &mut F) -> Result<(i32, Option<usize>), Interruption>
         where F: FnMut(&Board, &[Move], usize) -> i32
     {
