@@ -55,7 +55,7 @@ impl<T> MatrixBuffer<T>
     pub fn push(&mut self, elem: T)
     { self.elems.push(elem); }
     
-    pub fn do_elems<F, G>(&mut self, intr_checker: &impl IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
+    pub fn do_elems<F, G>(&mut self, intr_checker: &dyn IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
         where F: FnMut(&T, &mut [f32], &mut [Vec<f32>], usize, usize),
             G: FnMut(Matrix, &[Matrix], &mut [T])
     {

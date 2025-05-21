@@ -21,7 +21,7 @@ pub struct Converter
 
 impl Converter
 {
-    const BOARD_ROW_COUNT: usize = 64 * 13 + 6 + 9;
+    pub const BOARD_ROW_COUNT: usize = 64 * 13 + 6 + 9;
 
     pub fn new(index_converter: IndexConverter) -> Self
     { Converter { index_converter, } }

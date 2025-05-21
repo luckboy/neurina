@@ -110,7 +110,7 @@ impl MiddleSearcher
         if value <= MIN_EVAL_MATE_VALUE || value >= MAX_EVAL_MATE_VALUE || neural_pvs.is_empty() {
             return Ok((value, node_count, pvs[0].clone()));
         }
-        self.neural_searcher.search(board, &mut neural_pvs, depth)?;
+        self.neural_searcher.search(board, &mut neural_pvs, depth - middle_depth)?;
         pvs = vec![Vec::new(); middle_depth + 1];
         leaf_count = 0usize;
         let (value, leaf_idx) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut node_count, &mut leaf_count, 0, middle_depth, |new_board, _, leaf_idx| {

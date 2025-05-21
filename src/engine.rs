@@ -8,3 +8,4 @@
 pub mod eval;
 pub mod middle_searcher;
 pub mod neural_search;
+pub mod neural_searcher;
