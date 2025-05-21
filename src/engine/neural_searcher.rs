@@ -24,8 +24,7 @@ pub struct NeuralSearcher
 {
     intr_checker: Arc<dyn IntrCheck>,
     converter: Converter,
-    matrix_buf: Mutex<MatrixBuffer<Vec<Move>, Vec<Option<(Board, Color)>>>>,
-    output_elems: Mutex<Vec<f32>>,
+    matrix_buf: Mutex<MatrixBuffer<Vec<Move>, (Vec<f32>, Vec<Option<(Board, Color)>>)>>,
     network: Network,
 }
 
@@ -38,13 +37,11 @@ impl NeuralSearcher
     pub fn new(intr_checker: Arc<dyn IntrCheck>, network: Network) -> Self
     {
         let converter = Converter::new(IndexConverter::new());
-        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, vec![None; Self::MAX_COL_COUNT]));
-        let output_elems = Mutex::new(vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT]);
+        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, (vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT], vec![None; Self::MAX_COL_COUNT])));
         NeuralSearcher {
             intr_checker,
             converter,
             matrix_buf,
-            output_elems,
             network,
         }
     }
@@ -61,7 +58,6 @@ impl NeuralSearch for NeuralSearcher
     fn search(&self, board: &Board, pvs: &mut [Vec<Move>], depth: usize) -> Result<(), Interruption>
     {
         let mut matrix_buf_g = self.matrix_buf.lock().unwrap();
-        let mut output_elems_g = self.output_elems.lock().unwrap();
         matrix_buf_g.clear();
         for pv in pvs {
             matrix_buf_g.push(pv.clone());
@@ -75,7 +71,8 @@ impl NeuralSearch for NeuralSearcher
                     }
                 }
                 self.converter.board_to_matrix_col(&tmp_board, elems, j, col_count);
-        }, |i, _, pairs, pvs| {
+        }, |i, _, pair, pvs| {
+                let (output_elems, pairs) = pair;
                 let col_count = pvs.len();
                 for (j, pv) in pvs.iter().enumerate() {
                     let mut tmp_board = board.clone();
@@ -90,12 +87,12 @@ impl NeuralSearch for NeuralSearcher
                 self.network.compute(&i, depth, depth, |_| (), |o| {
                         let frontend = Frontend::new().unwrap();
                         let mut is_transposed = false;
-                        frontend.get_elems_and_transpose_flag(&o, &mut output_elems_g[0..(self.converter.move_row_count() * col_count)], &mut is_transposed).unwrap();
+                        frontend.get_elems_and_transpose_flag(&o, &mut output_elems[0..(self.converter.move_row_count() * col_count)], &mut is_transposed).unwrap();
                         for (j, pv) in pvs.iter_mut().enumerate() {
                             match &pairs[j] {
                                 Some((tmp_board, color)) => {
                                     let moves = legal::gen_all(&tmp_board);
-                                    match self.converter.matrix_col_to_move(&moves, *color, output_elems_g.as_slice(), j, col_count, Self::MOVE_EPS) {
+                                    match self.converter.matrix_col_to_move(&moves, *color, output_elems.as_slice(), j, col_count, Self::MOVE_EPS) {
                                         Some(mv) => {
                                             match tmp_board.make_move(mv) {
                                                 Ok(tmp_new_board) => {
