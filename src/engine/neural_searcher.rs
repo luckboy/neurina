@@ -58,11 +58,7 @@ impl NeuralSearch for NeuralSearcher
     fn search(&self, board: &Board, pvs: &mut [Vec<Move>], depth: usize) -> Result<(), Interruption>
     {
         let mut matrix_buf_g = self.matrix_buf.lock().unwrap();
-        matrix_buf_g.clear();
-        for pv in pvs {
-            matrix_buf_g.push(pv.clone());
-        }
-        matrix_buf_g.do_elems(&*self.intr_checker, |pv, elems, _, j, col_count| {
+        matrix_buf_g.do_elems_for_slice(pvs, &*self.intr_checker, |pv, elems, _, j, col_count| {
                 let mut tmp_board = board.clone();
                 for mv in pv {
                     match tmp_board.make_move(*mv) {
@@ -109,8 +105,6 @@ impl NeuralSearch for NeuralSearcher
                             }
                         }
                 });
-        })?;
-        matrix_buf_g.clear();
-        Ok(())
+        })
     }
 }

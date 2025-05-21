@@ -10,23 +10,21 @@ use crate::matrix::Matrix;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
-pub struct MatrixBuffer<T, U>
+struct MatrixBufferInner<T>
 {
-    elems: Vec<T>,
     input_row_count: usize,
     output_row_count: usize,
     max_col_count: usize,
     input_buf: Vec<f32>,
     output_bufs: Vec<Vec<f32>>,
-    middle_buf: U,
+    middle_buf: T,
 }
 
-impl<T, U> MatrixBuffer<T, U>
+impl<T> MatrixBufferInner<T>
 {
-    pub fn new(input_row_count: usize, output_row_count: usize, max_col_count: usize, output_count: usize, middle_buf: U) -> Self
-    {
-        MatrixBuffer {
-            elems: Vec::new(),
+   fn new(input_row_count: usize, output_row_count: usize, max_col_count: usize, output_count: usize, middle_buf: T) -> Self
+   {
+        MatrixBufferInner {
             input_row_count,
             output_row_count,
             max_col_count,
@@ -36,17 +34,53 @@ impl<T, U> MatrixBuffer<T, U>
         }
     }
 
+    fn do_elems<U, F, G>(&mut self, elems: &mut [U], intr_checker: &dyn IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
+        where F: FnMut(&U, &mut [f32], &mut [Vec<f32>], usize, usize),
+            G: FnMut(Matrix, &[Matrix], &mut T, &mut [U])
+    {
+        for i in (0..elems.len()).step_by(self.max_col_count) {
+            intr_checker.check()?;
+            let col_count = min(self.max_col_count, elems.len() - i);
+            for j in 0..col_count {
+                f(&elems[i + j], self.input_buf.as_mut_slice(), self.output_bufs.as_mut_slice(), j, col_count);
+            }
+            let input = Matrix::new_with_elems(self.input_row_count, col_count, &self.input_buf[0..(self.input_row_count * col_count)]);
+            let outputs: Vec<Matrix> = self.output_bufs.iter().map(|output_buf| {
+                    Matrix::new_with_elems(self.output_row_count, col_count, &output_buf[0..(self.output_row_count * col_count)])
+            }).collect();
+            g(input, outputs.as_slice(), &mut self.middle_buf, &mut elems[i..(i + col_count)]);
+        }
+        Ok(())
+    }
+}
+
+pub struct MatrixBuffer<T, U>
+{
+    elems: Vec<T>,
+    inner: MatrixBufferInner<U>,
+}
+
+impl<T, U> MatrixBuffer<T, U>
+{
+    pub fn new(input_row_count: usize, output_row_count: usize, max_col_count: usize, output_count: usize, middle_buf: U) -> Self
+    {
+        MatrixBuffer {
+            elems: Vec::new(),
+            inner: MatrixBufferInner::new(input_row_count, output_row_count, max_col_count, output_count, middle_buf),
+        }
+    }
+
     pub fn input_row_count(&self) -> usize
-    { self.input_row_count }
+    { self.inner.input_row_count }
 
     pub fn output_row_count(&self) -> usize
-    { self.output_row_count }
+    { self.inner.output_row_count }
 
     pub fn max_col_count(&self) -> usize
-    { self.max_col_count }
+    { self.inner.max_col_count }
     
     pub fn is_full(&self) -> bool
-    { self.elems.len() >= self.max_col_count }
+    { self.elems.len() >= self.inner.max_col_count }
     
     pub fn elems(&self) -> &[T]
     { self.elems.as_slice() }
@@ -57,22 +91,13 @@ impl<T, U> MatrixBuffer<T, U>
     pub fn push(&mut self, elem: T)
     { self.elems.push(elem); }
     
-    pub fn do_elems<F, G>(&mut self, intr_checker: &dyn IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
+    pub fn do_elems_for_slice<F, G>(&mut self, elems: &mut [T], intr_checker: &dyn IntrCheck, f: F, g: G) -> Result<(), Interruption>
         where F: FnMut(&T, &mut [f32], &mut [Vec<f32>], usize, usize),
             G: FnMut(Matrix, &[Matrix], &mut U, &mut [T])
-    {
-        for i in (0..self.elems.len()).step_by(self.max_col_count) {
-            intr_checker.check()?;
-            let col_count = min(self.max_col_count, self.elems.len() - i);
-            for j in 0..col_count {
-                f(&self.elems[i + j], self.input_buf.as_mut_slice(), self.output_bufs.as_mut_slice(), j, col_count);
-            }
-            let input = Matrix::new_with_elems(self.input_row_count, col_count, &self.input_buf[0..(self.input_row_count * col_count)]);
-            let outputs: Vec<Matrix> = self.output_bufs.iter().map(|output_buf| {
-                    Matrix::new_with_elems(self.output_row_count, col_count, &output_buf[0..(self.output_row_count * col_count)])
-            }).collect();
-            g(input, outputs.as_slice(), &mut self.middle_buf, &mut self.elems[i..(i + col_count)]);
-        }
-        Ok(())
-    }
+    { self.inner.do_elems(elems, intr_checker, f, g) }
+
+    pub fn do_elems<F, G>(&mut self, intr_checker: &dyn IntrCheck, f: F, g: G) -> Result<(), Interruption>
+        where F: FnMut(&T, &mut [f32], &mut [Vec<f32>], usize, usize),
+            G: FnMut(Matrix, &[Matrix], &mut U, &mut [T])
+    { self.inner.do_elems(self.elems.as_mut_slice(), intr_checker, f, g) }
 }
