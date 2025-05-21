@@ -10,7 +10,11 @@ use crate::chess::Board;
 pub const MAX_EVAL_VALUE: i32 = 32767;
 pub const MIN_EVAL_VALUE: i32 = -32767;
 
-pub const EVAL_MATE_VALUE: i32 = MIN_EVAL_VALUE + 256;
+pub const MAX_EVAL_MATE_VALUE: i32 = MAX_EVAL_VALUE - 256;
+pub const MIN_EVAL_MATE_VALUE: i32 = MIN_EVAL_VALUE + 256;
+
+pub const MAX_EVAL_SHORTER_MATE_VALUE: i32 = MAX_EVAL_VALUE - 128;
+pub const MIN_EVAL_SHORTER_MATE_VALUE: i32 = MIN_EVAL_VALUE + 128;
 
 pub trait Eval
 {

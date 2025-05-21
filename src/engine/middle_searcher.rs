@@ -11,6 +11,7 @@ use crate::chess::Board;
 use crate::chess::Move;
 use crate::engine::eval::*;
 use crate::engine::neural_search::*;
+use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
 pub struct MiddleSearcher
@@ -21,27 +22,32 @@ pub struct MiddleSearcher
 
 impl MiddleSearcher
 {
+    pub const NODE_COUNT_TO_INTR_CHECK: u64 = 1024;
+    
     pub fn new(eval_fun: Arc<dyn Eval>, neural_searcher: Arc<dyn NeuralSearch>) -> Self
     { MiddleSearcher { eval_fun, neural_searcher, } }
 
+    pub fn intr_checker(&self) -> &Arc<dyn IntrCheck>
+    { self.neural_searcher.intr_checker() }
+    
     fn nega_max_with_fun_ref<F>(&self, board: &Board, current_pv: &mut Vec<Move>, pvs: &mut [Vec<Move>], node_count: &mut u64, leaf_count: &mut usize, ply: usize, middle_depth: usize, f: &mut F) -> Result<(i32, Option<usize>), Interruption>
         where F: FnMut(&Board, &[Move], usize) -> i32
     {
-        if (*node_count & 1024) == 0 {
+        if *node_count % Self::NODE_COUNT_TO_INTR_CHECK == 0 {
             self.neural_searcher.intr_checker().check()?;
         }
         *node_count += 1;
         if middle_depth <= 0 {
             let leaf_idx = *leaf_count;
             pvs[ply] = Vec::new();
-            *leaf_count += 1;
             if !board.has_legal_moves() {
                 if board.is_check() {
-                    Ok((EVAL_MATE_VALUE, Some(leaf_idx)))
+                    Ok((MIN_EVAL_SHORTER_MATE_VALUE, None))
                 } else {
-                    Ok((0, Some(leaf_idx)))
+                    Ok((0, None))
                 }
             } else {
+                *leaf_count += 1;
                 Ok((f(board, current_pv.as_slice(), leaf_idx), Some(leaf_idx)))
             }
         } else {
@@ -70,7 +76,7 @@ impl MiddleSearcher
             }
             if are_moves {
                 if board.is_check() {
-                    Ok((EVAL_MATE_VALUE, None))
+                    Ok((MIN_EVAL_SHORTER_MATE_VALUE - (middle_depth as i32),  None))
                 } else {
                     Ok((0, None))
                 }
@@ -95,10 +101,12 @@ impl MiddleSearcher
                 neural_pvs.push(pv.to_vec());
                 0
         })?;
-        if value <= EVAL_MATE_VALUE {
+        if value <= MIN_EVAL_MATE_VALUE || value >= MAX_EVAL_MATE_VALUE {
             return Ok((value, pvs[0].clone(), node_count));
         }
-        self.neural_searcher.search(board, &mut neural_pvs, depth)?;
+        if !neural_pvs.is_empty() {
+            self.neural_searcher.search(board, &mut neural_pvs, depth)?;
+        }
         pvs = vec![Vec::new(); middle_depth + 1];
         leaf_count = 0usize;
         let (value, leaf_idx) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut node_count, &mut leaf_count, 0, middle_depth, |new_board, _, leaf_idx| {
@@ -113,7 +121,11 @@ impl MiddleSearcher
                 }
                 let value = if !tmp_board.has_legal_moves() {
                     if tmp_board.is_check() {
-                        EVAL_MATE_VALUE
+                        if neural_depth > 0 {
+                            MIN_EVAL_MATE_VALUE + (depth as i32) - ((middle_depth + neural_depth) as i32)
+                        } else {
+                            MIN_EVAL_SHORTER_MATE_VALUE
+                        }
                     } else {
                         0
                     }
