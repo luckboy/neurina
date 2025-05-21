@@ -88,21 +88,36 @@ impl Converter
         }
     }
 
-    pub fn matrix_col_to_move(&self, move_list: &MoveList, color: Color, elems: &[f32], col: usize, col_count: usize) -> Option<Move>
+    pub fn matrix_col_to_move(&self, moves: &MoveList, color: Color, elems: &[f32], col: usize, col_count: usize, eps: f32) -> Option<Move>
     {
         let mut best_move_score = -f32::INFINITY;
+        let mut worst_move_score = f32::INFINITY;
         let mut best_move: Option<Move> = None;
-        for mv in move_list {
+        let mut move_count = 0usize;
+        for mv in moves {
             match self.index_converter.move_to_index(*mv, color) {
                 Some(idx) => {
                     if elems[col_count * idx + col] > best_move_score {
                         best_move = Some(*mv);
                         best_move_score = elems[col_count * idx + col];
                     }
+                    if elems[col_count * idx + col] < worst_move_score {
+                        worst_move_score = elems[col_count * idx + col];
+                    }
+                    move_count += 1;
                 },
                 None => (),
             }
         }
-        best_move
+        match best_move {
+            Some(best_move) => {
+                if move_count <= 1 || (best_move_score - worst_move_score).abs() > best_move_score.abs() * eps {
+                    Some(best_move)
+                } else {
+                    None
+                }
+            },
+            None => None,
+        }
     }
 }
