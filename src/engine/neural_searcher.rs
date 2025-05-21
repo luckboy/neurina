@@ -24,7 +24,7 @@ pub struct NeuralSearcher
 {
     intr_checker: Arc<dyn IntrCheck>,
     converter: Converter,
-    matrix_buf: Mutex<MatrixBuffer<Vec<Move>>>,
+    matrix_buf: Mutex<MatrixBuffer<Vec<Move>, Vec<Option<(Board, Color)>>>>,
     output_elems: Mutex<Vec<f32>>,
     network: Network,
 }
@@ -38,7 +38,7 @@ impl NeuralSearcher
     pub fn new(intr_checker: Arc<dyn IntrCheck>, network: Network) -> Self
     {
         let converter = Converter::new(IndexConverter::new());
-        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0));
+        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, vec![None; Self::MAX_COL_COUNT]));
         let output_elems = Mutex::new(vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT]);
         NeuralSearcher {
             intr_checker,
@@ -75,10 +75,9 @@ impl NeuralSearch for NeuralSearcher
                     }
                 }
                 self.converter.board_to_matrix_col(&tmp_board, elems, j, col_count);
-        }, |i, _, pvs| {
+        }, |i, _, pairs, pvs| {
                 let col_count = pvs.len();
-                let mut pairs: Vec<Option<(Board, Color)>> = Vec::new();
-                for pv in pvs.iter() {
+                for (j, pv) in pvs.iter().enumerate() {
                     let mut tmp_board = board.clone();
                     for mv in pv {
                         match tmp_board.make_move(*mv) {
@@ -86,7 +85,7 @@ impl NeuralSearch for NeuralSearcher
                             Err(_) => break,
                         }
                     }
-                    pairs.push(Some((tmp_board.clone(), tmp_board.side())));
+                    pairs[j] = Some((tmp_board.clone(), tmp_board.side()));
                 }
                 self.network.compute(&i, depth, depth, |_| (), |o| {
                         let frontend = Frontend::new().unwrap();

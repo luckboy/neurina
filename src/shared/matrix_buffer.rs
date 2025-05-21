@@ -10,7 +10,7 @@ use crate::matrix::Matrix;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
-pub struct MatrixBuffer<T>
+pub struct MatrixBuffer<T, U>
 {
     elems: Vec<T>,
     input_row_count: usize,
@@ -18,11 +18,12 @@ pub struct MatrixBuffer<T>
     max_col_count: usize,
     input_buf: Vec<f32>,
     output_bufs: Vec<Vec<f32>>,
+    middle_buf: U,
 }
 
-impl<T> MatrixBuffer<T>
+impl<T, U> MatrixBuffer<T, U>
 {
-    pub fn new(input_row_count: usize, output_row_count: usize, max_col_count: usize, output_count: usize) -> Self
+    pub fn new(input_row_count: usize, output_row_count: usize, max_col_count: usize, output_count: usize, middle_buf: U) -> Self
     {
         MatrixBuffer {
             elems: Vec::new(),
@@ -31,6 +32,7 @@ impl<T> MatrixBuffer<T>
             max_col_count,
             input_buf: vec![0.0f32; input_row_count * max_col_count],
             output_bufs: vec![vec![0.0f32; output_row_count * max_col_count]; output_count],
+            middle_buf,
         }
     }
 
@@ -57,7 +59,7 @@ impl<T> MatrixBuffer<T>
     
     pub fn do_elems<F, G>(&mut self, intr_checker: &dyn IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
         where F: FnMut(&T, &mut [f32], &mut [Vec<f32>], usize, usize),
-            G: FnMut(Matrix, &[Matrix], &mut [T])
+            G: FnMut(Matrix, &[Matrix], &mut U, &mut [T])
     {
         for i in (0..self.elems.len()).step_by(self.max_col_count) {
             intr_checker.check()?;
@@ -69,7 +71,7 @@ impl<T> MatrixBuffer<T>
             let outputs: Vec<Matrix> = self.output_bufs.iter().map(|output_buf| {
                     Matrix::new_with_elems(self.output_row_count, col_count, &output_buf[0..(self.output_row_count * col_count)])
             }).collect();
-            g(input, outputs.as_slice(), &mut self.elems[i..(i + col_count)]);
+            g(input, outputs.as_slice(), &mut self.middle_buf, &mut self.elems[i..(i + col_count)]);
         }
         Ok(())
     }
