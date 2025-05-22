@@ -7,8 +7,8 @@
 //
 use std::sync::Arc;
 use std::sync::Mutex;
-use crate::chess::types::OutcomeFilter;
 use crate::chess::movegen::semilegal;
+use crate::chess::types::OutcomeFilter;
 use crate::chess::Move;
 use crate::chess::MoveChain;
 use crate::chess::Outcome;
