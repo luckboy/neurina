@@ -12,6 +12,7 @@ pub mod matrix_buffer;
 pub mod network;
 pub mod utils;
 
+#[derive(Copy, Clone, Debug)]
 pub enum Interruption
 {
     Timeout,

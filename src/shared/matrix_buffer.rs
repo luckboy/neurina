@@ -10,6 +10,7 @@ use crate::matrix::Matrix;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+#[derive(Clone, Debug)]
 struct MatrixBufferInner<T>
 {
     input_row_count: usize,

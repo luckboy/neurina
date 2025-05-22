@@ -14,6 +14,7 @@ use crate::chess::MoveList;
 use crate::shared::index_converter::*;
 use crate::shared::utils::*;
 
+#[derive(Clone, Debug)]
 pub struct Converter
 {
     index_converter: IndexConverter,

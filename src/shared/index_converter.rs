@@ -41,6 +41,7 @@ const QUEEN_STEPS120: [isize; 8] = [-11, -10, -9, -1, 1, 9, 10, 11];
 
 const KNIGHT_STEPS120: [isize; 8] = [-21, -19, -12, -8, 8, 12, 19, 21];
 
+#[derive(Clone, Debug)]
 pub struct IndexConverter
 {
     move_count: usize,

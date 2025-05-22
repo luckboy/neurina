@@ -14,6 +14,7 @@ use crate::engine::neural_search::*;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+#[derive(Clone)]
 pub struct MiddleSearcher
 {
     eval_fun: Arc<dyn Eval>,

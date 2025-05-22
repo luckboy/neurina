@@ -12,6 +12,7 @@ pub trait IntrCheck
     fn check(&self) -> Result<(), Interruption>;
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct EmptyIntrChecker;
 
 impl EmptyIntrChecker

@@ -33,6 +33,7 @@ use crate::matrix::Matrix;
 // input layer
 //
 
+#[derive(Clone, Debug)]
 pub struct Network
 {
     iw: Matrix,
