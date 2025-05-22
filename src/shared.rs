@@ -9,6 +9,7 @@ pub mod converter;
 pub mod index_converter;
 pub mod intr_check;
 pub mod matrix_buffer;
+pub mod net;
 pub mod network;
 pub mod utils;
 

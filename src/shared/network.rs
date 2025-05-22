@@ -6,6 +6,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use crate::matrix::Matrix;
+use crate::shared::net::*;
 
 //
 // output layer
@@ -74,8 +75,11 @@ impl Network
     
     pub fn ob(&self) -> &Matrix
     { &self.ob }
-    
-    pub fn compute<HF, OF>(&self, i: &Matrix, depth: usize, pv_count: usize, mut hf: HF, mut of: OF)
+}
+
+impl Net for Network
+{
+    fn compute<HF, OF>(&self, i: &Matrix, depth: usize, pv_count: usize, mut hf: HF, mut of: OF)
         where HF: FnMut(Matrix), OF: FnMut(Matrix)
     {
         let ib = if i.col_count() > 1 { self.ib.repeat(i.col_count()) } else { self.ib.clone() };
@@ -99,7 +103,7 @@ impl Network
         }
     }
     
-    pub fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Network
+    fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Self
     {
         let mut dj_dnet: Option<Network> = None;
         for (pv_count_1, (o, y)) in os.iter().zip(ys).enumerate() {
