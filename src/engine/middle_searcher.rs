@@ -49,7 +49,7 @@ impl MiddleSearcher
             pvs[ply] = Vec::new();
             if !board.has_legal_moves() {
                 if board.is_check() {
-                    Ok((MIN_EVAL_SHORTER_MATE_VALUE, None))
+                    Ok((MAX_EVAL_MIDDLE_MATE_VALUE, None))
                 } else {
                     Ok((0, None))
                 }
@@ -83,7 +83,7 @@ impl MiddleSearcher
             }
             if are_moves {
                 if board.is_check() {
-                    Ok((MIN_EVAL_SHORTER_MATE_VALUE - (middle_depth as i32),  None))
+                    Ok((MAX_EVAL_MIDDLE_MATE_VALUE - (middle_depth as i32),  None))
                 } else {
                     Ok((0, None))
                 }
@@ -102,7 +102,7 @@ impl MiddleSearcher
         let mut current_pv: Vec<Move> = Vec::new();
         let mut pvs: Vec<Vec<Move>> = vec![Vec::new(); middle_depth + 1];
         let mut neural_pvs: Vec<Vec<Move>> = Vec::new();
-        let mut node_count = 0u64;
+        let mut node_count = 1u64;
         let mut leaf_count = 0usize;
         let (value, _) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut node_count, &mut leaf_count, 0, middle_depth, |_, pv, _| {
                 neural_pvs.push(pv.to_vec());
@@ -113,6 +113,7 @@ impl MiddleSearcher
         }
         self.neural_searcher.search(board, &mut neural_pvs, depth - middle_depth)?;
         pvs = vec![Vec::new(); middle_depth + 1];
+        node_count += 1;
         leaf_count = 0usize;
         let (value, leaf_idx) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut node_count, &mut leaf_count, 0, middle_depth, |new_board, _, leaf_idx| {
                 let mut tmp_board = new_board.clone();
@@ -129,7 +130,7 @@ impl MiddleSearcher
                         if neural_depth > 0 {
                             MIN_EVAL_MATE_VALUE + (depth as i32) - ((middle_depth + neural_depth) as i32)
                         } else {
-                            MIN_EVAL_SHORTER_MATE_VALUE
+                            MIN_EVAL_MIDDLE_MATE_VALUE
                         }
                     } else {
                         0
