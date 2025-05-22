@@ -14,7 +14,6 @@ use crate::chess::Move;
 use crate::matrix::Frontend;
 use crate::engine::neural_search::*;
 use crate::shared::converter::*;
-use crate::shared::index_converter::*;
 use crate::shared::intr_check::*;
 use crate::shared::matrix_buffer::*;
 use crate::shared::network::*;
@@ -34,9 +33,8 @@ impl NeuralSearcher
     
     pub const MOVE_EPS: f32 = 0.01;
     
-    pub fn new(intr_checker: Arc<dyn IntrCheck>, network: Network) -> Self
+    pub fn new(intr_checker: Arc<dyn IntrCheck>, converter: Converter, network: Network) -> Self
     {
-        let converter = Converter::new(IndexConverter::new());
         let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, (vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT], vec![None; Self::MAX_COL_COUNT])));
         NeuralSearcher {
             intr_checker,
@@ -48,6 +46,9 @@ impl NeuralSearcher
     
     pub fn converter(&self) -> &Converter
     { &self.converter }
+
+    pub fn network(&self) -> &Network
+    { &self.network }
 }
 
 impl NeuralSearch for NeuralSearcher
