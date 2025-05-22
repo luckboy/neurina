@@ -71,6 +71,7 @@ impl Search for OneSearcher
                                 pv = vec![*mv];
                             }
                             node_count += 1;
+                            move_chain_g.pop();
                             continue;
                         },
                         None => (),
