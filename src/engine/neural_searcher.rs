@@ -23,7 +23,7 @@ pub struct NeuralSearcher<T>
 {
     intr_checker: Arc<dyn IntrCheck>,
     converter: Converter,
-    matrix_buf: Mutex<MatrixBuffer<Vec<Move>, (Vec<f32>, Vec<Option<(Board, Color)>>)>>,
+    matrix_buf: Mutex<MatrixBuffer<(Vec<f32>, Vec<Option<(Board, Color)>>)>>,
     network: T,
 }
 
@@ -59,7 +59,7 @@ impl<T: Net> NeuralSearch for NeuralSearcher<T>
     fn search(&self, board: &Board, pvs: &mut [Vec<Move>], depth: usize) -> Result<(), Interruption>
     {
         let mut matrix_buf_g = self.matrix_buf.lock().unwrap();
-        matrix_buf_g.do_elems_for_slice(pvs, &*self.intr_checker, |pv, elems, _, j, col_count| {
+        matrix_buf_g.do_elems(pvs, 0, &*self.intr_checker, |pv, elems, _, j, col_count| {
                 let mut tmp_board = board.clone();
                 for mv in pv {
                     match tmp_board.make_move(*mv) {
