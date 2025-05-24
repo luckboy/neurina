@@ -12,6 +12,7 @@ pub mod matrix_buffer;
 pub mod net;
 pub mod network;
 pub mod utils;
+pub mod xavier_init;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Interruption

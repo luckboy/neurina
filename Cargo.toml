@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 owlchess = "0.4.0"
+rand = "0.9"
 unmtx-gpu = "0.1.2"
