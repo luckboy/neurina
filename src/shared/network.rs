@@ -198,3 +198,6 @@ impl Net for Network
         dj_dnet.unwrap()
     }
 }
+
+#[cfg(test)]
+pub mod tests;
