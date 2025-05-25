@@ -43,7 +43,19 @@ fn test_network_compute_computes_without_panic()
     }
     let i = Matrix::new_with_elems(100, 1, i_elems.as_slice());
     let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
-    network.compute(&i, 1, 1, |_| (), |_| ());
+    let mut hs: Vec<Matrix> = Vec::new();
+    let mut os: Vec<Matrix> = Vec::new();
+    network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
+    assert_eq!(3, hs.len());
+    assert_eq!(200, hs[0].row_count());
+    assert_eq!(1, hs[0].col_count());
+    assert_eq!(200, hs[1].row_count());
+    assert_eq!(1, hs[1].col_count());
+    assert_eq!(200, hs[2].row_count());
+    assert_eq!(1, hs[2].col_count());
+    assert_eq!(1, os.len());
+    assert_eq!(150, os[0].row_count());
+    assert_eq!(1, os[0].col_count());
 }
 
 #[test]
@@ -79,7 +91,19 @@ fn test_network_compute_computes_without_panic_for_50_columns()
     }
     let i = Matrix::new_with_elems(100, 50, i_elems.as_slice());
     let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
-    network.compute(&i, 1, 1, |_| (), |_| ());
+    let mut hs: Vec<Matrix> = Vec::new();
+    let mut os: Vec<Matrix> = Vec::new();
+    network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
+    assert_eq!(3, hs.len());
+    assert_eq!(200, hs[0].row_count());
+    assert_eq!(50, hs[0].col_count());
+    assert_eq!(200, hs[1].row_count());
+    assert_eq!(50, hs[1].col_count());
+    assert_eq!(200, hs[2].row_count());
+    assert_eq!(50, hs[2].col_count());
+    assert_eq!(1, os.len());
+    assert_eq!(150, os[0].row_count());
+    assert_eq!(50, os[0].col_count());
 }
 
 #[test]
@@ -115,7 +139,33 @@ fn test_network_compute_computes_without_panic_for_50_columns_and_depth_and_pv_c
     }
     let i = Matrix::new_with_elems(100, 50, i_elems.as_slice());
     let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
-    network.compute(&i, 4, 3, |_| (), |_| ());
+    let mut hs: Vec<Matrix> = Vec::new();
+    let mut os: Vec<Matrix> = Vec::new();
+    network.compute(&i, 4, 3, |h| hs.push(h), |o| os.push(o));
+    assert_eq!(1 + 4 + 3, hs.len());
+    assert_eq!(200, hs[0].row_count());
+    assert_eq!(50, hs[0].col_count());
+    assert_eq!(200, hs[1].row_count());
+    assert_eq!(50, hs[1].col_count());
+    assert_eq!(200, hs[2].row_count());
+    assert_eq!(50, hs[2].col_count());
+    assert_eq!(200, hs[3].row_count());
+    assert_eq!(50, hs[3].col_count());
+    assert_eq!(200, hs[4].row_count());
+    assert_eq!(50, hs[4].col_count());
+    assert_eq!(200, hs[5].row_count());
+    assert_eq!(50, hs[5].col_count());
+    assert_eq!(200, hs[6].row_count());
+    assert_eq!(50, hs[6].col_count());
+    assert_eq!(200, hs[7].row_count());
+    assert_eq!(50, hs[7].col_count());
+    assert_eq!(3, os.len());
+    assert_eq!(150, os[0].row_count());
+    assert_eq!(50, os[0].col_count());
+    assert_eq!(150, os[1].row_count());
+    assert_eq!(50, os[1].col_count());
+    assert_eq!(150, os[2].row_count());
+    assert_eq!(50, os[2].col_count());
 }
 
 #[test]
@@ -165,7 +215,23 @@ fn test_network_backpropagate_backpropagates_without_panic()
         ys.push(y);
     }
     network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
-    network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
+    let dj_dnet = network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
+    assert_eq!(200, dj_dnet.iw().row_count());
+    assert_eq!(100, dj_dnet.iw().col_count());
+    assert_eq!(200, dj_dnet.ib().row_count());
+    assert_eq!(1, dj_dnet.ib().col_count());
+    assert_eq!(200, dj_dnet.sw().row_count());
+    assert_eq!(200, dj_dnet.sw().col_count());
+    assert_eq!(200, dj_dnet.sb().row_count());
+    assert_eq!(1, dj_dnet.sb().col_count());
+    assert_eq!(200, dj_dnet.pw().row_count());
+    assert_eq!(200, dj_dnet.pw().col_count());
+    assert_eq!(200, dj_dnet.pb().row_count());
+    assert_eq!(1, dj_dnet.pb().col_count());
+    assert_eq!(150, dj_dnet.ow().row_count());
+    assert_eq!(200, dj_dnet.ow().col_count());
+    assert_eq!(150, dj_dnet.ob().row_count());
+    assert_eq!(1, dj_dnet.ob().col_count());
 }
 
 #[test]
@@ -215,7 +281,23 @@ fn test_network_backpropagate_backpropagates_without_panic_for_50_columns()
         ys.push(y);
     }
     network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
-    network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
+    let dj_dnet = network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
+    assert_eq!(200, dj_dnet.iw().row_count());
+    assert_eq!(100, dj_dnet.iw().col_count());
+    assert_eq!(200, dj_dnet.ib().row_count());
+    assert_eq!(1, dj_dnet.ib().col_count());
+    assert_eq!(200, dj_dnet.sw().row_count());
+    assert_eq!(200, dj_dnet.sw().col_count());
+    assert_eq!(200, dj_dnet.sb().row_count());
+    assert_eq!(1, dj_dnet.sb().col_count());
+    assert_eq!(200, dj_dnet.pw().row_count());
+    assert_eq!(200, dj_dnet.pw().col_count());
+    assert_eq!(200, dj_dnet.pb().row_count());
+    assert_eq!(1, dj_dnet.pb().col_count());
+    assert_eq!(150, dj_dnet.ow().row_count());
+    assert_eq!(200, dj_dnet.ow().col_count());
+    assert_eq!(150, dj_dnet.ob().row_count());
+    assert_eq!(1, dj_dnet.ob().col_count());
 }
 
 #[test]
@@ -265,5 +347,21 @@ fn test_network_backpropagate_backpropagates_without_panic_for_50_columns_and_de
         ys.push(y);
     }
     network.compute(&i, 4, 3, |h| hs.push(h), |o| os.push(o));
-    network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
+    let dj_dnet = network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
+    assert_eq!(200, dj_dnet.iw().row_count());
+    assert_eq!(100, dj_dnet.iw().col_count());
+    assert_eq!(200, dj_dnet.ib().row_count());
+    assert_eq!(1, dj_dnet.ib().col_count());
+    assert_eq!(200, dj_dnet.sw().row_count());
+    assert_eq!(200, dj_dnet.sw().col_count());
+    assert_eq!(200, dj_dnet.sb().row_count());
+    assert_eq!(1, dj_dnet.sb().col_count());
+    assert_eq!(200, dj_dnet.pw().row_count());
+    assert_eq!(200, dj_dnet.pw().col_count());
+    assert_eq!(200, dj_dnet.pb().row_count());
+    assert_eq!(1, dj_dnet.pb().col_count());
+    assert_eq!(150, dj_dnet.ow().row_count());
+    assert_eq!(200, dj_dnet.ow().col_count());
+    assert_eq!(150, dj_dnet.ob().row_count());
+    assert_eq!(1, dj_dnet.ob().col_count());
 }
