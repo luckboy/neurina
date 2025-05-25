@@ -120,3 +120,6 @@ impl IndexConverter
         }
     }
 }
+
+#[cfg(test)]
+pub mod tests;
