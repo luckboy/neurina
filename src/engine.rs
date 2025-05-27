@@ -11,3 +11,4 @@ pub mod neural_search;
 pub mod neural_searcher;
 pub mod one_searcher;
 pub mod search;
+pub mod simple_eval_fun;
