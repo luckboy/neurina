@@ -72,7 +72,8 @@ impl MiddleSearcher
                         if value > best_value {
                             best_value = value;
                             best_leaf_idx = leaf_idx;
-                            let mut pv = vec![*mv];
+                            let mut pv: Vec<Move> = Vec::with_capacity(middle_depth);
+                            pv.push(*mv);
                             pv.extend_from_slice(pvs[ply + 1].as_slice());
                             pvs[ply] = pv;
                         }
@@ -105,7 +106,9 @@ impl MiddleSearcher
         let mut node_count = 1u64;
         let mut leaf_count = 0usize;
         let (value, _) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut node_count, &mut leaf_count, 0, middle_depth, |_, pv, _| {
-                neural_pvs.push(pv.to_vec());
+                let mut neural_pv: Vec<Move> = Vec::with_capacity(depth);
+                neural_pv.extend_from_slice(pv);
+                neural_pvs.push(neural_pv);
                 0
         })?;
         if value <= MIN_EVAL_MATE_VALUE || value >= MAX_EVAL_MATE_VALUE || neural_pvs.is_empty() {
