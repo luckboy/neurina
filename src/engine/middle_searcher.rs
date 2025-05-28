@@ -81,7 +81,7 @@ impl MiddleSearcher
                     Err(_) => (),
                 }
             }
-            if are_moves {
+            if !are_moves {
                 if board.is_check() {
                     Ok((MAX_EVAL_MIDDLE_MATE_VALUE - (middle_depth as i32),  None))
                 } else {
@@ -150,3 +150,6 @@ impl MiddleSearcher
         }
     }
 }
+
+#[cfg(test)]
+mod tests;
