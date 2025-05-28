@@ -51,4 +51,14 @@ fn test_middle_searcher_search_searches_without_panic_with_neural_searcher()
     let (_, node_count, pv) = middle_searcher.search(&board, 2, 5).unwrap();
     assert_eq!(1732, node_count);
     assert!(2 <= pv.len());
+    let mut tmp_board = board.clone();
+    for mv in &pv {
+        match tmp_board.make_move(*mv) {
+            Ok(tmp_new_board) => {
+                tmp_board = tmp_new_board;
+                assert!(true);
+            },
+            Err(_) => assert!(false),
+        }
+    }
 }
