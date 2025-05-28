@@ -100,3 +100,6 @@ impl Search for OneSearcher
         Ok((best_value, node_count, pv))
     }
 }
+
+#[cfg(test)]
+mod tests;
