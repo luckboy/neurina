@@ -71,3 +71,6 @@ impl<T> MatrixBuffer<T>
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests;
