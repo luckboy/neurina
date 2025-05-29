@@ -5,10 +5,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use std::mem::swap;
 use std::sync::Arc;
 use crate::chess::movegen::semilegal;
 use crate::chess::Board;
 use crate::chess::Move;
+use crate::chess::MoveList;
 use crate::engine::eval::*;
 use crate::engine::neural_search::*;
 use crate::shared::intr_check::*;
@@ -58,10 +60,11 @@ impl MiddleSearcher
                 Ok((f(board, current_pv.as_slice(), leaf_idx), Some(leaf_idx)))
             }
         } else {
-            let moves = semilegal::gen_all(board);
+            let mut moves: MoveList = MoveList::new();
             let mut are_moves = false;
             let mut best_value = MIN_EVAL_VALUE;
             let mut best_leaf_idx = None;
+            semilegal::gen_all_into(board, &mut moves);
             for mv in &moves {
                 match board.make_move(*mv) {
                     Ok(new_board) => {
@@ -72,10 +75,12 @@ impl MiddleSearcher
                         if value > best_value {
                             best_value = value;
                             best_leaf_idx = leaf_idx;
-                            let mut pv: Vec<Move> = Vec::with_capacity(middle_depth);
+                            let mut pv: Vec<Move> = Vec::new();
+                            swap(&mut pv, &mut pvs[ply]);
+                            pv.clear();
                             pv.push(*mv);
                             pv.extend_from_slice(pvs[ply + 1].as_slice());
-                            pvs[ply] = pv;
+                            swap(&mut pv, &mut pvs[ply]);
                         }
                         are_moves = true;
                     },
@@ -101,7 +106,7 @@ impl MiddleSearcher
     pub fn search(&self, board: &Board, middle_depth: usize, depth: usize) -> Result<(i32, u64, Vec<Move>), Interruption>
     {
         let mut current_pv: Vec<Move> = Vec::new();
-        let mut pvs: Vec<Vec<Move>> = vec![Vec::new(); middle_depth + 1];
+        let mut pvs: Vec<Vec<Move>> = vec![Vec::with_capacity(middle_depth); middle_depth + 1];
         let mut neural_pvs: Vec<Vec<Move>> = Vec::new();
         let mut node_count = 1u64;
         let mut leaf_count = 0usize;
