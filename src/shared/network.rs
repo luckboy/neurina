@@ -197,6 +197,49 @@ impl Net for Network
         }
         dj_dnet.unwrap()
     }
+
+    fn op<F>(&self, network: &Self, mut f: F) -> Self
+        where F: FnMut(&Matrix, &Matrix) -> Matrix
+    {
+        Network {
+            iw: f(&self.iw, &network.iw),
+            ib: f(&self.ib, &network.ib),
+            sw: f(&self.sw, &network.sw),
+            sb: f(&self.sb, &network.sb),
+            pw: f(&self.pw, &network.pw),
+            pb: f(&self.pb, &network.pb),
+            ow: f(&self.ow, &network.ow),
+            ob: f(&self.ob, &network.ob),
+        }
+    }
+
+    fn op_assign<F>(&mut self, network: &Self, mut f: F)
+        where F: FnMut(&mut Matrix, &Matrix)
+    {
+        f(&mut self.iw, &network.iw);
+        f(&mut self.ib, &network.ib);
+        f(&mut self.sw, &network.sw);
+        f(&mut self.sb, &network.sb);
+        f(&mut self.pw, &network.pw);
+        f(&mut self.pb, &network.pb);
+        f(&mut self.ow, &network.ow);
+        f(&mut self.ob, &network.ob);
+    }
+
+    fn fun<F>(&self, mut f: F) -> Self
+        where F: FnMut(&Matrix) -> Matrix
+    {
+        Network {
+            iw: f(&self.iw),
+            ib: f(&self.ib),
+            sw: f(&self.sw),
+            sb: f(&self.sb),
+            pw: f(&self.pw),
+            pb: f(&self.pb),
+            ow: f(&self.ow),
+            ob: f(&self.ob),
+        }
+    }
 }
 
 #[cfg(test)]

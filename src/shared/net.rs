@@ -13,4 +13,13 @@ pub trait Net
         where HF: FnMut(Matrix), OF: FnMut(Matrix);
     
     fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Self;
+
+    fn op<F>(&self, network: &Self, f: F) -> Self
+        where F: FnMut(&Matrix, &Matrix) -> Matrix;
+
+    fn op_assign<F>(&mut self, network: &Self, f: F)
+        where F: FnMut(&mut Matrix, &Matrix);
+
+    fn fun<F>(&self, f: F) -> Self
+        where F: FnMut(&Matrix) -> Matrix;
 }
