@@ -200,4 +200,4 @@ impl Net for Network
 }
 
 #[cfg(test)]
-pub mod tests;
+mod tests;
