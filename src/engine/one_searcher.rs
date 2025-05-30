@@ -39,7 +39,7 @@ impl Search for OneSearcher
     fn intr_checker(&self) -> &Arc<dyn IntrCheck>
     { self.middle_searcher.intr_checker() }
     
-    fn search(&self, move_chain: &Arc<Mutex<MoveChain>>, depth: usize) -> Result<(i32, u64, Vec<Move>), Interruption>
+    fn search(&self, move_chain: &Arc<Mutex<MoveChain>>, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, Vec<Move>), Interruption>
     {
         let mut move_chain_g = move_chain.lock().unwrap();
         let moves = semilegal::gen_all(move_chain_g.last());
@@ -58,6 +58,15 @@ impl Search for OneSearcher
         }
         move_chain_g.clear_outcome();
         for mv in &moves {
+            match search_moves {
+                Some(search_moves) => {
+                    match search_moves.iter().find(|mv2| *mv2 == mv) {
+                        Some(_) => (),
+                        None => continue,
+                    }
+                },
+                None => (),
+            }
             match move_chain_g.push(*mv) {
                 Ok(()) => {
                     match move_chain_g.set_auto_outcome(OutcomeFilter::Relaxed) {
