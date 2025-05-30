@@ -113,7 +113,7 @@ impl Net for Network
             let dj_do = o.softmax() - y;
             let dj_dow = &dj_do * hs[j].t();
             let dj_dob = &dj_do * one;
-            // dj/dz = (pw^T * dj/do) (*) phi'(z)
+            // dj/dz = (ow^T * dj/do) (*) phi'(z)
             let mut dj_dh = self.ow.t() * &dj_do;
             let mut dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
             j -= 1;
@@ -150,9 +150,9 @@ impl Net for Network
                 let mut tmp_dj_dsb = &dj_dz * one;
                 let mut tmp = dj_dz.clone();
                 for _ in 1..depth {
-                    // dj/dsw += ((pw^T * dj/dz2) (*) phi'(z)) * h^T
-                    // dj/dsb += (pw^T * dj/dz2) (*) phi'(z)
-                    tmp = self.pw.t() * &tmp;
+                    // dj/dsw += ((sw^T * dj/dz2) (*) phi'(z)) * h^T
+                    // dj/dsb += (sw^T * dj/dz2) (*) phi'(z)
+                    tmp = self.sw.t() * &tmp;
                     tmp = tmp.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
                     j -= 1;
                     tmp_dj_dsw += &tmp * hs[j].t();
@@ -165,8 +165,8 @@ impl Net for Network
                 let tmp_dj_dsb = &dj_dz * one;
                 (tmp_dj_dsw, tmp_dj_dsb)
             };
-            // dj/dz = (pw^T * dj/dz2) (*) phi'(z)
-            dj_dh = self.pw.t() * &dj_dz;
+            // dj/dz = (sw^T * dj/dz2) (*) phi'(z)
+            dj_dh = self.sw.t() * &dj_dz;
             dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
             let dj_diw = &dj_dz * i.t();
             let dj_dib = &dj_dz * one;
