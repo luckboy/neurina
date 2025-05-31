@@ -8,6 +8,7 @@
 pub(crate) mod converter;
 pub(crate) mod index_converter;
 pub(crate) mod intr_check;
+pub(crate) mod io;
 pub(crate) mod matrix_buffer;
 pub(crate) mod net;
 pub(crate) mod network;
@@ -17,6 +18,7 @@ pub(crate) mod xavier_init;
 pub use converter::*;
 pub use index_converter::*;
 pub use intr_check::*;
+pub use io::*;
 pub use matrix_buffer::*;
 pub use net::*;
 pub use network::*;
