@@ -128,11 +128,11 @@ impl MiddleSearcher
                 let mut tmp_board = new_board.clone();
                 let mut neural_depth = 0usize;
                 for mv in &neural_pvs[leaf_idx][middle_depth..] {
-                    neural_node_count += 1;
                     match tmp_board.make_move(*mv) {
                         Ok(tmp_new_board) => tmp_board = tmp_new_board,
                         Err(_) => break,
                     }
+                    neural_node_count += 1;
                     neural_depth += 1;
                 }
                 let value = if !tmp_board.has_legal_moves() {
