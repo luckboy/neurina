@@ -48,8 +48,9 @@ fn test_middle_searcher_search_searches_without_panic_with_neural_searcher()
     let neural_searcher = Arc::new(NeuralSearcher::new(intr_checker, converter, network));
     let middle_searcher = MiddleSearcher::new(eval_fun, neural_searcher);
     let board = Board::from_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2").unwrap();
-    let (_, node_count, pv) = middle_searcher.search(&board, 2, 5).unwrap();
-    assert_eq!(1732, node_count);
+    let (_, middle_node_count, node_count, pv) = middle_searcher.search(&board, 2, 5).unwrap();
+    assert_eq!(1732, middle_node_count);
+    assert!(1732 <= node_count);
     assert!(2 <= pv.len());
     let mut tmp_board = board.clone();
     for mv in &pv {

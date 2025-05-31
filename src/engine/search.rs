@@ -16,5 +16,5 @@ pub trait Search
 {
     fn intr_checker(&self) -> &Arc<dyn IntrCheck>;
     
-    fn search(&self, move_chain: &Arc<Mutex<MoveChain>>, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, Vec<Move>), Interruption>;
+    fn search(&self, move_chain: &Arc<Mutex<MoveChain>>, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, u64, Vec<Move>), Interruption>;
 }

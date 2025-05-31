@@ -52,8 +52,9 @@ fn test_one_searcher_search_searches_without_panic()
     move_chain.push_uci_list("e2e4 e7e5").unwrap();
     let mut tmp_board = move_chain.last().clone();
     let move_chain_arc = Arc::new(Mutex::new(move_chain));
-    let (_, node_count, pv) = one_searcher.search(&move_chain_arc, 5, &None).unwrap();
-    assert_eq!(51437, node_count);
+    let (_, middle_node_count, node_count, pv) = one_searcher.search(&move_chain_arc, 5, &None).unwrap();
+    assert_eq!(51437, middle_node_count);
+    assert!(51437 <= node_count);
     assert!(3 <= pv.len());
     for mv in &pv {
         match tmp_board.make_move(*mv) {
