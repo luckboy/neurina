@@ -110,6 +110,25 @@ impl Search for OneSearcher
         }
         Ok((best_value, middle_node_count, node_count, pv))
     }
+
+    fn move_count_to_checkmate(&self, value: i32, depth: usize) -> Option<usize>
+    {
+        if value >= MAX_EVAL_ROOT_MATE_VALUE {
+            let max_value = MAX_EVAL_ROOT_MATE_VALUE;
+            let start_move_count = 0;
+            Some((max_value - value + start_move_count) as usize)
+        } else if value >= MAX_EVAL_MIDDLE_MATE_VALUE {
+            let max_value = MAX_EVAL_MIDDLE_MATE_VALUE + (self.middle_depth as i32);
+            let start_move_count = 1;
+            Some((max_value - value + start_move_count) as usize)
+        } else if value >= MAX_EVAL_MATE_VALUE {
+            let max_value = MAX_EVAL_MATE_VALUE + ((depth - self.middle_depth - 1) as i32);
+            let start_move_count = (self.middle_depth as i32) + 1;
+            Some((max_value - value + start_move_count) as usize)
+        } else {
+            None
+        }
+    }
 }
 
 #[cfg(test)]

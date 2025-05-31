@@ -138,7 +138,7 @@ impl MiddleSearcher
                 let value = if !tmp_board.has_legal_moves() {
                     if tmp_board.is_check() {
                         if neural_depth > 0 {
-                            MIN_EVAL_MATE_VALUE + (depth as i32) - ((middle_depth + neural_depth) as i32)
+                            MIN_EVAL_MATE_VALUE + (neural_depth as i32)
                         } else {
                             MIN_EVAL_MIDDLE_MATE_VALUE
                         }
