@@ -5,6 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+pub(crate) mod backend;
+pub(crate) mod config;
 pub(crate) mod converter;
 pub(crate) mod index_converter;
 pub(crate) mod intr_check;
@@ -15,6 +17,8 @@ pub(crate) mod network;
 pub(crate) mod utils;
 pub(crate) mod xavier_init;
 
+pub use backend::*;
+pub use config::*;
 pub use converter::*;
 pub use index_converter::*;
 pub use intr_check::*;

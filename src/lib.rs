@@ -7,6 +7,7 @@
 //
 pub use owlchess as chess;
 pub use unmtx_gpu as matrix;
+pub use serde;
 
 pub mod engine;
 pub mod shared;
