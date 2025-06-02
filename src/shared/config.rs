@@ -5,12 +5,12 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-use std::path::Path;
 use std::fs::File;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::io::Read;
 use std::io::Result;
+use std::path::Path;
 use crate::serde::Deserialize;
 
 #[derive(Clone, Debug, Deserialize)]

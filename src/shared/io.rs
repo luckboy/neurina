@@ -5,11 +5,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use std::fs::File;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::io::Read;
 use std::io::Result;
 use std::io::Write;
+use std::path::Path;
 use crate::matrix::Matrix;
 use crate::shared::Network;
 
@@ -86,4 +88,16 @@ pub fn write_network(w: &mut dyn Write, network: &Network) -> Result<()>
     write_matrix(w, network.ow())?;
     write_matrix(w, network.ob())?;
     Ok(())
+}
+
+pub fn load_network<P: AsRef<Path>>(path: P) -> Result<Network>
+{
+    let mut file = File::open(path)?;
+    read_network(&mut file)
+}
+
+pub fn save_network<P: AsRef<Path>>(path: P, network: &Network) -> Result<()>
+{
+    let mut file = File::create(path)?;
+    write_network(&mut file, network)
 }
