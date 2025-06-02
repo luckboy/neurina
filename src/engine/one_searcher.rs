@@ -6,7 +6,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use std::sync::Arc;
-use std::sync::Mutex;
 use crate::chess::movegen::semilegal;
 use crate::chess::types::OutcomeFilter;
 use crate::chess::Move;
@@ -39,15 +38,14 @@ impl Search for OneSearcher
     fn intr_checker(&self) -> &Arc<dyn IntrCheck>
     { self.middle_searcher.intr_checker() }
     
-    fn search(&self, move_chain: &Arc<Mutex<MoveChain>>, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, u64, Vec<Move>), Interruption>
+    fn search(&self, move_chain: &mut MoveChain, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, u64, Vec<Move>), Interruption>
     {
-        let mut move_chain_g = move_chain.lock().unwrap();
-        let moves = semilegal::gen_all(move_chain_g.last());
+        let moves = semilegal::gen_all(move_chain.last());
         let mut middle_node_count = 1u64;
         let mut node_count = 1u64;
         let mut pv: Vec<Move> = Vec::new();
         let mut best_value = MIN_EVAL_VALUE;
-        match move_chain_g.set_auto_outcome(OutcomeFilter::Relaxed) {
+        match move_chain.set_auto_outcome(OutcomeFilter::Relaxed) {
             Some(outcome) => {
                 let value = match outcome {
                     Outcome::Win { .. } => MIN_EVAL_ROOT_MATE_VALUE,
@@ -57,7 +55,7 @@ impl Search for OneSearcher
             },
             None => (),
         }
-        move_chain_g.clear_outcome();
+        move_chain.clear_outcome();
         for mv in &moves {
             match search_moves {
                 Some(search_moves) => {
@@ -68,12 +66,12 @@ impl Search for OneSearcher
                 },
                 None => (),
             }
-            match move_chain_g.push(*mv) {
+            match move_chain.push(*mv) {
                 Ok(()) => {
-                    match move_chain_g.set_auto_outcome(OutcomeFilter::Relaxed) {
+                    match move_chain.set_auto_outcome(OutcomeFilter::Relaxed) {
                         Some(outcome) => {
                             let value = match outcome {
-                                Outcome::Win { .. } => MIN_EVAL_MIDDLE_MATE_VALUE,
+                                Outcome::Win { .. } => MAX_EVAL_MIDDLE_MATE_VALUE,
                                 Outcome::Draw(_) => 0,
                             };
                             if value >= best_value {
@@ -81,12 +79,12 @@ impl Search for OneSearcher
                                 pv = vec![*mv];
                             }
                             node_count += 1;
-                            move_chain_g.pop();
+                            move_chain.pop();
                             continue;
                         },
                         None => (),
                     }
-                    let res = self.middle_searcher.search(move_chain_g.last(), self.middle_depth, depth - 1);
+                    let res = self.middle_searcher.search(move_chain.last(), self.middle_depth, depth - 1);
                     match res {
                         Ok((neg_value, tmp_middle_node_count, tmp_node_count, tmp_pv)) => {
                             let value = -neg_value;
@@ -99,11 +97,11 @@ impl Search for OneSearcher
                             node_count += tmp_node_count;
                         },
                         Err(intr) => {
-                            move_chain_g.pop();
+                            move_chain.pop();
                             return Err(intr);
                         },
                     }
-                    move_chain_g.pop();
+                    move_chain.pop();
                 },
                 Err(_) => (),
             }
