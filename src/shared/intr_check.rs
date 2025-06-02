@@ -13,20 +13,15 @@ pub trait IntrCheck
 {
     fn check(&self) -> Result<(), Interruption>;
     
-    fn set_timeout(&self, _now: Instant, _duration: Duration) -> bool
-    { false }
+    fn set_timeout(&self, now: Instant, duration: Duration) -> bool;
 
-    fn unset_timeout(&self) -> bool
-    { false }
+    fn unset_timeout(&self) -> bool;
 
-    fn start(&self) -> bool
-    { false }
+    fn start(&self) -> bool;
 
-    fn stop(&self) -> bool
-    { false }
+    fn stop(&self) -> bool;
 
-    fn set_first(&self, _is_first: bool) -> bool
-    { false }
+    fn set_first(&self, is_first: bool) -> bool;
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -42,4 +37,19 @@ impl IntrCheck for EmptyIntrChecker
 {
     fn check(&self) -> Result<(), Interruption>
     { Ok(()) }
+
+    fn set_timeout(&self, _now: Instant, _duration: Duration) -> bool
+    { false }
+
+    fn unset_timeout(&self) -> bool
+    { false }
+
+    fn start(&self) -> bool
+    { false }
+
+    fn stop(&self) -> bool
+    { false }
+
+    fn set_first(&self, _is_first: bool) -> bool
+    { false }
 }
