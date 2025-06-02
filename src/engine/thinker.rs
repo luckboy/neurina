@@ -144,7 +144,6 @@ impl Thinker
                     None => (),
                 }
             }
-            self.searcher.intr_checker().stop();
         }
         self.stop();
         Ok(())
