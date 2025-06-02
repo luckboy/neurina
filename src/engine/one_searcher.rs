@@ -127,6 +127,9 @@ impl Search for OneSearcher
             None
         }
     }
+
+    fn min_depth(&self) -> usize
+    { 1 + self.middle_depth + 1 }
 }
 
 #[cfg(test)]

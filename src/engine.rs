@@ -10,13 +10,17 @@ pub(crate) mod middle_searcher;
 pub(crate) mod neural_search;
 pub(crate) mod neural_searcher;
 pub(crate) mod one_searcher;
+pub(crate) mod print;
 pub(crate) mod search;
 pub(crate) mod simple_eval_fun;
+pub(crate) mod thinker;
 
 pub use eval::*;
 pub use middle_searcher::*;
 pub use neural_search::*;
 pub use neural_searcher::*;
 pub use one_searcher::*;
+pub use print::*;
 pub use search::*;
 pub use simple_eval_fun::*;
+pub use thinker::*;
