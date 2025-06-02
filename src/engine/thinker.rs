@@ -49,8 +49,11 @@ impl Thinker
     
     pub fn start(&self)
     {
-        let mut is_stopped_g = self.is_stopped.lock().unwrap();
-        *is_stopped_g = false;
+        {
+            let mut is_stopped_g = self.is_stopped.lock().unwrap();
+            *is_stopped_g = false;
+        }
+        self.searcher.intr_checker().start();
     }
 
     pub fn wait(&self)
@@ -61,7 +64,7 @@ impl Thinker
         }
     }
     
-    fn stop(&self)
+    pub fn stop(&self)
     {
         let mut is_stopped_g = self.is_stopped.lock().unwrap();
         *is_stopped_g = true;
@@ -74,7 +77,6 @@ impl Thinker
             let now = Instant::now();
             let mut move_chain_g = move_chain.lock().unwrap();
             let mut depth = self.searcher.min_depth();
-            self.searcher.intr_checker().start();
             match timeout {
                 Some(timeout) => {
                     self.searcher.intr_checker().set_timeout(now, timeout);
