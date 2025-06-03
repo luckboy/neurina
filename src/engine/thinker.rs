@@ -163,3 +163,6 @@ impl Thinker
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests;
