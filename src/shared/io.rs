@@ -6,6 +6,8 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use std::fs::File;
+use std::io::BufReader;
+use std::io::BufWriter;
 use std::io::Error;
 use std::io::ErrorKind;
 use std::io::Read;
@@ -92,12 +94,14 @@ pub fn write_network(w: &mut dyn Write, network: &Network) -> Result<()>
 
 pub fn load_network<P: AsRef<Path>>(path: P) -> Result<Network>
 {
-    let mut file = File::open(path)?;
-    read_network(&mut file)
+    let file = File::open(path)?;
+    let mut r = BufReader::new(file);
+    read_network(&mut r)
 }
 
 pub fn save_network<P: AsRef<Path>>(path: P, network: &Network) -> Result<()>
 {
-    let mut file = File::create(path)?;
-    write_network(&mut file, network)
+    let file = File::create(path)?;
+    let mut w = BufWriter::new(file);
+    write_network(&mut w, network)
 }
