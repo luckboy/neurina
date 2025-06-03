@@ -13,7 +13,7 @@ use crate::shared::Interruption;
 
 pub trait NeuralSearch
 {
-    fn intr_checker(&self) -> &Arc<dyn IntrCheck>;
+    fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>;
     
     fn search(&self, board: &Board, pvs: &mut [Vec<Move>], depth: usize) -> Result<(), Interruption>;
 }

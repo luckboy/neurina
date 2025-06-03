@@ -5,6 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+pub(crate) mod engine;
 pub(crate) mod eval;
 pub(crate) mod middle_searcher;
 pub(crate) mod neural_search;
@@ -15,6 +16,7 @@ pub(crate) mod search;
 pub(crate) mod simple_eval_fun;
 pub(crate) mod thinker;
 
+pub use engine::*;
 pub use eval::*;
 pub use middle_searcher::*;
 pub use neural_search::*;

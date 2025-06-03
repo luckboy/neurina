@@ -21,7 +21,7 @@ use crate::shared::Interruption;
 
 pub struct NeuralSearcher<T>
 {
-    intr_checker: Arc<dyn IntrCheck>,
+    intr_checker: Arc<dyn IntrCheck + Send + Sync>,
     converter: Converter,
     matrix_buf: Mutex<MatrixBuffer<(Vec<f32>, Vec<Option<(Board, Color)>>)>>,
     network: T,
@@ -33,7 +33,7 @@ impl<T> NeuralSearcher<T>
     
     pub const MOVE_EPS: f32 = 0.01;
     
-    pub fn new(intr_checker: Arc<dyn IntrCheck>, converter: Converter, network: T) -> Self
+    pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T) -> Self
     {
         let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, (vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT], vec![None; Self::MAX_COL_COUNT])));
         NeuralSearcher {
@@ -53,7 +53,7 @@ impl<T> NeuralSearcher<T>
 
 impl<T: Net> NeuralSearch for NeuralSearcher<T>
 {
-    fn intr_checker(&self) -> &Arc<dyn IntrCheck>
+    fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync + 'static>
     { &self.intr_checker }
     
     fn search(&self, board: &Board, pvs: &mut [Vec<Move>], depth: usize) -> Result<(), Interruption>

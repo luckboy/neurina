@@ -13,7 +13,7 @@ use crate::shared::Interruption;
 
 pub trait Search
 {
-    fn intr_checker(&self) -> &Arc<dyn IntrCheck>;
+    fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>;
     
     fn search(&self, move_chain: &mut MoveChain, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, u64, Vec<Move>), Interruption>;
     

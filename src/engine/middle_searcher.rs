@@ -19,24 +19,24 @@ use crate::shared::Interruption;
 #[derive(Clone)]
 pub struct MiddleSearcher
 {
-    eval_fun: Arc<dyn Eval>,
-    neural_searcher: Arc<dyn NeuralSearch>,
+    eval_fun: Arc<dyn Eval + Send + Sync>,
+    neural_searcher: Arc<dyn NeuralSearch + Send + Sync>,
 }
 
 impl MiddleSearcher
 {
     pub const NODE_COUNT_TO_INTR_CHECK: u64 = 1024;
     
-    pub fn new(eval_fun: Arc<dyn Eval>, neural_searcher: Arc<dyn NeuralSearch>) -> Self
+    pub fn new(eval_fun: Arc<dyn Eval + Send + Sync>, neural_searcher: Arc<dyn NeuralSearch + Send + Sync>) -> Self
     { MiddleSearcher { eval_fun, neural_searcher, } }
 
-    pub fn intr_checker(&self) -> &Arc<dyn IntrCheck>
+    pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
     { self.neural_searcher.intr_checker() }
     
-    pub fn eval_fun(&self) -> &Arc<dyn Eval>
+    pub fn eval_fun(&self) -> &Arc<dyn Eval + Send + Sync>
     { &self.eval_fun }
 
-    pub fn neural_searcher(&self) -> &Arc<dyn NeuralSearch>
+    pub fn neural_searcher(&self) -> &Arc<dyn NeuralSearch + Send + Sync>
     { &self.neural_searcher }
     
     fn nega_max_with_fun_ref<F>(&self, board: &Board, current_pv: &mut Vec<Move>, pvs: &mut [Vec<Move>], node_count: &mut u64, leaf_count: &mut usize, ply: usize, middle_depth: usize, f: &mut F) -> Result<(i32, Option<usize>), Interruption>

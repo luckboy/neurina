@@ -21,16 +21,16 @@ use crate::shared::intr_check::*;
 
 pub struct Thinker
 {
-    searcher: Arc<dyn Search>,
-    writer: Arc<Mutex<dyn Write>>,
-    printer: Arc<dyn Print>,
+    searcher: Arc<dyn Search + Send + Sync>,
+    writer: Arc<Mutex<dyn Write + Send + Sync>>,
+    printer: Arc<dyn Print + Send + Sync>,
     is_stopped: Mutex<bool>,
     condvar: Condvar,
 }
 
 impl Thinker
 {
-    pub fn new(searcher: Arc<dyn Search>, writer: Arc<Mutex<dyn Write>>) -> Self
+    pub fn new(searcher: Arc<dyn Search + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>) -> Self
     {
         Thinker {
             searcher,
@@ -41,21 +41,21 @@ impl Thinker
         }
     }
 
-    pub fn searcher(&self) -> &Arc<dyn Search>
+    pub fn searcher(&self) -> &Arc<dyn Search + Send + Sync>
     { &self.searcher }
     
-    pub fn intr_checker(&self) -> &Arc<dyn IntrCheck>
-    { self.searcher.intr_checker() }
-
-    pub fn writer(&self) -> &Arc<Mutex<dyn Write>>
+    pub fn writer(&self) -> &Arc<Mutex<dyn Write + Send + Sync>>
     { &self.writer }
     
-    pub fn printer(&self) -> &Arc<dyn Print>
+    pub fn printer(&self) -> &Arc<dyn Print  + Send + Sync>
     { &self.printer }
     
-    pub fn set_printer(&mut self, printer: Arc<dyn Print>)
+    pub fn set_printer(&mut self, printer: Arc<dyn Print + Send + Sync>)
     { self.printer = printer; }
     
+    pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
+    { self.searcher.intr_checker() }
+
     pub fn start(&self)
     {
         {
@@ -80,7 +80,7 @@ impl Thinker
         self.condvar.notify_one();
     }
     
-    pub fn think(&self, move_chain: &Arc<Mutex<MoveChain>>, search_moves: &Option<Vec<Move>>, max_depth: Option<usize>, max_node_count: Option<u64>, checkmate_move_count: Option<usize>, timeout: Option<Duration>, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool) -> Result<()>
+    pub fn think(&self, move_chain: &Arc<Mutex<MoveChain>>, search_moves: &Option<Vec<Move>>, max_depth: Option<usize>, max_node_count: Option<u64>, move_count_to_checkmate: Option<usize>, timeout: Option<Duration>, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool) -> Result<()>
     {
         {
             let now = Instant::now();
@@ -115,8 +115,8 @@ impl Thinker
                                 Some(max_node_count) if node_count >= max_node_count =>  break,
                                 _ => (),
                             }
-                            match checkmate_move_count {
-                                Some(checkmate_move_count) if self.searcher.move_count_to_checkmate(value, depth).map(|n| n <= checkmate_move_count * 2).unwrap_or(false) =>  break,
+                            match move_count_to_checkmate {
+                                Some(move_count_to_checkmate) if self.searcher.move_count_to_checkmate(value, depth).map(|n| n <= move_count_to_checkmate * 2).unwrap_or(false) =>  break,
                                 _ => (),
                             }
                         },
@@ -141,6 +141,7 @@ impl Thinker
                     Some(mv) => {
                         move_chain_g.push(mv).unwrap();
                         let outcome = move_chain_g.set_auto_outcome(OutcomeFilter::Relaxed);
+                        move_chain_g.clear_outcome();
                         if can_print_best_move_and_outcome {
                             match outcome {
                                 Some(outcome) => {
