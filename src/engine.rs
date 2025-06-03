@@ -7,6 +7,7 @@
 //
 pub(crate) mod engine;
 pub(crate) mod eval;
+pub(crate) mod io;
 pub(crate) mod middle_searcher;
 pub(crate) mod neural_search;
 pub(crate) mod neural_searcher;
@@ -18,6 +19,7 @@ pub(crate) mod thinker;
 
 pub use engine::*;
 pub use eval::*;
+pub use io::*;
 pub use middle_searcher::*;
 pub use neural_search::*;
 pub use neural_searcher::*;
