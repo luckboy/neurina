@@ -50,7 +50,7 @@ impl Write for StdioLog
         match &mut self.log {
             Some(log) => {
                 let mut start_idx = 0usize;
-                for i in 0..buf.len() {
+                for i in 0..size {
                     if self.has_output_prefix {
                         write!(log, "output: ")?;
                     }
@@ -62,7 +62,7 @@ impl Write for StdioLog
                         self.has_output_prefix = false;
                     }
                 }
-                if start_idx < buf.len() {
+                if start_idx < size {
                     log.write(&buf[start_idx..])?;
                 }
             },
