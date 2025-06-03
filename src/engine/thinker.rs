@@ -94,14 +94,16 @@ impl Thinker
                     self.searcher.intr_checker().unset_timeout();
                 },
             }
-            let mut is_first = true;
             let mut best_move: Option<Move> = None;
             if best_move.is_none() {
+                let mut is_first = true;
+                let mut node_count = 0u64; 
                 loop {
                     self.searcher.intr_checker().set_first(is_first);
                     match self.searcher.search(&mut *move_chain_g, depth, search_moves) {
-                        Ok((value, _, node_count, pv)) => {
+                        Ok((value, _, search_node_count, pv)) => {
                             best_move = pv.first().map(|mv| *mv);
+                            node_count += search_node_count;
                             if can_print_pv {
                                 let mut writer_g = self.writer.lock().unwrap();
                                 self.printer.print_pv(&mut *writer_g, move_chain_g.last(), depth, value, now.elapsed(), node_count, pv.as_slice())?;
