@@ -41,8 +41,17 @@ impl Thinker
         }
     }
 
+    pub fn searcher(&self) -> &Arc<dyn Search>
+    { &self.searcher }
+    
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck>
     { self.searcher.intr_checker() }
+
+    pub fn writer(&self) -> &Arc<Mutex<dyn Write>>
+    { &self.writer }
+    
+    pub fn printer(&self) -> &Arc<dyn Print>
+    { &self.printer }
     
     pub fn set_printer(&mut self, printer: Arc<dyn Print>)
     { self.printer = printer; }
