@@ -487,7 +487,7 @@ fn xboard_make_move(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, s: 
 }
 
 pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<()>
-    where F: FnMut(Arc<Mutex<StdioLog>>, Arc<dyn Print>) -> LoopResult<Engine>
+    where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
     let mut cmds: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
     let mut analysis_cmds: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
