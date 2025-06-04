@@ -219,6 +219,7 @@ fn initialize_analysis_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioL
     cmds.insert(String::from("."), (xboard_dot, Some(0), Some(0)));
     cmds.insert(String::from("hint"), (xboard_ignore, Some(0), Some(0)));
     cmds.insert(String::from("bk"), (xboard_bk, Some(0), Some(0)));
+    cmds.insert(String::from("quit"), (xboard_quit, Some(0), Some(0)));
     cmds.insert(String::from("ping"), (xboard_ping, Some(1), Some(1)));
 }
 
@@ -410,6 +411,9 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
                         }
                         let is_exit = cmd_fun(stdio_log, context, args.as_slice(), cmd)?;
                         if is_exit {
+                            return Ok(true);
+                        }
+                        if !context.has_analysis {
                             break;
                         }
                     },
@@ -419,12 +423,15 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
             None => (),
         }
     }
-    context.has_analysis = false;
     Ok(false)
 }
 
-fn xboard_exit(_stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
-{ Ok(true) }
+fn xboard_exit(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+{
+    context.engine.stop();
+    context.has_analysis = false;
+    Ok(false)
+}
 
 fn xboard_dot(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
