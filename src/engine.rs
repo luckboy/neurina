@@ -5,6 +5,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use std::error;
+use std::fmt;
+use crate::matrix;
+
 pub(crate) mod engine;
 pub(crate) mod eval;
 pub(crate) mod io;
@@ -16,6 +20,8 @@ pub(crate) mod print;
 pub(crate) mod search;
 pub(crate) mod simple_eval_fun;
 pub(crate) mod thinker;
+pub(crate) mod utils;
+pub(crate) mod xboard;
 
 pub use engine::*;
 pub use eval::*;
@@ -28,3 +34,32 @@ pub use print::*;
 pub use search::*;
 pub use simple_eval_fun::*;
 pub use thinker::*;
+pub use utils::*;
+pub use xboard::*;
+
+#[derive(Debug)]
+pub enum LoopError
+{
+    InvalidNetwork,
+    Io(std::io::Error),
+    Matrix(matrix::Error),
+    UninitializedLoopContext,
+}
+
+impl error::Error for LoopError
+{}
+
+impl fmt::Display for LoopError
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result
+    {
+        match self {
+            LoopError::InvalidNetwork => write!(f, "invalid network"),
+            LoopError::Io(err) => write!(f, "{}", err),
+            LoopError::Matrix(err) => write!(f, "{}", err),
+            LoopError::UninitializedLoopContext => write!(f, "uninitialized loop context"),
+        }
+    }
+}
+
+pub type LoopResult<T> = Result<T, LoopError>;

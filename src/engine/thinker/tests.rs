@@ -55,7 +55,8 @@ fn test_thinker_think_thinks_without_panic()
     move_chain.push_uci_list("e2e4 e7e5").unwrap();
     let move_chain_arc = Arc::new(Mutex::new(move_chain));
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
-    let thinker = Thinker::new(one_searcher, cursor);
+    let printer = Arc::new(EmptyPrinter::new());
+    let thinker = Thinker::new(one_searcher, cursor, printer);
     thinker.start();
     match thinker.think(&move_chain_arc, &None, Some(5), None, None, None, true, true, true) {
         Ok(()) => assert!(true),

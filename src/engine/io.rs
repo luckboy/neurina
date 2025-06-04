@@ -11,6 +11,7 @@ use std::io::Result;
 use std::io::Write;
 use std::io::stdin;
 use std::io::stdout;
+use crate::engine::utils::*;
 
 pub struct StdioLog
 {
@@ -31,7 +32,7 @@ impl StdioLog
             Ok(size) => {
                 match &mut self.log {
                     Some(log) => {
-                        writeln!(log, "input: {}", buf)?;
+                        writeln!(log, "input: {}", str_without_nl(buf.as_str()))?;
                     },
                     None => (),
                 }

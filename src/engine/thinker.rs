@@ -30,12 +30,12 @@ pub struct Thinker
 
 impl Thinker
 {
-    pub fn new(searcher: Arc<dyn Search + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>) -> Self
+    pub fn new(searcher: Arc<dyn Search + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print  + Send + Sync>) -> Self
     {
         Thinker {
             searcher,
             writer,
-            printer: Arc::new(EmptyPrinter::new()),
+            printer,
             is_stopped: Mutex::new(true),
             condvar: Condvar::new(),
         }
@@ -49,9 +49,6 @@ impl Thinker
     
     pub fn printer(&self) -> &Arc<dyn Print  + Send + Sync>
     { &self.printer }
-    
-    pub fn set_printer(&mut self, printer: Arc<dyn Print + Send + Sync>)
-    { self.printer = printer; }
     
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
     { self.searcher.intr_checker() }
