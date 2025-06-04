@@ -223,7 +223,10 @@ fn initialize_analysis_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioL
 }
 
 fn xboard_go_for_engine(context: &mut Context)
-{ context.engine.go(None, context.depth, None, None, !context.has_analysis, !context.has_analysis, context.can_print_pv, !context.has_analysis); }
+{
+    let depth = if !context.has_analysis { context.depth } else { None };
+    context.engine.go(None, depth, None, None, !context.has_analysis, !context.has_analysis, context.can_print_pv || context.has_analysis, !context.has_analysis);
+}
 
 fn xboard_ignore(_stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 { Ok(false) }
