@@ -13,6 +13,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
 use crate::chess::types::OutcomeFilter;
+use crate::chess::board::PrettyStyle;
 use crate::chess::moves::Style;
 use crate::chess::Board;
 use crate::chess::Color;
@@ -206,6 +207,7 @@ fn initialize_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mu
     cmds.insert(String::from("post"), (xboard_post, Some(0), Some(0)));
     cmds.insert(String::from("nopost"), (xboard_nopost, Some(0), Some(0)));
     cmds.insert(String::from("analyze"), (xboard_analyze, Some(0), Some(0)));
+    cmds.insert(String::from("display"), (xboard_display, Some(0), Some(0)));
 }
 
 fn initialize_analysis_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>)
@@ -426,6 +428,18 @@ fn xboard_dot(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &
     let mut stdio_log_g = stdio_log.lock().unwrap();
     writeln!(&mut *stdio_log_g, "stat01...")?;
     stdio_log_g.flush()?;
+    Ok(false)
+}
+
+fn xboard_display(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+{
+    context.engine.do_move_chain(|move_chain| {
+            let mut stdio_log_g = stdio_log.lock().unwrap();
+            write!(&mut *stdio_log_g, "{}",  move_chain.last().pretty(PrettyStyle::Ascii))?;
+            writeln!(&mut *stdio_log_g, "{}", move_chain.last().as_fen())?;
+            stdio_log_g.flush()?;
+            Ok::<(), Error>(())
+    })?;
     Ok(false)
 }
 
