@@ -122,7 +122,7 @@ fn xboard_protover_for_post_init(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
     writeln!(&mut *stdio_log_g, "feature sigterm=0")?;
     writeln!(&mut *stdio_log_g, "feature reuse=1")?;
     writeln!(&mut *stdio_log_g, "feature analyze=1")?;
-    writeln!(&mut *stdio_log_g, "feature myname=\"Neurina\"")?;
+    writeln!(&mut *stdio_log_g, "feature myname=\"Neurina {}\"", env!("CARGO_PKG_VERSION"))?;
     writeln!(&mut *stdio_log_g, "feature variants=\"normal\"")?;
     writeln!(&mut *stdio_log_g, "feature colors=0")?;
     writeln!(&mut *stdio_log_g, "feature name=0")?;
