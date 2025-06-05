@@ -547,6 +547,7 @@ pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<(
                             },
                         }
                     }
+                    continue;
                 } else if context.is_none() {
                     match f(stdio_log.clone(), Arc::new(XboardPrinter::new())) {
                         Ok(engine) => context = Some(Context::new(engine, analysis_cmds.clone())),
