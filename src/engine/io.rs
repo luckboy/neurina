@@ -56,7 +56,7 @@ impl Write for StdioLog
                         write!(log, "output: ")?;
                     }
                     if buf[i] == b'\n' {
-                        log.write(&buf[start_idx..(i + 1)])?;
+                        log.write_all(&buf[start_idx..(i + 1)])?;
                         start_idx = i + 1;
                         self.has_output_prefix = true;
                     } else {
@@ -64,7 +64,7 @@ impl Write for StdioLog
                     }
                 }
                 if start_idx < size {
-                    log.write(&buf[start_idx..])?;
+                    log.write_all(&buf[start_idx..])?;
                 }
             },
             None => (),
