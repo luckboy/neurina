@@ -395,7 +395,9 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
         let mut line = String::new();
         {
             let mut stdio_log_g = stdio_log.lock().unwrap();
-            stdio_log_g.read_line(&mut line)?;
+            if stdio_log_g.read_line(&mut line)? == 0 {
+                return Ok(true);
+            }
         }
         let cmd = str_without_crnl(line.as_str());
         let mut iter = cmd.split_whitespace();
@@ -507,6 +509,7 @@ pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<(
         {
             let mut stdio_log_g = stdio_log.lock().unwrap();
             match stdio_log_g.read_line(&mut line) {
+                Ok(0) => break,
                 Ok(_) => (),
                 Err(err2) => {
                     err = Some(LoopError::Io(err2));
