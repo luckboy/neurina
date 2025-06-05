@@ -18,6 +18,7 @@ pub(crate) mod neural_search;
 pub(crate) mod neural_searcher;
 pub(crate) mod one_searcher;
 pub(crate) mod print;
+pub(crate) mod protocol;
 pub(crate) mod search;
 pub(crate) mod simple_eval_fun;
 pub(crate) mod thinker;
@@ -34,6 +35,7 @@ pub use neural_search::*;
 pub use neural_searcher::*;
 pub use one_searcher::*;
 pub use print::*;
+pub use protocol::*;
 pub use search::*;
 pub use simple_eval_fun::*;
 pub use thinker::*;
@@ -48,6 +50,7 @@ pub enum LoopError
     Io(std::io::Error),
     Matrix(matrix::Error),
     UninitializedLoopContext,
+    UnrecognizedProtocol,
 }
 
 impl error::Error for LoopError
@@ -62,6 +65,7 @@ impl fmt::Display for LoopError
             LoopError::Io(err) => write!(f, "{}", err),
             LoopError::Matrix(err) => write!(f, "{}", err),
             LoopError::UninitializedLoopContext => write!(f, "uninitialized loop context"),
+            LoopError::UnrecognizedProtocol => write!(f, "unrecognized protocol"),
         }
     }
 }
