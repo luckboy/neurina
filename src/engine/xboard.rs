@@ -520,14 +520,12 @@ pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<(
             Some(cmd_name) => {
                 let args: Vec<&str> = iter.collect();
                 if cmd_name == "protover" {
-                    {
-                        match xboard_protover_for_pre_init(&stdio_log) {
-                            Ok(_) => (),
-                            Err(err2) => {
-                                err = Some(LoopError::Io(err2));
-                                break;
-                            },
-                        }
+                    match xboard_protover_for_pre_init(&stdio_log) {
+                        Ok(_) => (),
+                        Err(err2) => {
+                            err = Some(LoopError::Io(err2));
+                            break;
+                        },
                     }
                     if context.is_none() {
                         match f(stdio_log.clone(), Arc::new(XboardPrinter::new())) {
@@ -538,14 +536,12 @@ pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<(
                             },
                         }
                     }
-                    {
-                        match xboard_protover_for_post_init(&stdio_log) {
-                            Ok(_) => (),
-                            Err(err2) => {
-                                err = Some(LoopError::Io(err2));
-                                break;
-                            },
-                        }
+                    match xboard_protover_for_post_init(&stdio_log) {
+                        Ok(_) => (),
+                        Err(err2) => {
+                            err = Some(LoopError::Io(err2));
+                            break;
+                        },
                     }
                     continue;
                 } else if context.is_none() {
