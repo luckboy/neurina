@@ -344,8 +344,8 @@ pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: En
                 }
             }
             let cmd = str_without_crnl(line.as_str());
-            let tirmmed_cmd = cmd.trim();
-            let mut iter = tirmmed_cmd.split_whitespace();
+            let trimmed_cmd = cmd.trim();
+            let mut iter = trimmed_cmd.split_whitespace();
             match iter.next() {
                 Some(cmd_name) => {
                     let args: Vec<&str> = iter.collect();
