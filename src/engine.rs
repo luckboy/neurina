@@ -10,6 +10,7 @@ use std::fmt;
 use crate::matrix;
 
 pub(crate) mod engine;
+pub(crate) mod engine_id;
 pub(crate) mod eval;
 pub(crate) mod io;
 pub(crate) mod middle_searcher;
@@ -25,6 +26,7 @@ pub(crate) mod utils;
 pub(crate) mod xboard;
 
 pub use engine::*;
+pub use engine_id::*;
 pub use eval::*;
 pub use io::*;
 pub use middle_searcher::*;

@@ -19,6 +19,7 @@ use crate::chess::Move;
 use crate::chess::MoveChain;
 use crate::chess::Outcome;
 use crate::engine::engine::*;
+use crate::engine::engine_id::*;
 use crate::engine::io::*;
 use crate::engine::print::*;
 use crate::engine::utils::*;
@@ -55,11 +56,27 @@ impl Print for UciPrinter
     { Ok(()) }
 }
 
-fn uci_uciok(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
+fn uci_uciok(stdio_log: &Arc<Mutex<StdioLog>>, engine_id: EngineId) -> Result<()>
 {
     let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "id name Neurina {}", env!("CARGO_PKG_VERSION"))?;
-    writeln!(&mut *stdio_log_g, "id author Lukasz Szpakowski")?;
+    writeln!(&mut *stdio_log_g, "id name {}", engine_id.name)?;
+    let mut author = String::new();
+    match engine_id.first_author {
+        Some(first_author) => {
+            author.push_str(first_author);
+            author.push_str(" & ");
+        },
+        None => (),
+    }
+    author.push_str("Lukasz Szpakowski");
+    match engine_id.last_author {
+        Some(last_author) => {
+            author.push_str(" & ");
+            author.push_str(last_author);
+        },
+        None => (),
+    }
+    writeln!(&mut *stdio_log_g, "id author {}", author)?;
     writeln!(&mut *stdio_log_g, "uciok")?;
     stdio_log_g.flush()?;
     Ok(())
@@ -301,14 +318,14 @@ fn uci_display(stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, _args: &[&
     Ok(false)
 }
 
-pub fn uci_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<()>
+pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
     let mut cmds: HashMap<String, fn(&Arc<Mutex<StdioLog>>, &mut Engine, &[&str]) -> Result<bool>> = HashMap::new();
     let mut err: Option<LoopError> = None;
     let mut engine: Option<Engine> = None;
     initialize_commands(&mut cmds);
-    match uci_uciok(&stdio_log) {
+    match uci_uciok(&stdio_log, engine_id) {
         Ok(()) => (),
         Err(err2) => err = Some(LoopError::Io(err2)),
     }
@@ -398,3 +415,7 @@ pub fn uci_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<()>
         None => Ok(()),
     }
 }
+
+pub fn uci_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, f: F) -> LoopResult<()>
+    where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
+{ uci_loop_with_engine_id(stdio_log, NEURINA_ID, f) }

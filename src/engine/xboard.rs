@@ -23,6 +23,7 @@ use crate::chess::MoveChain;
 use crate::chess::Outcome;
 use crate::chess::WinReason;
 use crate::engine::engine::*;
+use crate::engine::engine_id::*;
 use crate::engine::io::*;
 use crate::engine::print::*;
 use crate::engine::utils::*;
@@ -110,7 +111,7 @@ fn xboard_protover_for_pre_init(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
     Ok(())
 }
 
-fn xboard_protover_for_post_init(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
+fn xboard_protover_for_post_init(stdio_log: &Arc<Mutex<StdioLog>>, engine_id: EngineId) -> Result<()>
 {
     let mut stdio_log_g = stdio_log.lock().unwrap();
     writeln!(&mut *stdio_log_g, "feature ping=1")?;
@@ -122,7 +123,7 @@ fn xboard_protover_for_post_init(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
     writeln!(&mut *stdio_log_g, "feature sigterm=0")?;
     writeln!(&mut *stdio_log_g, "feature reuse=1")?;
     writeln!(&mut *stdio_log_g, "feature analyze=1")?;
-    writeln!(&mut *stdio_log_g, "feature myname=\"Neurina {}\"", env!("CARGO_PKG_VERSION"))?;
+    writeln!(&mut *stdio_log_g, "feature myname=\"{}\"", engine_id.name)?;
     writeln!(&mut *stdio_log_g, "feature variants=\"normal\"")?;
     writeln!(&mut *stdio_log_g, "feature colors=0")?;
     writeln!(&mut *stdio_log_g, "feature name=0")?;
@@ -495,7 +496,7 @@ fn xboard_make_move(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, s: 
     Ok(())
 }
 
-pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<()>
+pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
     let mut cmds: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
@@ -539,7 +540,7 @@ pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<(
                             },
                         }
                     }
-                    match xboard_protover_for_post_init(&stdio_log) {
+                    match xboard_protover_for_post_init(&stdio_log, engine_id) {
                         Ok(_) => (),
                         Err(err2) => {
                             err = Some(LoopError::Io(err2));
@@ -625,3 +626,7 @@ pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, mut f: F) -> LoopResult<(
         None => Ok(()),
     }
 }
+
+pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, f: F) -> LoopResult<()>
+    where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
+{ xboard_loop_with_engine_id(stdio_log, NEURINA_ID, f) }
