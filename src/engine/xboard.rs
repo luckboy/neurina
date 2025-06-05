@@ -197,7 +197,7 @@ fn initialize_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mu
     cmds.insert(String::from("?"), (xboard_question, Some(0), Some(0)));
     cmds.insert(String::from("ping"), (xboard_ping, Some(1), Some(1)));
     cmds.insert(String::from("result"), (xboard_ignore, Some(2), None));
-    cmds.insert(String::from("setboard"), (xboard_setboard, Some(6), Some(6)));
+    cmds.insert(String::from("setboard"), (xboard_setboard, Some(4), Some(6)));
     cmds.insert(String::from("hint"), (xboard_ignore, Some(0), Some(0)));
     cmds.insert(String::from("bk"), (xboard_bk, Some(0), Some(0)));
     cmds.insert(String::from("undo"), (xboard_undo, Some(0), Some(0)));
@@ -324,7 +324,14 @@ fn xboard_setboard(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args
         context.engine.stop();
     }
     context.engine.do_move_chain(|move_chain| {
-            match Board::from_fen(format!("{} {} {} {} {} {}", args[0], args[1], args[2], args[3], args[4], args[5]).as_str()) {
+            let fen = if args.len() == 6 {
+                format!("{} {} {} {} {} {}", args[0], args[1], args[2], args[3], args[4], args[5])
+            } else if args.len() == 5 {
+                format!("{} {} {} {} {}", args[0], args[1], args[2], args[3], args[4])
+            } else {
+                format!("{} {} {} {}", args[0], args[1], args[2], args[3])
+            };
+            match Board::from_fen(fen .as_str()) {
                 Ok(board) => *move_chain = MoveChain::new(board),
                 Err(_) => xboard_error(stdio_log, "invalid fen", cmd)?,
             }
