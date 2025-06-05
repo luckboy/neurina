@@ -20,6 +20,7 @@ pub(crate) mod print;
 pub(crate) mod search;
 pub(crate) mod simple_eval_fun;
 pub(crate) mod thinker;
+pub(crate) mod uci;
 pub(crate) mod utils;
 pub(crate) mod xboard;
 
@@ -34,6 +35,7 @@ pub use print::*;
 pub use search::*;
 pub use simple_eval_fun::*;
 pub use thinker::*;
+pub use uci::*;
 pub use utils::*;
 pub use xboard::*;
 
