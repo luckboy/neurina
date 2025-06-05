@@ -41,7 +41,7 @@ impl Print for UciPrinter
     {
         let nps_millis = if time.as_millis() > 0 { time.as_millis() } else { 1 };
         let nps = ((node_count as u128) * 1000) / nps_millis;
-        write!(w, "info depth {} multipv 1 score cp {} time {} nodes {} nps {}", depth, value, time.as_millis(), node_count, nps)?;
+        write!(w, "info depth {} multipv 1 score cp {} time {} nodes {} nps {} pv", depth, value, time.as_millis(), node_count, nps)?;
         for mv in pv {
             write!(w, " {}", mv.uci())?;
         }
