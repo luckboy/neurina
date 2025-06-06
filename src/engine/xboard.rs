@@ -235,7 +235,9 @@ fn xboard_ignore(_stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _arg
 
 fn xboard_new(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
-    if !context.has_analysis {
+    if context.has_analysis {
+        context.engine.stop();
+    } else {
         if !context.engine.is_stopped() {
             xboard_error(stdio_log, "locked move chain", cmd)?;
             return Ok(false);
