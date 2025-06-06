@@ -129,6 +129,9 @@ impl Engine
     pub fn stop(&self)
     { self.thinker.intr_checker().stop(); }
     
+    pub fn is_stopped(&self) -> bool
+    { self.thinker.is_stopped() } 
+    
     fn calculate_timeout(&self) -> Duration
     {
         match self.time_control {

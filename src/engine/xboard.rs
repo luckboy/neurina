@@ -233,9 +233,13 @@ fn xboard_go_for_engine(context: &mut Context)
 fn xboard_ignore(_stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 { Ok(false) }
 
-fn xboard_new(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_new(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
     if !context.has_analysis {
+        if !context.engine.is_stopped() {
+            xboard_error(stdio_log, "locked move chain", cmd)?;
+            return Ok(false);
+        }
         context.has_force = false;
     }
     context.engine.do_move_chain(|move_chain| {
@@ -323,6 +327,11 @@ fn xboard_setboard(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args
 {
     if context.has_analysis {
         context.engine.stop();
+    } else {
+        if !context.engine.is_stopped() {
+            xboard_error(stdio_log, "locked move chain", cmd)?;
+            return Ok(false);
+        }
     }
     context.engine.do_move_chain(|move_chain| {
             let fen = if args.len() == 6 {
@@ -353,10 +362,15 @@ fn xboard_bk(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[
     Ok(false)
 }
 
-fn xboard_undo(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_undo(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
     if context.has_analysis {
         context.engine.stop();
+    } else {
+        if !context.engine.is_stopped() {
+            xboard_error(stdio_log, "locked move chain", cmd)?;
+            return Ok(false);
+        }
     }
     context.engine.do_move_chain(|move_chain| {
             move_chain.pop();
@@ -367,8 +381,12 @@ fn xboard_undo(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: 
     Ok(false)
 }
 
-fn xboard_remove(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_remove(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
+    if !context.engine.is_stopped() {
+        xboard_error(stdio_log, "locked move chain", cmd)?;
+        return Ok(false);
+    }
     context.engine.do_move_chain(|move_chain| {
             move_chain.pop();
             move_chain.pop();
@@ -452,8 +470,12 @@ fn xboard_dot(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &
     Ok(false)
 }
 
-fn xboard_display(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_display(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
+    if !context.engine.is_stopped() {
+        xboard_error(stdio_log, "locked move chain", cmd)?;
+        return Ok(false);
+    }
     context.engine.do_move_chain(|move_chain| {
             let mut stdio_log_g = stdio_log.lock().unwrap();
             write!(&mut *stdio_log_g, "{}",  move_chain.last().pretty(PrettyStyle::Ascii))?;
@@ -468,6 +490,11 @@ fn xboard_make_move(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, s: 
 {
     if context.has_analysis {
         context.engine.stop();
+    } else {
+        if !context.engine.is_stopped() {
+            xboard_error(stdio_log, "unlocked move chain", s)?;
+            return Ok(());
+        }
     }
     context.engine.do_move_chain(|move_chain| {
             let mv = match Move::from_uci_legal(s, move_chain.last()) {

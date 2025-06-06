@@ -77,6 +77,12 @@ impl Thinker
         self.condvar.notify_one();
     }
     
+    pub fn is_stopped(&self) -> bool
+    {
+        let is_stopped_g = self.is_stopped.lock().unwrap();
+        *is_stopped_g
+    }
+    
     pub fn think(&self, move_chain: &Arc<Mutex<MoveChain>>, search_moves: &Option<Vec<Move>>, max_depth: Option<usize>, max_node_count: Option<u64>, move_count_to_checkmate: Option<usize>, timeout: Option<Duration>, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool) -> Result<()>
     {
         {
