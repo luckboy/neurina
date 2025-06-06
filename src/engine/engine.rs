@@ -189,3 +189,6 @@ impl Engine
     pub fn join_thread(self)
     { self.thread.join().unwrap(); }
 }
+
+#[cfg(test)]
+mod tests;
