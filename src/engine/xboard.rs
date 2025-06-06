@@ -429,12 +429,14 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
                         match *min_arg_count {
                             Some(min_arg_count) if args.len() < min_arg_count => {
                                 xboard_error(stdio_log, "too few arguments", cmd)?;
+                                continue;
                             },
                             _ => (),
                         }
                         match *max_arg_count {
                             Some(max_arg_count) if args.len() > max_arg_count => {
                                 xboard_error(stdio_log, "too many arguments", cmd)?;
+                                continue;
                             },
                             _ => (),
                         }
@@ -599,6 +601,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                                                 break;
                                             },
                                         }
+                                        continue;
                                     },
                                     _ => (),
                                 }
@@ -611,6 +614,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                                                 break;
                                             },
                                         }
+                                        continue;
                                     },
                                     _ => (),
                                 }
