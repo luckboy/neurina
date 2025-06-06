@@ -109,7 +109,7 @@ impl Net for Network
         let depth = hs.len() - ys.len() - 1;
         let mut j = hs.len() - 1;
         let mut dj_do = os[pv_count - 1].softmax() - &ys[pv_count - 1];
-        let mut dj_dow = &dj_do * hs[hs.len() - 1].t();
+        let mut dj_dow = &dj_do * hs[j].t();
         let mut dj_dob = &dj_do * one;
         // dj/dz = (ow^T * dj/do) (*) phi'(z)
         let mut dj_dh = self.ow.t() * &dj_do;
@@ -123,7 +123,7 @@ impl Net for Network
             let mut tmp = dj_dz.clone();
             for k in 1..pv_count {
                 dj_do = os[pv_count - k - 1].softmax() - &ys[pv_count - k - 1];
-                dj_dow += &dj_do * hs[hs.len() - k - 1].t();
+                dj_dow += &dj_do * hs[j].t();
                 dj_dob += &dj_do * one;
                 // dj/dz = (ow^T * dj/do) (*) phi'(z)
                 dj_dh = self.ow.t() * &dj_do;
