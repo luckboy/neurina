@@ -128,8 +128,8 @@ impl Net for Network
                 // dj/dz = (ow^T * dj/do) (*) phi'(z)
                 dj_dh = self.ow.t() * &dj_do;
                 dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
-                // dj/dpw += ((pw^T * dj2/dz2) (*) phi'(z) + dj1/dz1) * h^T
-                // dj/dpb += (pw^T * dj2/dz2) (*) phi'(z) + dj1/dz1
+                // dj/dpw += ((pw^T * dj2/dz22) (*) phi'(z2) + dj1/dz1) * h^T
+                // dj/dpb += (pw^T * dj2/dz22) (*) phi'(z2) + dj1/dz1
                 tmp = self.pw.t() * &tmp;
                 tmp = tmp.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0))) + &dj_dz;
                 j -= 1;
