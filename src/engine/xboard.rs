@@ -496,7 +496,7 @@ fn xboard_make_move(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, s: 
         context.engine.stop();
     } else {
         if !context.engine.is_stopped() {
-            xboard_error(stdio_log, "unlocked move chain", s)?;
+            xboard_error(stdio_log, "locked move chain", s)?;
             return Ok(());
         }
     }
