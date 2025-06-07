@@ -22,4 +22,6 @@ pub trait Net
 
     fn fun<F>(&self, f: F) -> Self
         where F: FnMut(&Matrix) -> Matrix;
+
+    fn check(&self, input_count: usize, output_count: usize) -> bool;
 }

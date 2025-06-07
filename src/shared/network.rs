@@ -228,6 +228,27 @@ impl Net for Network
             ob: f(&self.ob),
         }
     }
+
+    fn check(&self, input_count: usize, output_count: usize) -> bool
+    {
+        let middle_count: usize = self.iw.row_count();
+        if self.iw.col_count() != input_count { return false; }
+        if self.ib.row_count() != middle_count { return false; }
+        if self.ib.col_count() != 1 { return false; }
+        if self.sw.row_count() != middle_count { return false; }
+        if self.sw.col_count() != middle_count { return false; }
+        if self.sb.row_count() != middle_count { return false; }
+        if self.sb.col_count() != 1 { return false; }
+        if self.pw.row_count() != middle_count { return false; }
+        if self.pw.col_count() != middle_count { return false; }
+        if self.pb.row_count() != middle_count { return false; }
+        if self.pb.col_count() != 1 { return false; }
+        if self.ow.row_count() != output_count { return false; }
+        if self.ow.col_count() != middle_count { return false; }
+        if self.ob.row_count() != output_count { return false; }
+        if self.ob.col_count() != 1 { return false; }
+        true
+    }
 }
 
 #[cfg(test)]
