@@ -33,6 +33,8 @@ struct Args
     log: Option<String>,
 }
 
+const MIDDLE_DEPTH: usize = 2;
+
 fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
     match initialize_backend(config) {
@@ -84,7 +86,7 @@ fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn
     let eval_fun = Arc::new(SimpleEvalFun::new());
     let neural_searcher = Arc::new(NeuralSearcher::new(intr_checker, converter, network));
     let middle_searcher = MiddleSearcher::new(eval_fun, neural_searcher);
-    let one_searcher = Arc::new(OneSearcher::new(middle_searcher, 2));
+    let one_searcher = Arc::new(OneSearcher::new(middle_searcher, MIDDLE_DEPTH));
     let thinker = Arc::new(Thinker::new(one_searcher, writer, printer));
     Ok(Engine::new(thinker))
 }
