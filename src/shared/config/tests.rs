@@ -32,7 +32,7 @@ device = 2
                 None => assert!(false),
             } 
         },
-        Err(err) => assert!(false),
+        Err(_) => assert!(false),
     }
 }
 
@@ -64,6 +64,6 @@ mma = true
                 None => assert!(false),
             } 
         },
-        Err(err) => assert!(false),
+        Err(_) => assert!(false),
     }
 }
