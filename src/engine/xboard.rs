@@ -188,6 +188,7 @@ fn initialize_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &m
     cmds.insert(String::from("rejected"), (xboard_ignore, None, None));
     cmds.insert(String::from("new"), (xboard_new, Some(0), Some(0)));
     cmds.insert(String::from("quit"), (xboard_quit, Some(0), Some(0)));
+    cmds.insert(String::from("random"), (xboard_ignore, Some(0), Some(0)));
     cmds.insert(String::from("force"), (xboard_force, Some(0), Some(0)));
     cmds.insert(String::from("go"), (xboard_go, Some(0), Some(0)));
     cmds.insert(String::from("playother"), (xboard_playother, Some(0), Some(0)));
