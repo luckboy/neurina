@@ -30,12 +30,12 @@ pub struct BackendConfig
     pub mma: Option<bool>,
 }
 
-pub fn read_config(r: &mut dyn Read) -> Result<Option<Config>>
+pub fn read_config(r: &mut dyn Read) -> Result<Config>
 {
     let mut s = String::new();
     r.read_to_string(&mut s)?;
     match toml::from_str::<Config>(s.as_str()) {
-        Ok(config) => Ok(Some(config)),
+        Ok(config) => Ok(config),
         Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("toml error: {}", err))),
     }
 }
@@ -43,8 +43,11 @@ pub fn read_config(r: &mut dyn Read) -> Result<Option<Config>>
 pub fn load_config<P: AsRef<Path>>(path: P) -> Result<Option<Config>>
 {
     match File::open(path) {
-        Ok(mut file) => read_config(&mut file),
+        Ok(mut file) => Ok(Some(read_config(&mut file)?)),
         Err(err) if err.kind() == ErrorKind::NotFound => Ok(None),
         Err(err) => Err(err),
     }
 }
+
+#[cfg(test)]
+mod tests;
