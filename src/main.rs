@@ -19,16 +19,16 @@ use neurina::shared::*;
 #[command(version)]
 struct Args
 {
-    /// Config file
+    /// Configuration file
     #[arg(short, long, value_name = "CONFIG_FILE", default_value_t = String::from("neurina.toml"))]
     config: String,
     /// Network file
-    #[arg(short, long, value_name = "NETWORK_FILE", default_value_t = String::from("neurina.net"))]
+    #[arg(short, long, value_name = "NETWORK_FILE", default_value_t = String::from("neurina.nnet"))]
     network: String,
-    /// Random network with size
+    /// Set random network
     #[arg(long, value_name = "NUMBER")]
     random_network: Option<usize>,
-    /// Log file
+    /// Write logs to log file
     #[arg(short, long, value_name = "LOG_FILE")]
     log: Option<String>,
 }
