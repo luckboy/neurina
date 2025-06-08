@@ -28,6 +28,7 @@ impl StdoutLog
         match &mut self.log {
             Some(log) => {
                 writeln!(log, "input: {}", str_without_nl(line))?;
+                log.flush()?;
             },
             None => (),
         }
