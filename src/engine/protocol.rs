@@ -6,6 +6,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use std::io::Write;
+use std::io::stdin;
 use std::sync::Arc;
 use std::sync::Mutex;
 #[cfg(target_family = "unix")]
@@ -26,15 +27,19 @@ use crate::engine::xboard::*;
 use crate::engine::LoopError;
 use crate::engine::LoopResult;
 
-pub fn protocol_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: EngineId, f: F) -> LoopResult<()>
+pub fn protocol_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
     let mut line = String::new();
+    match stdin().read_line(&mut line) {
+        Ok(0) => return Ok(()),
+        Ok(_) => (),
+        Err(err) => return Err(LoopError::Io(err)),
+    }
     {
-        let mut stdio_log_g = stdio_log.lock().unwrap();
-        match stdio_log_g.read_line(&mut line) {
-            Ok(0) => return Ok(()),
-            Ok(_) => (),
+        let mut stdout_log_g = stdout_log.lock().unwrap();
+        match stdout_log_g.log_input_line(line.as_str()) {
+            Ok(()) => (),
             Err(err) => return Err(LoopError::Io(err)),
         }
     }
@@ -46,14 +51,14 @@ pub fn protocol_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_i
             signal(SIGINT, SIG_IGN);
             signal(SIGTERM, SIG_IGN);
         }
-        xboard_loop_with_engine_id(stdio_log, engine_id, f)
+        xboard_loop_with_engine_id(stdout_log, engine_id, f)
     } else if trimmed_cmd == "uci" {
-        uci_loop_with_engine_id(stdio_log, engine_id, f)
+        uci_loop_with_engine_id(stdout_log, engine_id, f)
     } else {
         Err(LoopError::UnrecognizedProtocol)
     }
 }
 
-pub fn protocol_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, f: F) -> LoopResult<()>
+pub fn protocol_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
-{ protocol_loop_with_engine_id(stdio_log, NEURINA_ID, f) }
+{ protocol_loop_with_engine_id(stdout_log, NEURINA_ID, f) }

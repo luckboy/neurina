@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::io::Error;
 use std::io::Result;
 use std::io::Write;
+use std::io::stdin;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
@@ -103,32 +104,32 @@ impl Print for XboardPrinter
     { write_outcome(w, outcome) }
 }
 
-fn xboard_protover_for_pre_init(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
+fn xboard_protover_for_pre_init(stdout_log: &Arc<Mutex<StdoutLog>>) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "feature done=0")?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "feature done=0")?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn xboard_protover_for_post_init(stdio_log: &Arc<Mutex<StdioLog>>, engine_id: EngineId) -> Result<()>
+fn xboard_protover_for_post_init(stdout_log: &Arc<Mutex<StdoutLog>>, engine_id: EngineId) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "feature ping=1")?;
-    writeln!(&mut *stdio_log_g, "feature setboard=1")?;
-    writeln!(&mut *stdio_log_g, "feature playother=1")?;
-    writeln!(&mut *stdio_log_g, "feature time=1")?;
-    writeln!(&mut *stdio_log_g, "feature draw=0")?;
-    writeln!(&mut *stdio_log_g, "feature sigint=0")?;
-    writeln!(&mut *stdio_log_g, "feature sigterm=0")?;
-    writeln!(&mut *stdio_log_g, "feature reuse=1")?;
-    writeln!(&mut *stdio_log_g, "feature analyze=1")?;
-    writeln!(&mut *stdio_log_g, "feature myname=\"{}\"", engine_id.name)?;
-    writeln!(&mut *stdio_log_g, "feature variants=\"normal\"")?;
-    writeln!(&mut *stdio_log_g, "feature colors=0")?;
-    writeln!(&mut *stdio_log_g, "feature name=0")?;
-    writeln!(&mut *stdio_log_g, "feature done=1")?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "feature ping=1")?;
+    writeln!(&mut *stdout_log_g, "feature setboard=1")?;
+    writeln!(&mut *stdout_log_g, "feature playother=1")?;
+    writeln!(&mut *stdout_log_g, "feature time=1")?;
+    writeln!(&mut *stdout_log_g, "feature draw=0")?;
+    writeln!(&mut *stdout_log_g, "feature sigint=0")?;
+    writeln!(&mut *stdout_log_g, "feature sigterm=0")?;
+    writeln!(&mut *stdout_log_g, "feature reuse=1")?;
+    writeln!(&mut *stdout_log_g, "feature analyze=1")?;
+    writeln!(&mut *stdout_log_g, "feature myname=\"{}\"", engine_id.name)?;
+    writeln!(&mut *stdout_log_g, "feature variants=\"normal\"")?;
+    writeln!(&mut *stdout_log_g, "feature colors=0")?;
+    writeln!(&mut *stdout_log_g, "feature name=0")?;
+    writeln!(&mut *stdout_log_g, "feature done=1")?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
@@ -139,12 +140,12 @@ struct Context
     has_force: bool,
     has_analysis: bool,
     can_print_pv: bool,
-    analysis_commands: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>,
+    analysis_commands: HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>,
 }
 
 impl Context
 {
-    fn new(engine: Engine, analysis_commands: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>) -> Self
+    fn new(engine: Engine, analysis_commands: HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>) -> Self
     {
         Context {
             engine,
@@ -157,31 +158,31 @@ impl Context
     }
 }
 
-fn xboard_illegal_move(stdio_log: &Arc<Mutex<StdioLog>>, s: &str) -> Result<()>
+fn xboard_illegal_move(stdout_log: &Arc<Mutex<StdoutLog>>, s: &str) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "Illegal move: {}", s)?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "Illegal move: {}", s)?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn xboard_error(stdio_log: &Arc<Mutex<StdioLog>>, err_type: &str, cmd: &str) -> Result<()>
+fn xboard_error(stdout_log: &Arc<Mutex<StdoutLog>>, err_type: &str, cmd: &str) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "Error ({}): {}", err_type, cmd)?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "Error ({}): {}", err_type, cmd)?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn xboard_outcome(stdio_log: &Arc<Mutex<StdioLog>>, outcome: Outcome) -> Result<()>
+fn xboard_outcome(stdout_log: &Arc<Mutex<StdoutLog>>, outcome: Outcome) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    write_outcome(&mut *stdio_log_g, outcome)?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    write_outcome(&mut *stdout_log_g, outcome)?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn initialize_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>)
+fn initialize_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>)
 {
     cmds.insert(String::from("accepted"), (xboard_ignore, None, None));
     cmds.insert(String::from("rejected"), (xboard_ignore, None, None));
@@ -211,7 +212,7 @@ fn initialize_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mu
     cmds.insert(String::from("display"), (xboard_display, Some(0), Some(0)));
 }
 
-fn initialize_analysis_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>)
+fn initialize_analysis_commands(cmds: &mut HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)>)
 {
     cmds.insert(String::from("undo"), (xboard_undo, Some(0), Some(0)));
     cmds.insert(String::from("new"), (xboard_new, Some(0), Some(0)));
@@ -230,16 +231,16 @@ fn xboard_go_for_engine(context: &mut Context)
     context.engine.go(None, depth, None, None, !context.has_analysis, !context.has_analysis, context.can_print_pv || context.has_analysis, !context.has_analysis);
 }
 
-fn xboard_ignore(_stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_ignore(_stdout_log: &Arc<Mutex<StdoutLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 { Ok(false) }
 
-fn xboard_new(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_new(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
     if context.has_analysis {
         context.engine.stop();
     } else {
         if !context.engine.is_stopped() {
-            xboard_error(stdio_log, "locked move chain", cmd)?;
+            xboard_error(stdout_log, "locked move chain", cmd)?;
             return Ok(false);
         }
         context.has_force = false;
@@ -253,89 +254,89 @@ fn xboard_new(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[
     Ok(false)
 }
 
-fn xboard_quit(_stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_quit(_stdout_log: &Arc<Mutex<StdoutLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 { Ok(true) }
 
-fn xboard_force(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_force(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.has_force = true;
     Ok(false)
 }
 
-fn xboard_go(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_go(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.has_force = false;
     xboard_go_for_engine(context);
     Ok(false)
 }
 
-fn xboard_playother(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_playother(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.has_force = false;
     Ok(false)
 }
 
-fn xboard_level(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_level(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
     match args[0].parse::<usize>() {
         Ok(mps) => context.engine.set_time_control(TimeControl::Mps(mps)),
-        Err(_) => xboard_error(stdio_log, "invalid number", cmd)?,
+        Err(_) => xboard_error(stdout_log, "invalid number", cmd)?,
     }
     Ok(false)
 }
 
-fn xboard_st(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_st(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
     match args[0].parse::<u64>() {
         Ok(timeout) => context.engine.set_time_control(TimeControl::Fixed(Duration::from_secs(timeout))),
-        Err(_) => xboard_error(stdio_log, "invalid number", cmd)?,
+        Err(_) => xboard_error(stdout_log, "invalid number", cmd)?,
     }
     Ok(false)
 }
 
-fn xboard_sd(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_sd(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
     match args[0].parse::<usize>() {
         Ok(depth) => context.depth = Some(depth),
-        Err(_) => xboard_error(stdio_log, "invalid number", cmd)?,
+        Err(_) => xboard_error(stdout_log, "invalid number", cmd)?,
     }
     Ok(false)
 }
 
-fn xboard_time(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_time(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
     match args[0].parse::<u64>() {
         Ok(remaining_time) => context.engine.set_remaining_time(Duration::from_millis(remaining_time * 10)),
-        Err(_) => xboard_error(stdio_log, "invalid number", cmd)?,
+        Err(_) => xboard_error(stdout_log, "invalid number", cmd)?,
     }
     Ok(false)
 }
 
-fn xboard_question(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_question(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.engine.stop();
     Ok(false)
 }
 
-fn xboard_ping(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_ping(stdout_log: &Arc<Mutex<StdoutLog>>, _context: &mut Context, args: &[&str], _cmd: &str) -> Result<bool>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "pong {}", args[0])?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "pong {}", args[0])?;
+    stdout_log_g.flush()?;
     Ok(false)
 }
 
-fn xboard_setboard(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_setboard(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
     if context.has_analysis {
         context.engine.stop();
     } else {
         if !context.engine.is_stopped() {
-            xboard_error(stdio_log, "locked move chain", cmd)?;
+            xboard_error(stdout_log, "locked move chain", cmd)?;
             return Ok(false);
         }
     }
-    context.engine.do_move_chain(|move_chain| {
+    let is_set_board = context.engine.do_move_chain(|move_chain| {
             let fen = if args.len() == 6 {
                 format!("{} {} {} {} {} {}", args[0], args[1], args[2], args[3], args[4], args[5])
             } else if args.len() == 5 {
@@ -345,32 +346,37 @@ fn xboard_setboard(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, args
             };
             match Board::from_fen(fen .as_str()) {
                 Ok(board) => *move_chain = MoveChain::new(board),
-                Err(_) => xboard_error(stdio_log, "invalid fen", cmd)?,
+                Err(_) => {
+                    xboard_error(stdout_log, "invalid fen", cmd)?;
+                    return Ok::<bool, Error>(false);
+                },
             }
-            Ok::<(), Error>(())
+            Ok::<bool, Error>(true)
     })?;
-    if context.has_analysis {
-        xboard_go_for_engine(context);
+    if is_set_board {
+        if context.has_analysis {
+            xboard_go_for_engine(context);
+        }
     }
     Ok(false)
 }
 
-fn xboard_bk(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_bk(stdout_log: &Arc<Mutex<StdoutLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, " ")?;
-    writeln!(&mut *stdio_log_g, "")?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, " ")?;
+    writeln!(&mut *stdout_log_g, "")?;
+    stdout_log_g.flush()?;
     Ok(false)
 }
 
-fn xboard_undo(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_undo(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
     if context.has_analysis {
         context.engine.stop();
     } else {
         if !context.engine.is_stopped() {
-            xboard_error(stdio_log, "locked move chain", cmd)?;
+            xboard_error(stdout_log, "locked move chain", cmd)?;
             return Ok(false);
         }
     }
@@ -383,10 +389,10 @@ fn xboard_undo(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &
     Ok(false)
 }
 
-fn xboard_remove(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_remove(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
     if !context.engine.is_stopped() {
-        xboard_error(stdio_log, "locked move chain", cmd)?;
+        xboard_error(stdout_log, "locked move chain", cmd)?;
         return Ok(false);
     }
     context.engine.do_move_chain(|move_chain| {
@@ -396,29 +402,30 @@ fn xboard_remove(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args:
     Ok(false)
 }
 
-fn xboard_post(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_post(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.can_print_pv = true;
     Ok(false)
 }
 
-fn xboard_nopost(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_nopost(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.can_print_pv = false;
     Ok(false)
 }
 
-fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_analyze(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.has_analysis = true;
     xboard_go_for_engine(context);
     loop {
         let mut line = String::new();
+        if stdin().read_line(&mut line)? == 0 {
+            return Ok(true);
+        }
         {
-            let mut stdio_log_g = stdio_log.lock().unwrap();
-            if stdio_log_g.read_line(&mut line)? == 0 {
-                return Ok(true);
-            }
+            let mut stdout_log_g = stdout_log.lock().unwrap();
+            stdout_log_g.log_input_line(line.as_str())?;
         }
         let cmd = str_without_crnl(line.as_str());
         let trimmed_cmd = cmd.trim();
@@ -430,19 +437,19 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
                     Some((cmd_fun, min_arg_count, max_arg_count)) => {
                         match *min_arg_count {
                             Some(min_arg_count) if args.len() < min_arg_count => {
-                                xboard_error(stdio_log, "too few arguments", cmd)?;
+                                xboard_error(stdout_log, "too few arguments", cmd)?;
                                 continue;
                             },
                             _ => (),
                         }
                         match *max_arg_count {
                             Some(max_arg_count) if args.len() > max_arg_count => {
-                                xboard_error(stdio_log, "too many arguments", cmd)?;
+                                xboard_error(stdout_log, "too many arguments", cmd)?;
                                 continue;
                             },
                             _ => (),
                         }
-                        let is_exit = cmd_fun(stdio_log, context, args.as_slice(), cmd)?;
+                        let is_exit = cmd_fun(stdout_log, context, args.as_slice(), cmd)?;
                         if is_exit {
                             return Ok(true);
                         }
@@ -450,7 +457,7 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
                             break;
                         }
                     },
-                    None => xboard_make_move(stdio_log, context, cmd)?,
+                    None => xboard_make_move(stdout_log, context, cmd)?,
                 }
             },
             None => (),
@@ -459,91 +466,106 @@ fn xboard_analyze(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args
     Ok(false)
 }
 
-fn xboard_exit(_stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_exit(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
     context.engine.stop();
     context.has_analysis = false;
     Ok(false)
 }
 
-fn xboard_dot(stdio_log: &Arc<Mutex<StdioLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
+fn xboard_dot(stdout_log: &Arc<Mutex<StdoutLog>>, _context: &mut Context, _args: &[&str], _cmd: &str) -> Result<bool>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "stat01...")?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "stat01...")?;
+    stdout_log_g.flush()?;
     Ok(false)
 }
 
-fn xboard_display(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
+fn xboard_display(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, _args: &[&str], cmd: &str) -> Result<bool>
 {
     if !context.engine.is_stopped() {
-        xboard_error(stdio_log, "locked move chain", cmd)?;
+        xboard_error(stdout_log, "locked move chain", cmd)?;
         return Ok(false);
     }
     context.engine.do_move_chain(|move_chain| {
-            let mut stdio_log_g = stdio_log.lock().unwrap();
-            write!(&mut *stdio_log_g, "{}",  move_chain.last().pretty(PrettyStyle::Ascii))?;
-            writeln!(&mut *stdio_log_g, "{}", move_chain.last().as_fen())?;
-            stdio_log_g.flush()?;
+            let mut stdout_log_g = stdout_log.lock().unwrap();
+            write!(&mut *stdout_log_g, "{}",  move_chain.last().pretty(PrettyStyle::Ascii))?;
+            writeln!(&mut *stdout_log_g, "{}", move_chain.last().as_fen())?;
+            stdout_log_g.flush()?;
             Ok::<(), Error>(())
     })?;
     Ok(false)
 }
 
-fn xboard_make_move(stdio_log: &Arc<Mutex<StdioLog>>, context: &mut Context, s: &str) -> Result<()>
+fn xboard_make_move(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, s: &str) -> Result<()>
 {
     if context.has_analysis {
         context.engine.stop();
     } else {
         if !context.engine.is_stopped() {
-            xboard_error(stdio_log, "locked move chain", s)?;
+            xboard_error(stdout_log, "locked move chain", s)?;
             return Ok(());
         }
     }
-    context.engine.do_move_chain(|move_chain| {
+    let is_made_move = context.engine.do_move_chain(|move_chain| {
             let mv = match Move::from_uci_legal(s, move_chain.last()) {
                 Ok(tmp_mv) => tmp_mv,
                 Err(_) => {
                     match Move::from_san(s, move_chain.last()) {
                         Ok(tmp_mv) => tmp_mv,
-                        Err(_) => return xboard_illegal_move(stdio_log, s),
+                        Err(_) => {
+                            xboard_illegal_move(stdout_log, s)?;
+                            return Ok::<bool, Error>(false);
+                        },
                     }
                 },
             };
             match move_chain.push(mv) {
                 Ok(()) => (),
-                Err(_) => return xboard_illegal_move(stdio_log, s),
+                Err(_) => {
+                    xboard_illegal_move(stdout_log, s)?;
+                    return Ok::<bool, Error>(false);
+                },
             }
             let outcome = move_chain.set_auto_outcome(OutcomeFilter::Relaxed);
             move_chain.clear_outcome();
             match outcome {
-                Some(outcome) => xboard_outcome(stdio_log, outcome)?,
+                Some(outcome) => xboard_outcome(stdout_log, outcome)?,
                 None => (),
             }
-            Ok(())
+            Ok(true)
     })?;
-    if !context.has_force || context.has_analysis {
-        xboard_go_for_engine(context);
+    if is_made_move {
+        if !context.has_force || context.has_analysis {
+            xboard_go_for_engine(context);
+        }
     }
     Ok(())
 }
 
-pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
+pub fn xboard_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
-    let mut cmds: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
-    let mut analysis_cmds: HashMap<String, (fn(&Arc<Mutex<StdioLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
+    let mut cmds: HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
+    let mut analysis_cmds: HashMap<String, (fn(&Arc<Mutex<StdoutLog>>, &mut Context, &[&str], &str) -> Result<bool>, Option<usize>, Option<usize>)> = HashMap::new();
     let mut err: Option<LoopError> = None;
     let mut context: Option<Context> = None;
     initialize_commands(&mut cmds);
     initialize_analysis_commands(&mut analysis_cmds);
     loop {
         let mut line = String::new();
+        match stdin().read_line(&mut line) {
+            Ok(0) => break,
+            Ok(_) => (),
+            Err(err2) => {
+                err = Some(LoopError::Io(err2));
+                break;
+            },
+        }
         {
-            let mut stdio_log_g = stdio_log.lock().unwrap();
-            match stdio_log_g.read_line(&mut line) {
-                Ok(0) => break,
-                Ok(_) => (),
+            let mut stdout_log_g = stdout_log.lock().unwrap();
+            match stdout_log_g.log_input_line(line.as_str()) {
+                Ok(()) => (),
                 Err(err2) => {
                     err = Some(LoopError::Io(err2));
                     break;
@@ -557,7 +579,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
             Some(cmd_name) => {
                 let args: Vec<&str> = iter.collect();
                 if cmd_name == "protover" {
-                    match xboard_protover_for_pre_init(&stdio_log) {
+                    match xboard_protover_for_pre_init(&stdout_log) {
                         Ok(_) => (),
                         Err(err2) => {
                             err = Some(LoopError::Io(err2));
@@ -565,7 +587,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                         },
                     }
                     if context.is_none() {
-                        match f(stdio_log.clone(), Arc::new(XboardPrinter::new())) {
+                        match f(stdout_log.clone(), Arc::new(XboardPrinter::new())) {
                             Ok(engine) => context = Some(Context::new(engine, analysis_cmds.clone())),
                             Err(err2) => {
                                 err = Some(err2);
@@ -573,7 +595,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                             },
                         }
                     }
-                    match xboard_protover_for_post_init(&stdio_log, engine_id) {
+                    match xboard_protover_for_post_init(&stdout_log, engine_id) {
                         Ok(_) => (),
                         Err(err2) => {
                             err = Some(LoopError::Io(err2));
@@ -582,7 +604,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                     }
                     continue;
                 } else if context.is_none() {
-                    match f(stdio_log.clone(), Arc::new(XboardPrinter::new())) {
+                    match f(stdout_log.clone(), Arc::new(XboardPrinter::new())) {
                         Ok(engine) => context = Some(Context::new(engine, analysis_cmds.clone())),
                         Err(err2) => {
                             err = Some(err2);
@@ -596,7 +618,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                             Some((cmd_fun, min_arg_count, max_arg_count)) => {
                                 match *min_arg_count {
                                     Some(min_arg_count) if args.len() < min_arg_count => {
-                                        match xboard_error(&stdio_log, "too few arguments", cmd) {
+                                        match xboard_error(&stdout_log, "too few arguments", cmd) {
                                             Ok(()) => (),
                                             Err(err2) => {
                                                 err = Some(LoopError::Io(err2));
@@ -609,7 +631,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                                 }
                                 match *max_arg_count {
                                     Some(max_arg_count) if args.len() > max_arg_count => {
-                                        match xboard_error(&stdio_log, "too many arguments", cmd) {
+                                        match xboard_error(&stdout_log, "too many arguments", cmd) {
                                             Ok(()) => (),
                                             Err(err2) => {
                                                 err = Some(LoopError::Io(err2));
@@ -620,7 +642,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                                     },
                                     _ => (),
                                 }
-                                match cmd_fun(&stdio_log, context, args.as_slice(), cmd) {
+                                match cmd_fun(&stdout_log, context, args.as_slice(), cmd) {
                                     Ok(is_exit) if is_exit => break,
                                     Ok(_) => (),
                                     Err(err2) => {
@@ -630,7 +652,7 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
                                 }
                             },
                             None => {
-                                match xboard_make_move(&stdio_log, context, cmd) {
+                                match xboard_make_move(&stdout_log, context, cmd) {
                                     Ok(()) => (),
                                     Err(err2) => {
                                         err = Some(LoopError::Io(err2));
@@ -662,6 +684,6 @@ pub fn xboard_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id:
     }
 }
 
-pub fn xboard_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, f: F) -> LoopResult<()>
+pub fn xboard_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
-{ xboard_loop_with_engine_id(stdio_log, NEURINA_ID, f) }
+{ xboard_loop_with_engine_id(stdout_log, NEURINA_ID, f) }

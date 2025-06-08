@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::io::Error;
 use std::io::Result;
 use std::io::Write;
+use std::io::stdin;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
@@ -56,10 +57,10 @@ impl Print for UciPrinter
     { Ok(()) }
 }
 
-fn uci_uciok(stdio_log: &Arc<Mutex<StdioLog>>, engine_id: EngineId) -> Result<()>
+fn uci_uciok(stdout_log: &Arc<Mutex<StdoutLog>>, engine_id: EngineId) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "id name {}", engine_id.name)?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "id name {}", engine_id.name)?;
     let mut author = String::new();
     match engine_id.first_author {
         Some(first_author) => {
@@ -76,29 +77,29 @@ fn uci_uciok(stdio_log: &Arc<Mutex<StdioLog>>, engine_id: EngineId) -> Result<()
         },
         None => (),
     }
-    writeln!(&mut *stdio_log_g, "id author {}", author)?;
-    writeln!(&mut *stdio_log_g, "uciok")?;
-    stdio_log_g.flush()?;
+    writeln!(&mut *stdout_log_g, "id author {}", author)?;
+    writeln!(&mut *stdout_log_g, "uciok")?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn uci_readyok(stdio_log: &Arc<Mutex<StdioLog>>) -> Result<()>
+fn uci_readyok(stdout_log: &Arc<Mutex<StdoutLog>>) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "readyok")?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "readyok")?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn uci_unknown_command(stdio_log: &Arc<Mutex<StdioLog>>, cmd: &str) -> Result<()>
+fn uci_unknown_command(stdout_log: &Arc<Mutex<StdoutLog>>, cmd: &str) -> Result<()>
 {
-    let mut stdio_log_g = stdio_log.lock().unwrap();
-    writeln!(&mut *stdio_log_g, "Unknown command: {}", cmd)?;
-    stdio_log_g.flush()?;
+    let mut stdout_log_g = stdout_log.lock().unwrap();
+    writeln!(&mut *stdout_log_g, "Unknown command: {}", cmd)?;
+    stdout_log_g.flush()?;
     Ok(())
 }
 
-fn initialize_commands(cmds: &mut HashMap<String, fn(&Arc<Mutex<StdioLog>>, &mut Engine, &[&str]) -> Result<bool>>)
+fn initialize_commands(cmds: &mut HashMap<String, fn(&Arc<Mutex<StdoutLog>>, &mut Engine, &[&str]) -> Result<bool>>)
 {
     cmds.insert(String::from("setoption"), uci_ignore);
     cmds.insert(String::from("ucinewgame"), uci_ucinewgame);
@@ -110,10 +111,10 @@ fn initialize_commands(cmds: &mut HashMap<String, fn(&Arc<Mutex<StdioLog>>, &mut
     cmds.insert(String::from("display"), uci_display);
 }
 
-fn uci_ignore(_stdio_log: &Arc<Mutex<StdioLog>>, _engine: &mut Engine, _args: &[&str]) -> Result<bool>
+fn uci_ignore(_stdout_log: &Arc<Mutex<StdoutLog>>, _engine: &mut Engine, _args: &[&str]) -> Result<bool>
 { Ok(false) }
 
-fn uci_ucinewgame(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
+fn uci_ucinewgame(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
 {
     engine.stop();
     engine.do_move_chain(|move_chain| {
@@ -122,7 +123,7 @@ fn uci_ucinewgame(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, _args:
     Ok(false)
 }
 
-fn uci_position(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, args: &[&str]) -> Result<bool>
+fn uci_position(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args: &[&str]) -> Result<bool>
 {
     engine.stop();
     engine.do_move_chain(|move_chain| {
@@ -172,7 +173,7 @@ fn uci_position(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, args: &[
     Ok(false)
 }
 
-fn uci_go(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, args: &[&str]) -> Result<bool>
+fn uci_go(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args: &[&str]) -> Result<bool>
 {
     engine.stop();
     let mut i = 0usize;
@@ -296,47 +297,54 @@ fn uci_go(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, args: &[&str])
     Ok(false)
 }
 
-fn uci_stop(_stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
+fn uci_stop(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
 {
     engine.stop();
     Ok(false)
 }
 
-fn uci_quit(_stdio_log: &Arc<Mutex<StdioLog>>, _engine: &mut Engine, _args: &[&str]) -> Result<bool>
+fn uci_quit(_stdout_log: &Arc<Mutex<StdoutLog>>, _engine: &mut Engine, _args: &[&str]) -> Result<bool>
 { Ok(true) }
 
-fn uci_display(stdio_log: &Arc<Mutex<StdioLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
+fn uci_display(stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
 {
     engine.stop();
     engine.do_move_chain(|move_chain| {
-            let mut stdio_log_g = stdio_log.lock().unwrap();
-            write!(&mut *stdio_log_g, "{}",  move_chain.last().pretty(PrettyStyle::Ascii))?;
-            writeln!(&mut *stdio_log_g, "{}", move_chain.last().as_fen())?;
-            stdio_log_g.flush()?;
+            let mut stdout_log_g = stdout_log.lock().unwrap();
+            write!(&mut *stdout_log_g, "{}",  move_chain.last().pretty(PrettyStyle::Ascii))?;
+            writeln!(&mut *stdout_log_g, "{}", move_chain.last().as_fen())?;
+            stdout_log_g.flush()?;
             Ok::<(), Error>(())
     })?;
     Ok(false)
 }
 
-pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
+pub fn uci_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
-    let mut cmds: HashMap<String, fn(&Arc<Mutex<StdioLog>>, &mut Engine, &[&str]) -> Result<bool>> = HashMap::new();
+    let mut cmds: HashMap<String, fn(&Arc<Mutex<StdoutLog>>, &mut Engine, &[&str]) -> Result<bool>> = HashMap::new();
     let mut err: Option<LoopError> = None;
     let mut engine: Option<Engine> = None;
     initialize_commands(&mut cmds);
-    match uci_uciok(&stdio_log, engine_id) {
+    match uci_uciok(&stdout_log, engine_id) {
         Ok(()) => (),
         Err(err2) => err = Some(LoopError::Io(err2)),
     }
     if err.is_none() {
         loop {
             let mut line = String::new();
+            match stdin().read_line(&mut line) {
+                Ok(0) => break,
+                Ok(_) => (),
+                Err(err2) => {
+                    err = Some(LoopError::Io(err2));
+                    break;
+                },
+            }
             {
-                let mut stdio_log_g = stdio_log.lock().unwrap();
-                match stdio_log_g.read_line(&mut line) {
-                    Ok(0) => break,
-                    Ok(_) => (),
+                let mut stdout_log_g = stdout_log.lock().unwrap();
+                match stdout_log_g.log_input_line(line.as_str()) {
+                    Ok(()) => (),
                     Err(err2) => {
                         err = Some(LoopError::Io(err2));
                         break;
@@ -352,7 +360,7 @@ pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: En
                     if cmd_name == "debug" {
                         continue;
                     } else if cmd_name == "isready" {
-                        match uci_readyok(&stdio_log) {
+                        match uci_readyok(&stdout_log) {
                             Ok(()) => (),
                             Err(err2) => {
                                 err = Some(LoopError::Io(err2));
@@ -362,7 +370,7 @@ pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: En
                         continue;
                     }
                     if engine.is_none() {
-                        match f(stdio_log.clone(), Arc::new(UciPrinter::new())) {
+                        match f(stdout_log.clone(), Arc::new(UciPrinter::new())) {
                             Ok(new_engine) => engine = Some(new_engine),
                             Err(err2) => {
                                 err = Some(err2);
@@ -374,7 +382,7 @@ pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: En
                         Some(engine) => {
                             match cmds.get(&String::from(cmd_name)) {
                                 Some(cmd_fun) => {
-                                    match cmd_fun(&stdio_log, engine, args.as_slice()) {
+                                    match cmd_fun(&stdout_log, engine, args.as_slice()) {
                                         Ok(is_exit) if is_exit => break,
                                         Ok(_) => (),
                                         Err(err2) => {
@@ -384,7 +392,7 @@ pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: En
                                     }
                                 },
                                 None => {
-                                    match uci_unknown_command(&stdio_log, cmd) {
+                                    match uci_unknown_command(&stdout_log, cmd) {
                                         Ok(()) => (),
                                         Err(err2) => {
                                             err = Some(LoopError::Io(err2));
@@ -417,6 +425,6 @@ pub fn uci_loop_with_engine_id<F>(stdio_log: Arc<Mutex<StdioLog>>, engine_id: En
     }
 }
 
-pub fn uci_loop<F>(stdio_log: Arc<Mutex<StdioLog>>, f: F) -> LoopResult<()>
+pub fn uci_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
-{ uci_loop_with_engine_id(stdio_log, NEURINA_ID, f) }
+{ uci_loop_with_engine_id(stdout_log, NEURINA_ID, f) }

@@ -5,45 +5,37 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-use std::io::Stdin;
 use std::io::Stdout;
 use std::io::Result;
 use std::io::Write;
-use std::io::stdin;
 use std::io::stdout;
 use crate::engine::utils::*;
 
-pub struct StdioLog
+pub struct StdoutLog
 {
-    stdin: Stdin,
     stdout: Stdout,
     log: Option<Box<dyn Write + Send + Sync>>,
     has_output_prefix: bool,
 }
 
-impl StdioLog
+impl StdoutLog
 {
     pub fn new(log: Option<Box<dyn Write + Send + Sync>>) -> Self
-    { StdioLog { stdin: stdin(), stdout: stdout(), log, has_output_prefix: true, } }
+    { StdoutLog { stdout: stdout(), log, has_output_prefix: true, } }
     
-    pub fn read_line(&mut self, buf: &mut String) -> Result<usize>
+    pub fn log_input_line(&mut self, line: &str) -> Result<()>
     {
-        match self.stdin.read_line(buf) {
-            Ok(size) => {
-                match &mut self.log {
-                    Some(log) => {
-                        writeln!(log, "input: {}", str_without_nl(buf.as_str()))?;
-                    },
-                    None => (),
-                }
-                Ok(size)
+        match &mut self.log {
+            Some(log) => {
+                writeln!(log, "input: {}", str_without_nl(line))?;
             },
-            Err(err) => Err(err),
+            None => (),
         }
+        Ok(())
     }
 }
 
-impl Write for StdioLog
+impl Write for StdoutLog
 {
     fn write(&mut self, buf: &[u8]) -> Result<usize>
     {
