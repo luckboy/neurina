@@ -71,7 +71,7 @@ fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn
         None => {
             match load_network(args.network.as_str()) {
                 Ok(tmp_network) => {
-                    if tmp_network.check(Converter::BOARD_ROW_COUNT, converter.move_row_count()) {
+                    if !tmp_network.check(Converter::BOARD_ROW_COUNT, converter.move_row_count()) {
                         return Err(LoopError::InvalidNetwork);
                     }
                     tmp_network
