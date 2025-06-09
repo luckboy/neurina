@@ -57,7 +57,7 @@ fn test_engine_go_thinks_without_panic()
     new_move_chain.push_uci_list("e2e4 e7e5").unwrap();
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
-    let thinker = Arc::new(Thinker::new(one_searcher, cursor, printer));
+    let thinker = Arc::new(Thinker::new(one_searcher, cursor, printer, Arc::new(Mutex::new(None))));
     let engine = Engine::new(thinker);
     engine.do_move_chain(|move_chain| {
             *move_chain = new_move_chain;

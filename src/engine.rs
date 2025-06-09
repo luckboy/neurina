@@ -9,6 +9,8 @@ use std::error;
 use std::fmt;
 use crate::matrix;
 
+pub use fathom_syzygy as fathom;
+
 pub(crate) mod engine;
 pub(crate) mod engine_id;
 pub(crate) mod eval;
@@ -22,6 +24,7 @@ pub(crate) mod print;
 pub(crate) mod protocol;
 pub(crate) mod search;
 pub(crate) mod simple_eval_fun;
+pub(crate) mod syzygy;
 pub(crate) mod thinker;
 pub(crate) mod uci;
 pub(crate) mod utils;
@@ -40,6 +43,7 @@ pub use print::*;
 pub use protocol::*;
 pub use search::*;
 pub use simple_eval_fun::*;
+pub use syzygy::*;
 pub use thinker::*;
 pub use uci::*;
 pub use utils::*;
@@ -51,6 +55,7 @@ pub enum LoopError
     InvalidNetwork,
     Io(std::io::Error),
     Matrix(matrix::Error),
+    Fathom(fathom::Error),
     UninitializedLoopContext,
     UnrecognizedProtocol,
 }
@@ -66,6 +71,7 @@ impl fmt::Display for LoopError
             LoopError::InvalidNetwork => write!(f, "invalid network"),
             LoopError::Io(err) => write!(f, "{}", err),
             LoopError::Matrix(err) => write!(f, "{}", err),
+            LoopError::Fathom(err) => write!(f, "{}", err),
             LoopError::UninitializedLoopContext => write!(f, "uninitialized loop context"),
             LoopError::UnrecognizedProtocol => write!(f, "unrecognized protocol"),
         }

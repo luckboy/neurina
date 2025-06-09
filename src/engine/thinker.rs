@@ -17,6 +17,7 @@ use crate::chess::Move;
 use crate::chess::MoveChain;
 use crate::engine::print::*;
 use crate::engine::search::*;
+use crate::engine::syzygy::*;
 use crate::shared::intr_check::*;
 
 pub struct Thinker
@@ -24,18 +25,20 @@ pub struct Thinker
     searcher: Arc<dyn Search + Send + Sync>,
     writer: Arc<Mutex<dyn Write + Send + Sync>>,
     printer: Arc<dyn Print + Send + Sync>,
+    syzygy: Arc<Mutex<Option<Syzygy>>>,
     is_stopped: Mutex<bool>,
     condvar: Condvar,
 }
 
 impl Thinker
 {
-    pub fn new(searcher: Arc<dyn Search + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print  + Send + Sync>) -> Self
+    pub fn new(searcher: Arc<dyn Search + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print  + Send + Sync>, syzygy: Arc<Mutex<Option<Syzygy>>>) -> Self
     {
         Thinker {
             searcher,
             writer,
             printer,
+            syzygy,
             is_stopped: Mutex::new(true),
             condvar: Condvar::new(),
         }
@@ -49,6 +52,9 @@ impl Thinker
     
     pub fn printer(&self) -> &Arc<dyn Print  + Send + Sync>
     { &self.printer }
+    
+    pub fn syzygy(&self) -> &Arc<Mutex<Option<Syzygy>>>
+    { &self.syzygy }
     
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
     { self.searcher.intr_checker() }
@@ -98,6 +104,13 @@ impl Thinker
                 },
             }
             let mut best_move: Option<Move> = None;
+            {
+                let mut syzygy_g = self.syzygy.lock().unwrap();
+                match &mut *syzygy_g {
+                    Some(syzygy) => best_move = syzygy.probe(move_chain_g.last()),
+                    None => (),
+                }
+            }
             if best_move.is_none() {
                 let mut is_first = true;
                 let mut node_count = 0u64; 

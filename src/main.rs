@@ -31,6 +31,9 @@ struct Args
     /// Write logs to log file
     #[arg(short, long, value_name = "LOG_FILE")]
     log: Option<String>,
+    /// Load Syzygy endgame tablebases
+    #[arg(short, long, value_name = "SYZYGY_PATH")]
+    syzygy: Option<String>,
 }
 
 const MIDDLE_DEPTH: usize = 2;
@@ -82,12 +85,21 @@ fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn
             }
         },
     };
+    let syzygy = match &args.syzygy {
+        Some(syzygy_path) => {
+            match Syzygy::new(syzygy_path) {
+                Ok(tmp_syzygy) => Arc::new(Mutex::new(Some(tmp_syzygy))),
+                Err(err) => return Err(LoopError::Fathom(err)),
+            }
+        },
+        None => Arc::new(Mutex::new(None)),
+    };
     let intr_checker = Arc::new(IntrChecker::new());
     let eval_fun = Arc::new(SimpleEvalFun::new());
     let neural_searcher = Arc::new(NeuralSearcher::new(intr_checker, converter, network));
     let middle_searcher = MiddleSearcher::new(eval_fun, neural_searcher);
     let one_searcher = Arc::new(OneSearcher::new(middle_searcher, MIDDLE_DEPTH));
-    let thinker = Arc::new(Thinker::new(one_searcher, writer, printer));
+    let thinker = Arc::new(Thinker::new(one_searcher, writer, printer, syzygy));
     Ok(Engine::new(thinker))
 }
 
