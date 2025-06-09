@@ -105,7 +105,12 @@ fn fathom_move_to_move(board: &Board, fathom_move: fathom::Move) -> Option<Move>
     };
     let uci_move = uci::Move::Move { src, dst, promote, };
     match uci_move.into_move(board) {
-        Ok(mv) => Some(mv),
+        Ok(mv) => {
+            match mv.validate(board) {
+                Ok(()) => Some(mv),
+                Err(_) => None,
+            }
+        },
         Err(_) => None,
     }
 }
