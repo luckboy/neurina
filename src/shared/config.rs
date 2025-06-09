@@ -16,7 +16,8 @@ use crate::serde::Deserialize;
 #[derive(Clone, Debug, Deserialize)]
 pub struct Config
 {
-    pub backend: Option<BackendConfig>
+    pub backend: Option<BackendConfig>,
+    pub syzygy: Option<SyzygyConfig>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -28,6 +29,12 @@ pub struct BackendConfig
     pub device: Option<usize>,
     pub cublas: Option<bool>,
     pub mma: Option<bool>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct SyzygyConfig
+{
+    pub path: Option<String>
 }
 
 pub fn read_config(r: &mut dyn Read) -> Result<Config>

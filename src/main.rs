@@ -85,7 +85,17 @@ fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn
             }
         },
     };
-    let syzygy = match &args.syzygy {
+    let mut config_syzygy_path: Option<String> = None;
+    match config {
+        Some(config) => {
+            match &config.syzygy {
+                Some(syzygy) => config_syzygy_path = syzygy.path.clone(),
+                None => (),
+            }
+        },
+        None => (),
+    }
+    let syzygy = match args.syzygy.as_ref().or(config_syzygy_path.as_ref()) {
         Some(syzygy_path) => {
             match Syzygy::new(syzygy_path) {
                 Ok(tmp_syzygy) => Arc::new(Mutex::new(Some(tmp_syzygy))),

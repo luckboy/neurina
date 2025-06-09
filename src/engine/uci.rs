@@ -10,6 +10,7 @@ use std::io::Error;
 use std::io::Result;
 use std::io::Write;
 use std::io::stdin;
+use std::mem::swap;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
@@ -23,6 +24,7 @@ use crate::engine::engine::*;
 use crate::engine::engine_id::*;
 use crate::engine::io::*;
 use crate::engine::print::*;
+use crate::engine::syzygy::*;
 use crate::engine::utils::*;
 use crate::engine::LoopError;
 use crate::engine::LoopResult;
@@ -78,6 +80,7 @@ fn uci_uciok(stdout_log: &Arc<Mutex<StdoutLog>>, engine_id: EngineId) -> Result<
         None => (),
     }
     writeln!(&mut *stdout_log_g, "id author {}", author)?;
+    writeln!(&mut *stdout_log_g, "option name SyzygyPath type string default ")?;
     writeln!(&mut *stdout_log_g, "uciok")?;
     stdout_log_g.flush()?;
     Ok(())
@@ -101,7 +104,7 @@ fn uci_unknown_command(stdout_log: &Arc<Mutex<StdoutLog>>, cmd: &str) -> Result<
 
 fn initialize_commands(cmds: &mut HashMap<String, fn(&Arc<Mutex<StdoutLog>>, &mut Engine, &[&str]) -> Result<bool>>)
 {
-    cmds.insert(String::from("setoption"), uci_ignore);
+    cmds.insert(String::from("setoption"), uci_setoption);
     cmds.insert(String::from("ucinewgame"), uci_ucinewgame);
     cmds.insert(String::from("position"), uci_position);
     cmds.insert(String::from("go"), uci_go);
@@ -113,6 +116,78 @@ fn initialize_commands(cmds: &mut HashMap<String, fn(&Arc<Mutex<StdoutLog>>, &mu
 
 fn uci_ignore(_stdout_log: &Arc<Mutex<StdoutLog>>, _engine: &mut Engine, _args: &[&str]) -> Result<bool>
 { Ok(false) }
+
+fn uci_setoption(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args: &[&str]) -> Result<bool>
+{
+    let mut is_first = true;
+    let mut i = 0usize;
+    let mut name = String::new();
+    let mut value = String::new();
+    match args.get(i) {
+        Some(arg) if *arg == "name" => {
+            i += 1;
+            loop {
+                match args.get(i) {
+                    Some(s) if *s == "value" => break,
+                    Some(s) => {
+                        if !is_first {
+                            name.push(' ');
+                        }
+                        name.push_str(*s);
+                        i += 1;
+                        is_first = false;
+                    },
+                    None => break,
+                }
+            }
+        },
+        _ => return Ok(false),
+    }
+    is_first = true;
+    match args.get(i) {
+        Some(arg) if *arg == "value" => {
+            i += 1;
+            loop {
+                match args.get(i) {
+                    Some(s) => {
+                        if !is_first {
+                            value.push(' ');
+                        }
+                        value.push_str(*s);
+                        i += 1;
+                        is_first = false;
+                    },
+                    None => break,
+                }
+            }
+        },
+        _ => return Ok(false),
+    }
+    if name == String::from("SyzygyPath") {
+        let mut syzygy_g = engine.thinker().syzygy().lock().unwrap();
+        if !value.is_empty() {
+            let mut syzygy: Option<Syzygy> = None;
+            swap(&mut *syzygy_g, &mut syzygy);
+            match syzygy {
+                Some(syzygy) => {
+                    match syzygy.reload(value) {
+                        Ok(tmp_syzygy) => *syzygy_g = Some(tmp_syzygy),
+                        Err(_) => (),
+                    }
+                },
+                None => {
+                    match Syzygy::new(value) {
+                        Ok(tmp_syzygy) => *syzygy_g = Some(tmp_syzygy),
+                        Err(_) => (),
+                    }
+                },
+            }
+        } else {
+            *syzygy_g = None;
+        }
+    }
+    Ok(false)
+}
 
 fn uci_ucinewgame(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, _args: &[&str]) -> Result<bool>
 {
