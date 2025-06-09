@@ -161,7 +161,7 @@ fn uci_setoption(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args:
                 }
             }
         },
-        _ => return Ok(false),
+        _ => (),
     }
     if name == String::from("SyzygyPath") {
         let mut syzygy_g = engine.thinker().syzygy().lock().unwrap();
