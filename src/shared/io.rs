@@ -105,3 +105,6 @@ pub fn save_network<P: AsRef<Path>>(path: P, network: &Network) -> Result<()>
     let mut w = BufWriter::new(file);
     write_network(&mut w, network)
 }
+
+#[cfg(test)]
+mod tests;

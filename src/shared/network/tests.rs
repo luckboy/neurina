@@ -365,3 +365,65 @@ fn test_network_backpropagate_backpropagates_without_panic_for_50_columns_and_de
     assert_eq!(150, dj_dnet.ob().row_count());
     assert_eq!(1, dj_dnet.ob().col_count());
 }
+
+#[test]
+fn test_network_check_returns_true()
+{
+    let mut iw_elems = vec![0.0f32; 200 * 100];
+    xavier_init(iw_elems.as_mut_slice(), 100, 200);
+    let iw = Matrix::new_with_elems(200, 100, iw_elems.as_slice());
+    let mut ib_elems = vec![0.0f32; 200];
+    xavier_init(ib_elems.as_mut_slice(), 100, 200);
+    let ib = Matrix::new_with_elems(200, 1, ib_elems.as_slice());
+    let mut sw_elems = vec![0.0f32; 200 * 200];
+    xavier_init(sw_elems.as_mut_slice(), 200, 200);
+    let sw = Matrix::new_with_elems(200, 200, sw_elems.as_slice());
+    let mut sb_elems = vec![0.0f32; 200];
+    xavier_init(sb_elems.as_mut_slice(), 200, 200);
+    let sb = Matrix::new_with_elems(200, 1, sb_elems.as_slice());
+    let mut pw_elems = vec![0.0f32; 200 * 200];
+    xavier_init(pw_elems.as_mut_slice(), 200, 200);
+    let pw = Matrix::new_with_elems(200, 200, pw_elems.as_slice());
+    let mut pb_elems = vec![0.0f32; 200];
+    xavier_init(pb_elems.as_mut_slice(), 200, 200);
+    let pb = Matrix::new_with_elems(200, 1, pb_elems.as_slice());
+    let mut ow_elems = vec![0.0f32; 150 * 200];
+    xavier_init(ow_elems.as_mut_slice(), 200, 150);
+    let ow = Matrix::new_with_elems(150, 200, ow_elems.as_slice());
+    let mut ob_elems = vec![0.0f32; 150];
+    xavier_init(ob_elems.as_mut_slice(), 200, 150);
+    let ob = Matrix::new_with_elems(150, 1, ob_elems.as_slice());
+    let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
+    assert_eq!(true, network.check(100, 150));
+}
+
+#[test]
+fn test_network_check_returns_false()
+{
+    let mut iw_elems = vec![0.0f32; 200 * 100];
+    xavier_init(iw_elems.as_mut_slice(), 100, 200);
+    let iw = Matrix::new_with_elems(200, 100, iw_elems.as_slice());
+    let mut ib_elems = vec![0.0f32; 200];
+    xavier_init(ib_elems.as_mut_slice(), 100, 200);
+    let ib = Matrix::new_with_elems(200, 1, ib_elems.as_slice());
+    let mut sw_elems = vec![0.0f32; 200 * 201];
+    xavier_init(sw_elems.as_mut_slice(), 200, 200);
+    let sw = Matrix::new_with_elems(200, 201, sw_elems.as_slice());
+    let mut sb_elems = vec![0.0f32; 200];
+    xavier_init(sb_elems.as_mut_slice(), 200, 200);
+    let sb = Matrix::new_with_elems(200, 1, sb_elems.as_slice());
+    let mut pw_elems = vec![0.0f32; 200 * 200];
+    xavier_init(pw_elems.as_mut_slice(), 200, 200);
+    let pw = Matrix::new_with_elems(200, 200, pw_elems.as_slice());
+    let mut pb_elems = vec![0.0f32; 200];
+    xavier_init(pb_elems.as_mut_slice(), 200, 200);
+    let pb = Matrix::new_with_elems(200, 1, pb_elems.as_slice());
+    let mut ow_elems = vec![0.0f32; 150 * 200];
+    xavier_init(ow_elems.as_mut_slice(), 200, 150);
+    let ow = Matrix::new_with_elems(150, 200, ow_elems.as_slice());
+    let mut ob_elems = vec![0.0f32; 150];
+    xavier_init(ob_elems.as_mut_slice(), 200, 150);
+    let ob = Matrix::new_with_elems(150, 1, ob_elems.as_slice());
+    let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
+    assert_eq!(false, network.check(100, 150));
+}
