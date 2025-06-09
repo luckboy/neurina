@@ -34,7 +34,7 @@ pub struct BackendConfig
 #[derive(Clone, Debug, Deserialize)]
 pub struct SyzygyConfig
 {
-    pub path: Option<String>
+    pub path: Option<String>,
 }
 
 pub fn read_config(r: &mut dyn Read) -> Result<Config>
