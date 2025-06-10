@@ -279,10 +279,21 @@ fn xboard_playother(_stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, 
 
 fn xboard_level(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
-    match args[0].parse::<usize>() {
-        Ok(mps) => context.engine.set_time_control(TimeControl::Mps(mps)),
-        Err(_) => xboard_error(stdout_log, "invalid number", cmd)?,
-    }
+    let mps = match args[0].parse::<usize>() {
+        Ok(tmp_mps) => tmp_mps,
+        Err(_) => {
+            xboard_error(stdout_log, "invalid number", cmd)?;
+            return Ok(false);
+        },
+    };
+    let inc = match args[2].parse::<u64>() {
+        Ok(tmp_inc) => Duration::from_secs(tmp_inc),
+        Err(_) => {
+            xboard_error(stdout_log, "invalid number", cmd)?;
+            return Ok(false);
+        },
+    };
+    context.engine.set_time_control(TimeControl::Level(mps, inc));
     Ok(false)
 }
 

@@ -255,6 +255,8 @@ fn uci_go(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args: &[&str
     let mut search_moves: Option<Vec<Move>> = None;
     let mut white_time: Option<Duration> = None;
     let mut black_time: Option<Duration> = None;
+    let mut white_inc: Option<Duration> = None;
+    let mut black_inc: Option<Duration> = None;
     let mut move_count_to_go = 0usize;
     let mut depth: Option<usize> = None;
     let mut node_count: Option<u64> = None;
@@ -298,11 +300,17 @@ fn uci_go(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args: &[&str
                 i += 2;
             },
             Some(arg) if *arg == "winc" => {
-                if i + 1 >= args.len() { break; }
+                match args.get(i + 1) {
+                    Some(s) => white_inc = Some(Duration::from_millis(s.parse::<u64>().unwrap_or(0))),
+                    None => break,
+                }
                 i += 2;
             },
             Some(arg) if *arg == "binc" => {
-                if i + 1 >= args.len() { break; }
+                match args.get(i + 1) {
+                    Some(s) => black_inc = Some(Duration::from_millis(s.parse::<u64>().unwrap_or(0))),
+                    None => break,
+                }
                 i += 2;
             },
             Some(arg) if *arg == "movestogo" => {
@@ -351,19 +359,24 @@ fn uci_go(_stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, args: &[&str
             is_timeout = true;
         },
         None => {
-            let remaining_time = engine.do_move_chain(|move_chain| {
+            let (remaining_time, inc) = engine.do_move_chain(|move_chain| {
                     match move_chain.last().side() {
-                        Color::White => white_time,
-                        Color::Black => black_time,
+                        Color::White => (white_time, white_inc),
+                        Color::Black => (black_time, black_inc),
                     }
             });
-            match remaining_time {
-                Some(remaining_time) => {
-                    engine.set_time_control(TimeControl::Mps(0));
+            match (remaining_time, inc) {
+                (Some(remaining_time), Some(inc)) => {
+                    engine.set_time_control(TimeControl::Level(0, inc));
                     engine.set_remaining_time(remaining_time);
                     is_timeout = true;
                 },
-                None => (),
+                (Some(remaining_time), None) => {
+                    engine.set_time_control(TimeControl::Level(0, Duration::ZERO));
+                    engine.set_remaining_time(remaining_time);
+                    is_timeout = true;
+                },
+                (None, _) => (),
             }
         },
     }

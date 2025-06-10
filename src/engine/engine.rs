@@ -21,7 +21,7 @@ use crate::engine::thinker::*;
 #[derive(Copy, Clone, Debug)]
 pub enum TimeControl
 {
-    Mps(usize),
+    Level(usize, Duration),
     Fixed(Duration),
 }
 
@@ -85,7 +85,7 @@ impl Engine
             sender,
             thinker,
             move_chain,
-            time_control: TimeControl::Mps(0),
+            time_control: TimeControl::Level(0, Duration::ZERO),
             remaining_time: Duration::from_secs(5 * 60),
             move_count_to_go: 0,
         }
@@ -135,7 +135,7 @@ impl Engine
     fn calculate_timeout(&self) -> Duration
     {
         match self.time_control {
-            TimeControl::Mps(mps) => {
+            TimeControl::Level(mps, inc) => {
                 let move_count_to_go = if self.move_count_to_go > 0 {
                     self.move_count_to_go
                 } else {
@@ -146,7 +146,15 @@ impl Engine
                         30
                     }
                 };
-                self.remaining_time / (move_count_to_go as u32)
+                let mut timeout = self.remaining_time / (move_count_to_go as u32) + inc / 2;
+                if timeout >= self.remaining_time {
+                    if self.remaining_time > Duration::from_millis(600) {
+                        timeout = self.remaining_time - Duration::from_millis(500);
+                    } else {
+                        timeout = Duration::from_millis(100);
+                    }
+                }
+                timeout
             },
             TimeControl::Fixed(timeout) => timeout,
         }
