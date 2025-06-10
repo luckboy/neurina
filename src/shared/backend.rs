@@ -22,6 +22,7 @@ use crate::matrix::cuda::CudaBackend;
 use crate::matrix::Error;
 use crate::matrix::Result;
 use crate::matrix::set_default_backend;
+use crate::matrix::unset_default_backend;
 use crate::shared::config::*;
 
 #[cfg(feature = "cuda")]
@@ -101,3 +102,6 @@ pub fn initialize_backend(config: &Option<Config>) -> Result<()>
     }
     res.unwrap()
 }
+
+pub fn finalize_backend() -> Result<()>
+{ unset_default_backend() }

@@ -135,11 +135,22 @@ fn main()
         },
         None => Arc::new(Mutex::new(StdoutLog::new(None))),
     };
+    let mut status = 0;
     match protocol_loop(stdout_log, |writer, printer| initialize_engine(&args, &config, writer, printer)) {
         Ok(()) => (),
         Err(err) => {
             eprintln!("{}", err);
-            exit(1);
+            status = 1;
         },
+    }
+    match finalize_backend() {
+        Ok(()) => (),
+        Err(err) => {
+            eprintln!("{}", err);
+            status = 1;
+        },
+    }
+    if status != 0 {
+        exit(status);
     }
 }
