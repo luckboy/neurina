@@ -57,16 +57,16 @@ fn board_to_fathom_position(board: &Board) -> fathom::Position
     let rule50 = raw_board.move_counter as u32;
     let mut castling = 0u32;
     if raw_board.castling.has(Color::White, CastlingSide::King) {
-        castling |= 1;
+        castling |= fathom::CASTLE_WHITE_KINGSIDE;
     }
     if raw_board.castling.has(Color::White, CastlingSide::Queen) {
-        castling |= 2;
+        castling |= fathom::CASTLE_WHITE_QUEENSIDE;
     }
     if raw_board.castling.has(Color::Black, CastlingSide::King) {
-        castling |= 4;
+        castling |= fathom::CASTLE_BLACK_KINGSIDE;
     }
     if raw_board.castling.has(Color::Black, CastlingSide::Queen) {
-        castling |= 8;
+        castling |= fathom::CASTLE_BLACK_QUEENSIDE;
     }
     let ep = match raw_board.ep_dest() {
         Some(ep_dest) => squ_to_fathom_squ(ep_dest.index()) as u32,
