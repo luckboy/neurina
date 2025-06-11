@@ -58,7 +58,7 @@ fn test_thinker_think_thinks_without_panic()
     let printer = Arc::new(EmptyPrinter::new());
     let thinker = Thinker::new(one_searcher, cursor, printer, Arc::new(Mutex::new(None)));
     thinker.start();
-    match thinker.think(&move_chain_arc, &None, Some(5), None, None, None, true, true, true) {
+    match thinker.think(&move_chain_arc, &None, Some(5), None, None, Instant::now(), None, true, true, true) {
         Ok(()) => assert!(true),
         Err(_) => assert!(false),
     }

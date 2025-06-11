@@ -10,6 +10,7 @@ use std::sync::mpsc::Sender;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::time::Duration;
+use std::time::Instant;
 use std::thread::JoinHandle;
 use std::thread::spawn;
 use crate::chess::types::OutcomeFilter;
@@ -32,6 +33,7 @@ struct ThinkingParams
     depth: Option<usize>,
     node_count: Option<u64>,
     move_count_to_checkmate: Option<usize>,
+    now: Instant,
     timeout: Option<Duration>,
     can_make_best_move: bool,
     can_print_pv: bool,
@@ -68,7 +70,7 @@ impl Engine
                 loop {
                     match receiver.recv().unwrap() {
                         ThreadCommand::Think(params) => {
-                            match thread_thinker.think(&thread_move_chain, &params.search_moves, params.depth, params.node_count, params.move_count_to_checkmate, params.timeout, params.can_make_best_move, params.can_print_pv, params.can_print_best_move_and_outcome) {
+                            match thread_thinker.think(&thread_move_chain, &params.search_moves, params.depth, params.node_count, params.move_count_to_checkmate, params.now, params.timeout, params.can_make_best_move, params.can_print_pv, params.can_print_best_move_and_outcome) {
                                 Ok(()) => (),
                                 Err(err) => {
                                     thread_thinker.stop();
@@ -187,6 +189,7 @@ impl Engine
                 search_moves,
                 depth, node_count, 
                 move_count_to_checkmate,
+                now: Instant::now(),
                 timeout,
                 can_make_best_move,
                 can_print_pv,
