@@ -300,7 +300,7 @@ fn xboard_level(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args:
 fn xboard_st(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, args: &[&str], cmd: &str) -> Result<bool>
 {
     match args[0].parse::<u64>() {
-        Ok(timeout) => context.engine.set_time_control(TimeControl::Fixed(Duration::from_secs(timeout))),
+        Ok(time) => context.engine.set_time_control(TimeControl::Fixed(Duration::from_secs(time))),
         Err(_) => xboard_error(stdout_log, "invalid number", cmd)?,
     }
     Ok(false)

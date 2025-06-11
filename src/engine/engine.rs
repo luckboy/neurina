@@ -148,15 +148,21 @@ impl Engine
                 };
                 let mut timeout = self.remaining_time / (move_count_to_go as u32) + inc / 2;
                 if timeout >= self.remaining_time {
-                    if self.remaining_time > Duration::from_millis(600) {
+                    if self.remaining_time > Duration::from_millis(500) {
                         timeout = self.remaining_time - Duration::from_millis(500);
                     } else {
-                        timeout = Duration::from_millis(100);
+                        timeout = Duration::ZERO;
                     }
                 }
                 timeout
             },
-            TimeControl::Fixed(timeout) => timeout,
+            TimeControl::Fixed(time) => {
+                if time > Duration::from_millis(500) {
+                    time - Duration::from_millis(500)
+                } else {
+                    Duration::ZERO
+                }
+            },
         }
     }
     
