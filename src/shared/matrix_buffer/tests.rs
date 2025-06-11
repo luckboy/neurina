@@ -19,10 +19,11 @@ fn test_matrix_buffer_do_elems_does_elements()
             i[1 * col_count + j] = *e;
             i[2 * col_count + j] = *e;
     }, |i, _, _, es| {
-        inputs.push(i);
-        for e in es {
-            *e += 1.0;
-        }
+            inputs.push(i);
+            for e in es {
+                *e += 1.0;
+            }
+            Ok(())
     }).unwrap();
     assert_eq!(vec![3.0f32, 2.0f32, 5.0f32, 4.0f32, 7.0f32, 6.0f32], elems);
     assert_eq!(2, inputs.len());
@@ -47,11 +48,12 @@ fn test_matrix_buffer_do_elems_does_elements_with_outputs()
             os[1][0 * col_count + j] = *e + 2.0;
             os[1][1 * col_count + j] = *e + 2.0;
     }, |i, os, _, es| {
-        inputs.push(i);
-        outputs.push(os.to_vec());
-        for e in es {
-            *e += 1.0;
-        }
+            inputs.push(i);
+            outputs.push(os.to_vec());
+            for e in es {
+                *e += 1.0;
+            }
+            Ok(())
     }).unwrap();
     assert_eq!(vec![3.0f32, 2.0f32, 5.0f32, 4.0f32, 7.0f32, 6.0f32], elems);
     assert_eq!(2, inputs.len());
@@ -84,11 +86,12 @@ fn test_matrix_buffer_do_elems_does_elements_with_outputs_after_resize_output_bu
             os[1][0 * col_count + j] = *e + 2.0;
             os[1][1 * col_count + j] = *e + 2.0;
     }, |i, os, _, es| {
-        inputs.push(i);
-        outputs.push(os.to_vec());
-        for e in es {
-            *e += 1.0;
-        }
+            inputs.push(i);
+            outputs.push(os.to_vec());
+            for e in es {
+                *e += 1.0;
+            }
+            Ok(())
     }).unwrap();
     assert_eq!(vec![3.0f32, 2.0f32, 5.0f32, 4.0f32, 7.0f32, 6.0f32], elems);
     assert_eq!(2, inputs.len());

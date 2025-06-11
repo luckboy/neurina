@@ -81,7 +81,8 @@ impl<T: Net> NeuralSearch for NeuralSearcher<T>
                     }
                     pairs[j] = Some((tmp_board.clone(), tmp_board.side()));
                 }
-                self.network.compute(&i, depth, depth, |_| (), |o| {
+                self.network.compute(&i, depth, depth, |_| self.intr_checker.check(), |o| {
+                        self.intr_checker.check()?;
                         let frontend = Frontend::new().unwrap();
                         let mut is_transposed = false;
                         frontend.get_elems_and_transpose_flag(&o, &mut output_elems[0..(self.converter.move_row_count() * col_count)], &mut is_transposed).unwrap();
@@ -105,7 +106,8 @@ impl<T: Net> NeuralSearch for NeuralSearcher<T>
                                 None => (),
                             }
                         }
-                });
+                        Ok(())
+                })
         })
     }
 }

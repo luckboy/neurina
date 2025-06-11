@@ -6,11 +6,13 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use crate::matrix::Matrix;
+use crate::shared::Interruption;
 
 pub trait Net
 {
-    fn compute<HF, OF>(&self, i: &Matrix, depth: usize, pv_count: usize, hf: HF, of: OF)
-        where HF: FnMut(Matrix), OF: FnMut(Matrix);
+    fn compute<HF, OF>(&self, i: &Matrix, depth: usize, pv_count: usize, hf: HF, of: OF) -> Result<(), Interruption>
+        where HF: FnMut(Matrix) -> Result<(), Interruption>,
+            OF: FnMut(Matrix) -> Result<(), Interruption>;
     
     fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Self;
 

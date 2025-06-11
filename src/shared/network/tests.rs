@@ -45,7 +45,13 @@ fn test_network_compute_computes_without_panic()
     let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
     let mut hs: Vec<Matrix> = Vec::new();
     let mut os: Vec<Matrix> = Vec::new();
-    network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
+    network.compute(&i, 1, 1, |h| {
+            hs.push(h);
+            Ok(())
+    }, |o| {
+            os.push(o);
+            Ok(())
+    }).unwrap();
     assert_eq!(3, hs.len());
     assert_eq!(200, hs[0].row_count());
     assert_eq!(1, hs[0].col_count());
@@ -93,7 +99,13 @@ fn test_network_compute_computes_without_panic_for_50_columns()
     let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
     let mut hs: Vec<Matrix> = Vec::new();
     let mut os: Vec<Matrix> = Vec::new();
-    network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
+    network.compute(&i, 1, 1, |h| {
+            hs.push(h);
+            Ok(())
+    }, |o| {
+            os.push(o);
+            Ok(())
+    }).unwrap();
     assert_eq!(3, hs.len());
     assert_eq!(200, hs[0].row_count());
     assert_eq!(50, hs[0].col_count());
@@ -141,7 +153,13 @@ fn test_network_compute_computes_without_panic_for_50_columns_and_depth_and_pv_c
     let network = Network::new(iw, ib, sw, sb, pw, pb, ow, ob);
     let mut hs: Vec<Matrix> = Vec::new();
     let mut os: Vec<Matrix> = Vec::new();
-    network.compute(&i, 4, 3, |h| hs.push(h), |o| os.push(o));
+    network.compute(&i, 4, 3, |h| {
+            hs.push(h);
+            Ok(())
+    }, |o| {
+            os.push(o);
+            Ok(())
+    }).unwrap();
     assert_eq!(1 + 4 + 3, hs.len());
     assert_eq!(200, hs[0].row_count());
     assert_eq!(50, hs[0].col_count());
@@ -214,7 +232,13 @@ fn test_network_backpropagate_backpropagates_without_panic()
         let y = Matrix::new_with_elems(150, 1, y_elems.as_slice());
         ys.push(y);
     }
-    network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
+    network.compute(&i, 1, 1, |h| {
+            hs.push(h);
+            Ok(())
+    }, |o| {
+            os.push(o);
+            Ok(())
+    }).unwrap();
     let dj_dnet = network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
     assert_eq!(200, dj_dnet.iw().row_count());
     assert_eq!(100, dj_dnet.iw().col_count());
@@ -280,7 +304,13 @@ fn test_network_backpropagate_backpropagates_without_panic_for_50_columns()
         let y = Matrix::new_with_elems(150, 50, y_elems.as_slice());
         ys.push(y);
     }
-    network.compute(&i, 1, 1, |h| hs.push(h), |o| os.push(o));
+    network.compute(&i, 1, 1, |h| {
+            hs.push(h);
+            Ok(())
+    }, |o| {
+            os.push(o);
+            Ok(())
+    }).unwrap();
     let dj_dnet = network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
     assert_eq!(200, dj_dnet.iw().row_count());
     assert_eq!(100, dj_dnet.iw().col_count());
@@ -346,7 +376,13 @@ fn test_network_backpropagate_backpropagates_without_panic_for_50_columns_and_de
         let y = Matrix::new_with_elems(150, 50, y_elems.as_slice());
         ys.push(y);
     }
-    network.compute(&i, 4, 3, |h| hs.push(h), |o| os.push(o));
+    network.compute(&i, 4, 3, |h| {
+            hs.push(h);
+            Ok(())
+    }, |o| {
+            os.push(o);
+            Ok(())
+    }).unwrap();
     let dj_dnet = network.backpropagate(&i, hs.as_slice(), os.as_slice(), ys.as_slice(), &one);
     assert_eq!(200, dj_dnet.iw().row_count());
     assert_eq!(100, dj_dnet.iw().col_count());

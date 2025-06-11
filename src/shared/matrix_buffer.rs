@@ -54,7 +54,7 @@ impl<T> MatrixBuffer<T>
     
     pub fn do_elems<U, F, G>(&mut self, elems: &mut [U], output_count: usize, intr_checker: &dyn IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
         where F: FnMut(&U, &mut [f32], &mut [Vec<f32>], usize, usize),
-            G: FnMut(Matrix, &[Matrix], &mut T, &mut [U])
+            G: FnMut(Matrix, &[Matrix], &mut T, &mut [U]) -> Result<(), Interruption>
     {
         for i in (0..elems.len()).step_by(self.max_col_count) {
             intr_checker.check()?;
@@ -66,7 +66,7 @@ impl<T> MatrixBuffer<T>
             let outputs: Vec<Matrix> = (0..output_count).map(|j| {
                     Matrix::new_with_elems(self.output_row_count, col_count, &self.output_bufs[j][0..(self.output_row_count * col_count)])
             }).collect();
-            g(input, outputs.as_slice(), &mut self.middle_buf, &mut elems[i..(i + col_count)]);
+            g(input, outputs.as_slice(), &mut self.middle_buf, &mut elems[i..(i + col_count)])?;
         }
         Ok(())
     }

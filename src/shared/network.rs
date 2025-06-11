@@ -7,6 +7,7 @@
 //
 use crate::matrix::Matrix;
 use crate::shared::net::*;
+use crate::shared::Interruption;
 
 //
 // output layer
@@ -79,8 +80,9 @@ impl Network
 
 impl Net for Network
 {
-    fn compute<HF, OF>(&self, i: &Matrix, depth: usize, pv_count: usize, mut hf: HF, mut of: OF)
-        where HF: FnMut(Matrix), OF: FnMut(Matrix)
+    fn compute<HF, OF>(&self, i: &Matrix, depth: usize, pv_count: usize, mut hf: HF, mut of: OF) -> Result<(), Interruption>
+        where HF: FnMut(Matrix) -> Result<(), Interruption>,
+            OF: FnMut(Matrix)  -> Result<(), Interruption>
     {
         let ib = if i.col_count() > 1 { self.ib.repeat(i.col_count()) } else { self.ib.clone() };
         let sb = if i.col_count() > 1 { self.sb.repeat(i.col_count()) } else { self.sb.clone() };
@@ -88,19 +90,20 @@ impl Net for Network
         let ob = if i.col_count() > 1 { self.ob.repeat(i.col_count()) } else { self.ob.clone() };
         let mut z = &self.iw * i + &ib;
         let mut h = z.tanh();
-        hf(h.clone());
+        hf(h.clone())?;
         for _ in 0..depth {
             z = &self.sw * &h + &sb;
             h = z.tanh();
-            hf(h.clone());
+            hf(h.clone())?;
         }
         for _ in 0..pv_count {
             z = &self.pw * &h + &pb;
             h = z.tanh();
-            hf(h.clone());
+            hf(h.clone())?;
             let o = &self.ow * &h + &ob;
-            of(o);
+            of(o)?;
         }
+        Ok(())
     }
     
     fn backpropagate(&self, i: &Matrix, hs: &[Matrix], os: &[Matrix], ys: &[Matrix], one: &Matrix) -> Self
