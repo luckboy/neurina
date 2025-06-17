@@ -64,6 +64,10 @@ impl Trainer
                 Ok(()) => (),
                 Err(err) => return Err(TrainerError::Io(err)),
             }
+            match writer_g.flush() {
+                Ok(()) => (),
+                Err(err) => return Err(TrainerError::Io(err)),
+            }
         }
         self.algorithm.gradient_adder().start();
         for sample in data {
@@ -102,6 +106,10 @@ impl Trainer
                                                     Ok(()) => (),
                                                     Err(err) => return Err(TrainerError::Io(err)),
                                                 }
+                                                match writer_g.flush() {
+                                                    Ok(()) => (),
+                                                    Err(err) => return Err(TrainerError::Io(err)),
+                                                }
                                             }
                                         }
                                     },
@@ -111,10 +119,10 @@ impl Trainer
                         },
                         None => err_count += 1,
                     }
-                    sample_count += 1;
                 },
                 None => err_count += 1,
             }
+            sample_count += 1;
         }
         for minibatch in minibatches.values_mut() {
             if !minibatch.is_empty() {
@@ -129,12 +137,20 @@ impl Trainer
                         Ok(()) => (),
                         Err(err) => return Err(TrainerError::Io(err)),
                     }
+                    match writer_g.flush() {
+                        Ok(()) => (),
+                        Err(err) => return Err(TrainerError::Io(err)),
+                    }
                 }
             }
         }
         {
             let mut writer_g = self.writer.lock().unwrap();
             match self.printer.print(&mut *writer_g, sample_count, computed_minibatch_count, minibatch_count, true) {
+                Ok(()) => (),
+                Err(err) => return Err(TrainerError::Io(err)),
+            }
+            match writer_g.flush() {
                 Ok(()) => (),
                 Err(err) => return Err(TrainerError::Io(err)),
             }

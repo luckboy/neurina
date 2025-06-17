@@ -10,7 +10,7 @@ use crate::trainer::TrainerResult;
 
 pub trait Algorithm
 {
-    fn gradient_adder(&self) -> &dyn GradientAdd;
+    fn gradient_adder(&self) -> &(dyn GradientAdd + Send + Sync);
     
     fn load(&self) -> TrainerResult<()>;
 
