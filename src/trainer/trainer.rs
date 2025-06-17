@@ -166,6 +166,6 @@ impl Trainer
         Ok(tuple)
     }
 
-    pub fn do_final(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
+    pub fn do_result(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     { self.do_data(data, false) }
 }
