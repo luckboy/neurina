@@ -5,10 +5,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
-pub use owlchess as chess;
-pub use unmtx_gpu as matrix;
-pub use serde;
+use crate::trainer::data_sample::*;
 
-pub mod engine;
-pub mod shared;
-pub mod trainer;
+pub trait Sample
+{
+    fn samples(&self, sample: &DataSample) -> Option<Vec<DataSample>>;
+}
