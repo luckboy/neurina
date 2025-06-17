@@ -12,8 +12,6 @@ pub trait Algorithm
 {
     fn gradient_adder(&self) -> &(dyn GradientAdd + Send + Sync);
     
-    fn load(&self) -> TrainerResult<()>;
-
     fn save(&self) -> TrainerResult<()>;
 
     fn do_alg(&self) -> TrainerResult<()>;

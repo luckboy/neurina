@@ -43,9 +43,6 @@ impl Trainer
     pub fn printer(&self) -> &Arc<dyn Print + Send + Sync>
     { &self.printer }
     
-    pub fn load(&self) -> TrainerResult<()>
-    { self.algorithm.load() }
-
     pub fn save(&self) -> TrainerResult<()>
     { self.algorithm.save() }
     
