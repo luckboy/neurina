@@ -65,6 +65,7 @@ impl Trainer
                 Err(err) => return Err(TrainerError::Io(err)),
             }
         }
+        self.algorithm.gradient_adder().start();
         for sample in data {
             match self.algorithm.gradient_adder().intr_checker().check() {
                 Ok(()) => (),
@@ -144,6 +145,7 @@ impl Trainer
     pub fn do_epoch(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     {
         let tuple = self.do_data(data, true)?;
+        self.algorithm.gradient_adder().divide();
         self.algorithm.do_alg()?;
         Ok(tuple)
     }
