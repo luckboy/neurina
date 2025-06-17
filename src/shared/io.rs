@@ -17,9 +17,28 @@ use std::path::Path;
 use crate::matrix::Matrix;
 use crate::shared::Network;
 
+pub trait Load<T>
+{
+    fn load<P: AsRef<Path>>(&self, path: P) -> Result<T>;
+}
+
 pub trait Save
 {
     fn save<P: AsRef<Path>>(&self, path: P) -> Result<()>;
+}
+
+pub struct NetworkLoader;
+
+impl NetworkLoader
+{
+    pub fn new() -> Self
+    { NetworkLoader }
+}
+
+impl Load<Network> for NetworkLoader
+{
+    fn load<P: AsRef<Path>>(&self, path: P) -> Result<Network>
+    { load_network(path) }
 }
 
 pub fn read_matrix(r: &mut dyn Read) -> Result<Matrix>
