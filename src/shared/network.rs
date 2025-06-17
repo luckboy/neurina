@@ -5,7 +5,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use std::io;
+use std::path::Path;
 use crate::matrix::Matrix;
+use crate::shared::io::*;
 use crate::shared::net::*;
 use crate::shared::Interruption;
 
@@ -252,6 +255,12 @@ impl Net for Network
         if self.ob.col_count() != 1 { return false; }
         true
     }
+}
+
+impl Save for Network
+{
+    fn save<P: AsRef<Path>>(&self, path: P) -> io::Result<()>
+    { save_network(path, self) }
 }
 
 #[cfg(test)]

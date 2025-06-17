@@ -17,6 +17,11 @@ use std::path::Path;
 use crate::matrix::Matrix;
 use crate::shared::Network;
 
+pub trait Save
+{
+    fn save<P: AsRef<Path>>(&self, path: P) -> Result<()>;
+}
+
 pub fn read_matrix(r: &mut dyn Read) -> Result<Matrix>
 {
     let mut u64_buf: [u8; 8] = [0; 8];
