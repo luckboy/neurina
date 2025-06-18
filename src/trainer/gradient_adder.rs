@@ -50,6 +50,15 @@ impl<T> GradientAdder<T>
             all_sample_count: AtomicU64::new(0),
         }
     }
+    
+    pub fn converter(&self) -> &Converter
+    { &self.converter }
+
+    pub fn network(&self) -> &Mutex<T>
+    { &self.network }
+
+    pub fn gradient(&self) -> &Mutex<Option<T>>
+    { &self.gradient }
 }
 
 impl<T: Net> GradientAdd for GradientAdder<T>
