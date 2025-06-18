@@ -138,9 +138,11 @@ impl<T: Net> GradientAdd for GradientAdder<T>
             }
             Ok(())
         });
-        self.all_sample_count.fetch_add(samples.len() as u64, Ordering::SeqCst);
         match res {
-            Ok(()) => Ok((passed_output_count, all_output_count)),
+            Ok(()) => {
+                self.all_sample_count.fetch_add(samples.len() as u64, Ordering::SeqCst);
+                Ok((passed_output_count, all_output_count))
+            },
             Err(intr) => Err(TrainerError::Interruption(intr)),
         }
     }
