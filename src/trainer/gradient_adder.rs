@@ -67,6 +67,7 @@ impl<T: Net> GradientAdd for GradientAdder<T>
     {
         let mut gradient_g = self.gradient.lock().unwrap();
         *gradient_g = None;
+        self.all_sample_count.store(0, Ordering::SeqCst);
     }
     
     fn compute(&self, samples: &mut [DataSample], move_count: usize, are_gradients: bool) -> TrainerResult<(u64, u64)>
