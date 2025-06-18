@@ -43,6 +43,9 @@ impl Trainer
     pub fn printer(&self) -> &Arc<dyn Print + Send + Sync>
     { &self.printer }
     
+    pub fn epoch(&self) -> usize
+    { self.algorithm.epoch() }
+    
     pub fn save(&self) -> TrainerResult<()>
     { self.algorithm.save() }
     
