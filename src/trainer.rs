@@ -12,6 +12,8 @@ use crate::shared::Interruption;
 pub(crate) mod algorithm;
 pub(crate) mod data_sample;
 pub(crate) mod gradient_add;
+pub(crate) mod gradient_adder;
+pub(crate) mod gradient_pair;
 pub(crate) mod print;
 pub(crate) mod sample;
 pub(crate) mod trainer;
@@ -19,6 +21,8 @@ pub(crate) mod trainer;
 pub use algorithm::*;
 pub use data_sample::*;
 pub use gradient_add::*;
+pub use gradient_adder::*;
+pub use gradient_pair::*;
 pub use print::*;
 pub use sample::*;
 pub use trainer::*;
@@ -27,7 +31,7 @@ pub use trainer::*;
 pub enum TrainerError
 {
     Interruption(Interruption),
-    NoGrandient,
+    NoGradient,
     Io(std::io::Error),
 }
 
@@ -42,7 +46,7 @@ impl fmt::Display for TrainerError
             TrainerError::Interruption(Interruption::Timeout) => write!(f, "interrupted by timeout"),
             TrainerError::Interruption(Interruption::Stop) => write!(f, "interrupted by stop"),
             TrainerError::Interruption(Interruption::CtrlC) => write!(f, "interrupted by ctrl-c"),
-            TrainerError::NoGrandient => write!(f, "no grandient"),
+            TrainerError::NoGradient => write!(f, "no gradient"),
             TrainerError::Io(err) => write!(f, "{}", err),
         }
     }

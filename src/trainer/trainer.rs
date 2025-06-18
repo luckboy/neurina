@@ -92,7 +92,7 @@ impl Trainer
                                 match minibatches.get_mut(&sample.moves.len()) {
                                     Some(minibatch) => {
                                         if self.algorithm.gradient_adder().samples_are_full(minibatch.len()) {
-                                            let (tmp_passed_output_count, output_count) = self.algorithm.gradient_adder().compute(minibatch, are_gradients)?;
+                                            let (tmp_passed_output_count, output_count) = self.algorithm.gradient_adder().compute(minibatch, sample.moves.len(), are_gradients)?;
                                             passed_output_count += tmp_passed_output_count;
                                             all_output_count += output_count;
                                             minibatch.clear();
@@ -121,9 +121,9 @@ impl Trainer
             }
             sample_count += 1;
         }
-        for minibatch in minibatches.values_mut() {
+        for (move_count, minibatch) in &mut minibatches {
             if !minibatch.is_empty() {
-                let (tmp_passed_output_count, output_count) = self.algorithm.gradient_adder().compute(minibatch, are_gradients)?;
+                let (tmp_passed_output_count, output_count) = self.algorithm.gradient_adder().compute(minibatch, *move_count, are_gradients)?;
                 passed_output_count += tmp_passed_output_count;
                 all_output_count += output_count;
                 minibatch.clear();
@@ -158,7 +158,7 @@ impl Trainer
     pub fn do_epoch(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     {
         let tuple = self.do_data(data, true)?;
-        self.algorithm.gradient_adder().divide();
+        self.algorithm.gradient_adder().divide()?;
         self.algorithm.do_alg()?;
         Ok(tuple)
     }

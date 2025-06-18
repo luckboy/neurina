@@ -18,7 +18,7 @@ pub trait GradientAdd
 
     fn start(&self);
     
-    fn compute(&self, samples: &[DataSample], are_gradients: bool) -> TrainerResult<(u64, u64)>;
+    fn compute(&self, samples: &mut [DataSample], move_count: usize, are_gradients: bool) -> TrainerResult<(u64, u64)>;
     
-    fn divide(&self);
+    fn divide(&self) -> TrainerResult<()>;
 }
