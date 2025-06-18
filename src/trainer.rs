@@ -14,8 +14,10 @@ pub(crate) mod data_sample;
 pub(crate) mod gradient_add;
 pub(crate) mod gradient_adder;
 pub(crate) mod gradient_pair;
+pub(crate) mod multi_sampler;
 pub(crate) mod print;
 pub(crate) mod sample;
+pub(crate) mod single_sampler;
 pub(crate) mod trainer;
 
 pub use algorithm::*;
@@ -23,8 +25,10 @@ pub use data_sample::*;
 pub use gradient_add::*;
 pub use gradient_adder::*;
 pub use gradient_pair::*;
+pub use multi_sampler::*;
 pub use print::*;
 pub use sample::*;
+pub use single_sampler::*;
 pub use trainer::*;
 
 #[derive(Debug)]
