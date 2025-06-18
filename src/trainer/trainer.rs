@@ -6,6 +6,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use std::collections::BTreeMap;
+use std::io::Result;
 use std::io::Write;
 use std::sync::Arc;
 use std::sync::Mutex;
@@ -46,7 +47,7 @@ impl Trainer
     pub fn epoch(&self) -> usize
     { self.algorithm.epoch() }
     
-    pub fn save(&self) -> TrainerResult<()>
+    pub fn save(&self) -> Result<()>
     { self.algorithm.save() }
     
     fn do_data(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>, are_gradients: bool) -> TrainerResult<(u64, u64, u64)>
