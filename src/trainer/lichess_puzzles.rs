@@ -8,6 +8,7 @@
 use std::fs::File;
 use std::io::Error;
 use std::io::ErrorKind;
+use std::io::Read;
 use std::io::Result;
 use std::path::Path;
 use csv::DeserializeRecordsIter;
@@ -36,33 +37,39 @@ struct LichessPuzzle
     OpeningTags: String,
 }
 
-pub struct LichessPuzzleReader
+pub struct LichessPuzzleReader<R>
 {
-    reader: Reader<File>,
+    reader: Reader<R>,
 }
 
-impl LichessPuzzleReader
+impl LichessPuzzleReader<File>
 {
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<LichessPuzzleReader>
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self>
     {
         match Reader::from_path(path) {
             Ok(reader) => Ok(LichessPuzzleReader { reader, }),
             Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("csv: {}", err))),
         }
     }
+}
+
+impl<R: Read> LichessPuzzleReader<R>
+{
+    pub fn from_reader(r: R) -> Self
+    { LichessPuzzleReader { reader: Reader::from_reader(r), } }
     
-    pub fn puzzles(&mut self, max_count: Option<u64>) -> LichessPuzzles<'_>
+    pub fn puzzles(&mut self, max_count: Option<u64>) -> LichessPuzzles<'_, R>
     { LichessPuzzles { iter: self.reader.deserialize(), count: 0, max_count, } }
 }
 
-pub struct LichessPuzzles<'a>
+pub struct LichessPuzzles<'a, R>
 {
-    iter: DeserializeRecordsIter<'a, File, LichessPuzzle>,
+    iter: DeserializeRecordsIter<'a, R, LichessPuzzle>,
     count: u64,
     max_count: Option<u64>,
 }
 
-impl<'a> Iterator for LichessPuzzles<'a>
+impl<'a, R: Read> Iterator for LichessPuzzles<'a, R>
 {
     type Item = TrainerResult<Option<DataSample>>;
     
