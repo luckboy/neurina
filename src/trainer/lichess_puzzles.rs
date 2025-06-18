@@ -97,8 +97,8 @@ impl<'a> Iterator for LichessPuzzles<'a>
                                     };
                                     let mut tmp_board = board.clone();
                                     let mut moves: Vec<Move> = Vec::new();
-                                    for s in ss {
-                                        match Move::from_uci_legal(s, &tmp_board) {
+                                    for s2 in ss {
+                                        match Move::from_uci_legal(s2, &tmp_board) {
                                             Ok(mv) => {
                                                 match tmp_board.make_move(mv) {
                                                     Ok(tmp_new_board) => {
