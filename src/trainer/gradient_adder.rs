@@ -91,7 +91,9 @@ impl<T: Net> GradientAdd for GradientAdder<T>
             let mut hs: Vec<Matrix> = Vec::new();
             let mut os: Vec<Matrix> = Vec::new();
             network_g.compute(&i, depth, depth, |h| {
-                    hs.push(h);
+                    if are_gradients {
+                        hs.push(h);
+                    }
                     Ok(())
             }, |o| {
                     os.push(o);
