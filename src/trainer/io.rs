@@ -5,11 +5,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use std::fs::File;
 use std::fs::metadata;
 use std::fs::remove_file;
 use std::fs::rename;
+use std::io::Error;
 use std::io::ErrorKind;
+use std::io::Read;
 use std::io::Result;
+use std::io::Write;
+use std::path::Path;
+use crate::serde::de::DeserializeOwned;
+use crate::serde::ser::Serialize;
 use crate::shared::io::*;
 
 pub fn load_or<T, L: Load<T>>(loader: L, file_name: &str, value: T) -> Result<T>
@@ -35,4 +42,34 @@ pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Res
     }
     value.save(file_name.as_str())?;
     Ok(())
+}
+
+pub fn read_state<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
+{
+    let mut s = String::new();
+    r.read_to_string(&mut s)?;
+    match toml::from_str::<T>(s.as_str()) {
+        Ok(state) => Ok(state),
+        Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("toml error: {}", err))),
+    }
+}
+
+pub fn write_state<T: Serialize + ?Sized>(w: &mut dyn Write, state: &T) -> Result<()>
+{
+    match toml::to_string(state) {
+        Ok(s) => write!(w, "{}", s),
+        Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("toml error: {}", err))),
+    }
+}
+
+pub fn load_state<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> Result<T>
+{
+    let mut file = File::open(path)?;
+    read_state(&mut file)
+}
+
+pub fn save_state<P: AsRef<Path>, T: Serialize + ?Sized>(path: P, state: &T) -> Result<()>
+{
+    let mut file = File::create(path)?;
+    write_state(&mut file, state)
 }
