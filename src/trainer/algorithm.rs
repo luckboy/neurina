@@ -17,5 +17,5 @@ pub trait Algorithm
     
     fn save(&self) -> Result<()>;
 
-    fn do_alg(&self) -> TrainerResult<()>;
+    fn do_algorithm(&self) -> TrainerResult<()>;
 }

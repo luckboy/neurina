@@ -163,7 +163,7 @@ impl Trainer
     {
         let tuple = self.do_data(data, true)?;
         self.algorithm.gradient_adder().divide()?;
-        self.algorithm.do_alg()?;
+        self.algorithm.do_algorithm()?;
         Ok(tuple)
     }
 
