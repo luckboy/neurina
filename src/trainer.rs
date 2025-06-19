@@ -9,6 +9,8 @@ use std::error;
 use std::fmt;
 use crate::shared::Interruption;
 
+pub mod algorithms;
+
 pub(crate) mod algorithm;
 pub(crate) mod data_sample;
 pub(crate) mod gradient_add;
