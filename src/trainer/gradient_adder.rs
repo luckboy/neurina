@@ -71,9 +71,9 @@ impl<T> GradientAdder<T>
     pub const MAX_COL_COUNT: usize = 1024;
     
     pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T) -> Self
-    { Self::new_with_max_col_cout(intr_checker, converter, network, Self::MAX_COL_COUNT) }
+    { Self::new_with_max_col_count(intr_checker, converter, network, Self::MAX_COL_COUNT) }
     
-    pub fn new_with_max_col_cout(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T, max_col_count: usize) -> Self
+    pub fn new_with_max_col_count(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T, max_col_count: usize) -> Self
     {
         let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, max_col_count, 0, (vec![0.0; converter.move_row_count() * max_col_count], vec![0.0; converter.move_row_count() * max_col_count])));
         GradientAdder {
