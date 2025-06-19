@@ -20,6 +20,18 @@ use crate::trainer::data_sample::*;
 use crate::trainer::TrainerError;
 use crate::trainer::TrainerResult;
 
+fn csv_error_to_io_error(err: csv::Error) -> Error
+{
+    if err.is_io_error() {
+        match err.into_kind() {
+            csv::ErrorKind::Io(err) => err,
+            _ => Error::new(ErrorKind::InvalidData, format!("csv error: unknown error")),
+        }
+    } else {
+        Error::new(ErrorKind::InvalidData, format!("csv error: {}", err))
+    }
+}
+
 #[allow(dead_code)]
 #[allow(non_snake_case)]
 #[derive(Deserialize)]
@@ -48,7 +60,7 @@ impl LichessPuzzleReader<File>
     {
         match Reader::from_path(path) {
             Ok(reader) => Ok(LichessPuzzleReader { reader, }),
-            Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("csv: {}", err))),
+            Err(err) => Err(csv_error_to_io_error(err)),
         }
     }
 }
@@ -123,7 +135,7 @@ impl<'a, R: Read> Iterator for LichessPuzzles<'a, R>
                                 None => Some(Ok(None)),
                             }
                         },
-                        Err(err) => Some(Err(TrainerError::Io(Error::new(ErrorKind::InvalidData, format!("csv: {}", err))))),
+                        Err(err) => Some(Err(TrainerError::Io(csv_error_to_io_error(err)))),
                     }
                 },
                 None => None,
