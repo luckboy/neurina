@@ -5,6 +5,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+use std::io::Result;
+use std::marker::PhantomData;
 use std::sync::atomic::AtomicU64;
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
@@ -13,13 +15,46 @@ use crate::matrix::Frontend;
 use crate::matrix::Matrix;
 use crate::shared::converter::*;
 use crate::shared::intr_check::*;
+use crate::shared::io::*;
 use crate::shared::matrix_buffer::*;
 use crate::shared::net::*;
 use crate::trainer::data_sample::*;
 use crate::trainer::gradient_add::*;
+use crate::trainer::gradient_add_create::*;
 use crate::trainer::gradient_pair::*;
+use crate::trainer::io::*;
+use crate::trainer::net_create::*;
 use crate::trainer::TrainerError;
 use crate::trainer::TrainerResult;
+
+#[derive(Copy, Clone, Debug)]
+pub struct GradientAdderFactory<T, NL, NF>
+{
+    net_loader: NL,
+    xavier_net_factory: NF,
+    _unused: PhantomData<T>,
+}
+
+impl<T, NL, NF> GradientAdderFactory<T, NL, NF>
+{
+    pub fn new(net_loader: NL, xavier_net_factory: NF) -> Self
+    {
+        GradientAdderFactory {
+            net_loader,
+            xavier_net_factory,
+            _unused: PhantomData::<T>,
+        }
+    }
+}
+
+impl<T, NL: Load<T>, NF: NetCreate<T>> GradientAddCreate<GradientAdder<T>> for GradientAdderFactory<T, NL, NF>
+{
+    fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<GradientAdder<T>>
+    {
+        let network = load_or_else(&self.net_loader, "neurina.nnet", || self.xavier_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?;
+        Ok(GradientAdder::new(intr_checker, converter, network))
+    }
+}
 
 pub struct GradientAdder<T>
 {

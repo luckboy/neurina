@@ -19,14 +19,18 @@ use crate::serde::de::DeserializeOwned;
 use crate::serde::ser::Serialize;
 use crate::shared::io::*;
 
-pub fn load_or<T, L: Load<T>>(loader: L, file_name: &str, value: T) -> Result<T>
+pub fn load_or_else<T, L: Load<T>, F>(loader: &L, file_name: &str, f: F) -> Result<T>
+    where F: FnOnce() -> T
 {
     match loader.load(file_name) {
-        Ok(tmp_value) => Ok(tmp_value),
-        Err(err) if err.kind() == ErrorKind::NotFound => Ok(value),
+        Ok(value) => Ok(value),
+        Err(err) if err.kind() == ErrorKind::NotFound => Ok(f()),
         Err(err) => Err(err),
     }
 }
+
+pub fn load_or<T, L: Load<T>>(loader: &L, file_name: &str, value: T) -> Result<T>
+{ load_or_else(loader, file_name, || value) }
 
 pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Result<()>
 {
