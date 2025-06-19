@@ -27,6 +27,7 @@ pub trait Save
     fn save<P: AsRef<Path>>(&self, path: P) -> Result<()>;
 }
 
+#[derive(Copy, Clone, Debug)]
 pub struct NetworkLoader;
 
 impl NetworkLoader
