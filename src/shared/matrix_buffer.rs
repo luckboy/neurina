@@ -60,7 +60,7 @@ impl<T> MatrixBuffer<T>
             intr_checker.check()?;
             let col_count = min(self.max_col_count, elems.len() - i);
             for j in 0..col_count {
-                f(&elems[i + j], self.input_buf.as_mut_slice(), self.output_bufs.as_mut_slice(), j, col_count);
+                f(&elems[i + j], self.input_buf.as_mut_slice(), &mut self.output_bufs[0..output_count], j, col_count);
             }
             let input = Matrix::new_with_elems(self.input_row_count, col_count, &self.input_buf[0..(self.input_row_count * col_count)]);
             let outputs: Vec<Matrix> = (0..output_count).map(|j| {

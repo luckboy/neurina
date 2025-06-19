@@ -75,7 +75,7 @@ impl<T> GradientAdder<T>
     
     pub fn new_with_max_col_count(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T, max_col_count: usize) -> Self
     {
-        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, max_col_count, 0, (vec![0.0; converter.move_row_count() * max_col_count], vec![0.0; converter.move_row_count() * max_col_count])));
+        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, converter.move_row_count(), max_col_count, 0, (vec![0.0; converter.move_row_count() * max_col_count], vec![0.0; converter.move_row_count() * max_col_count])));
         GradientAdder {
             intr_checker,
             converter,
@@ -127,7 +127,7 @@ impl<T: Net> GradientAdd for GradientAdder<T>
         let res = matrix_buf_g.do_elems(samples, move_count, &*self.intr_checker, |sample, input_elems, output_elems, j, col_count| {
                 self.converter.board_to_matrix_col(&sample.board, input_elems, j, col_count);
                 for k in 0..output_elems.len() {
-                    self.converter.move_to_matrix_col(sample.moves[k], sample.board.side(), &mut output_elems[k], j, col_count);
+                    self.converter.move_to_matrix_col(sample.moves[k], sample.board.side(), output_elems[k].as_mut_slice(), j, col_count);
                 }
         }, |i, ys, pair, samples| {
             let depth = ys.len();

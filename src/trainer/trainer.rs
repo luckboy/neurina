@@ -170,3 +170,6 @@ impl Trainer
     pub fn do_result(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     { self.do_data(data, false) }
 }
+
+#[cfg(test)]
+mod tests;
