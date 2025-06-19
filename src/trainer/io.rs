@@ -48,15 +48,21 @@ pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Res
     Ok(())
 }
 
-pub fn read_state<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
+fn read_params_or_state<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
 {
     let mut s = String::new();
     r.read_to_string(&mut s)?;
     match toml::from_str::<T>(s.as_str()) {
-        Ok(state) => Ok(state),
+        Ok(params_or_state) => Ok(params_or_state),
         Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("toml error: {}", err))),
     }
 }
+
+pub fn read_params<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
+{ read_params_or_state(r) }
+
+pub fn read_state<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
+{ read_params_or_state(r) }
 
 pub fn write_state<T: Serialize + ?Sized>(w: &mut dyn Write, state: &T) -> Result<()>
 {
@@ -64,6 +70,12 @@ pub fn write_state<T: Serialize + ?Sized>(w: &mut dyn Write, state: &T) -> Resul
         Ok(s) => write!(w, "{}", s),
         Err(err) => Err(Error::new(ErrorKind::InvalidData, format!("toml error: {}", err))),
     }
+}
+
+pub fn load_params<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> Result<T>
+{
+    let mut file = File::open(path)?;
+    read_params(&mut file)
 }
 
 pub fn load_state<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> Result<T>
