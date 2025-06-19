@@ -76,7 +76,7 @@ impl Load<GdParams> for GdParamsLoader
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct GdParams
 {
-    eta: f32,
+    pub eta: f32,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -97,7 +97,7 @@ impl Load<GdState> for GdStateLoader
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct GdState
 {
-    epoch: usize,
+    pub epoch: usize,
 }
 
 impl Save for GdState
