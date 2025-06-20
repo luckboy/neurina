@@ -25,7 +25,7 @@ fn csv_error_to_io_error(err: csv::Error) -> Error
     if err.is_io_error() {
         match err.into_kind() {
             csv::ErrorKind::Io(err) => err,
-            _ => Error::new(ErrorKind::InvalidData, format!("csv error: unknown error")),
+            _ => Error::new(ErrorKind::InvalidData, String::from("csv error: unknown error")),
         }
     } else {
         Error::new(ErrorKind::InvalidData, format!("csv error: {}", err))
