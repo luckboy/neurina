@@ -71,7 +71,8 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_epoch(&mut puzzles) {
-        Ok((_, all_output_count, err_count)) => {
+        Ok((passed_output_count, all_output_count, err_count)) => {
+            assert!(18 >= passed_output_count);
             assert_eq!(18, all_output_count);
             assert_eq!(0, err_count);
         },
@@ -130,7 +131,8 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_epoch(&mut puzzles) {
-        Ok((_, all_output_count, err_count)) => {
+        Ok((passed_output_count, all_output_count, err_count)) => {
+            assert!(55 >= passed_output_count);
             assert_eq!(55, all_output_count);
             assert_eq!(0, err_count);
         },
@@ -189,7 +191,8 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_result(&mut puzzles) {
-        Ok((_, all_output_count, err_count)) => {
+        Ok((passed_output_count, all_output_count, err_count)) => {
+            assert!(18 >= passed_output_count);
             assert_eq!(18, all_output_count);
             assert_eq!(0, err_count);
         },
@@ -248,7 +251,8 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_result(&mut puzzles) {
-        Ok((_, all_output_count, err_count)) => {
+        Ok((passed_output_count, all_output_count, err_count)) => {
+            assert!(55 >= passed_output_count);
             assert_eq!(55, all_output_count);
             assert_eq!(0, err_count);
         },
