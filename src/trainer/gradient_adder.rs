@@ -18,6 +18,7 @@ use crate::shared::intr_check::*;
 use crate::shared::io::*;
 use crate::shared::matrix_buffer::*;
 use crate::shared::net::*;
+use crate::trainer::algorithm::*;
 use crate::trainer::data_sample::*;
 use crate::trainer::gradient_add::*;
 use crate::trainer::gradient_add_create::*;
@@ -51,7 +52,7 @@ impl<T, NL: Load<T>, NF: NetCreate<T>> GradientAddCreate<GradientAdder<T>> for G
 {
     fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<GradientAdder<T>>
     {
-        let network = load_or_else(&self.net_loader, "neurina.nnet", || self.xavier_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?;
+        let network = load_or_else(&self.net_loader, NETWORK_NAME, || self.xavier_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?;
         Ok(GradientAdder::new(intr_checker, converter, network))
     }
 }

@@ -52,8 +52,8 @@ impl<T, U, GAF: GradientAddCreate<U>> GdAlgFactory<T, U, GAF>
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<GdAlg<T, U>>
     {
         let gradient_adder = self.gradient_adder_factory.create(intr_checker, converter)?;
-        let params = self.params_loader.load("params.toml")?;
-        let state = load_or(&self.state_loader, "params.toml", GdState { epoch: 1, })?;
+        let params = self.params_loader.load(PARAMS_NAME)?;
+        let state = load_or(&self.state_loader, STATE_NAME, GdState { epoch: 1, })?;
         Ok(GdAlg::new(gradient_adder, params, state))
     }
 }
@@ -142,10 +142,10 @@ impl<T: Net + Save + Send + Sync, U: GradientAdd + GradientPair<T> + Send + Sync
     {
         {
             let state_g = self.state.lock().unwrap();
-            move_prev_and_save("state", ".toml", &*state_g)?;
+            move_prev_and_save(STATE_NAME_PREFIX, STATE_NAME_SUFFIX, &*state_g)?;
         }
         self.gradient_adder.network_in(|network| {
-                move_prev_and_save("neurina", ".nnet", network)
+                move_prev_and_save(NETWORK_NAME_PREFIX, NETWORK_NAME_SUFFIX, network)
         })
     }
 
