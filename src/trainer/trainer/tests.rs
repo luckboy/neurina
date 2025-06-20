@@ -71,7 +71,10 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_epoch(&mut puzzles) {
-        Ok((_, _, err_count)) => assert_eq!(0, err_count),
+        Ok((_, all_output_count, err_count)) => {
+            assert_eq!(18, all_output_count);
+            assert_eq!(0, err_count);
+        },
         Err(_) => assert!(false),
     }
 }
@@ -127,7 +130,10 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_epoch(&mut puzzles) {
-        Ok((_, _, err_count)) => assert_eq!(0, err_count),
+        Ok((_, all_output_count, err_count)) => {
+            assert_eq!(55, all_output_count);
+            assert_eq!(0, err_count);
+        },
         Err(_) => assert!(false),
     }
 }
@@ -183,7 +189,10 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_result(&mut puzzles) {
-        Ok((_, _, err_count)) => assert_eq!(0, err_count),
+        Ok((_, all_output_count, err_count)) => {
+            assert_eq!(18, all_output_count);
+            assert_eq!(0, err_count);
+        },
         Err(_) => assert!(false),
     }
 }
@@ -239,7 +248,10 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
     let mut reader = LichessPuzzleReader::from_reader(cursor2);
     let mut puzzles = reader.puzzles(None);
     match trainer.do_result(&mut puzzles) {
-        Ok((_, _, err_count)) => assert_eq!(0, err_count),
+        Ok((_, all_output_count, err_count)) => {
+            assert_eq!(55, all_output_count);
+            assert_eq!(0, err_count);
+        },
         Err(_) => assert!(false),
     }
 }

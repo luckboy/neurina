@@ -56,8 +56,8 @@ impl Trainer
         let mut sample_count = 0u64;
         let mut computed_minibatch_count = 0u64;
         let mut minibatch_count = 0u64;
-        let mut passed_output_count = 064;
-        let mut all_output_count = 064;
+        let mut passed_output_count = 0u64;
+        let mut all_output_count = 0u64;
         let mut err_count = 0u64;
         {
             let mut writer_g = self.writer.lock().unwrap();

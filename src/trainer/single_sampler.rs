@@ -20,5 +20,5 @@ impl SingleSampler
 impl Sample for SingleSampler
 {
     fn samples(&self, sample: &DataSample) -> Option<Vec<DataSample>>
-    { Some(vec![sample.clone(); 1]) }
+    { Some(vec![sample.clone()]) }
 }
