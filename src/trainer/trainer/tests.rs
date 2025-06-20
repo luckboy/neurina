@@ -58,6 +58,7 @@ fn test_trainer_do_epoch_trains_without_panic_with_single_sampler_and_gradient_a
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
     let trainer = Trainer::new(sampler, alg, cursor, printer);
+    // Sample of puzzles is from https://database.lichess.org.
     let s = "
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
 00sHx,q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17,e8d7 a2e6 d7d8 f7f8,1760,80,83,72,mate mateIn2 middlegame short,https://lichess.org/yyznGmXs/black#34,Italian_Game Italian_Game_Classical_Variation
@@ -113,6 +114,7 @@ fn test_trainer_do_epoch_trains_without_panic_with_multi_sampler_and_gradient_ad
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
     let trainer = Trainer::new(sampler, alg, cursor, printer);
+    // Sample of puzzles is from https://database.lichess.org.
     let s = "
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
 00sHx,q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17,e8d7 a2e6 d7d8 f7f8,1760,80,83,72,mate mateIn2 middlegame short,https://lichess.org/yyznGmXs/black#34,Italian_Game Italian_Game_Classical_Variation
@@ -168,6 +170,7 @@ fn test_trainer_do_result_computes_result_without_panic_with_single_sampler_and_
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
     let trainer = Trainer::new(sampler, alg, cursor, printer);
+    // Sample of puzzles is from https://database.lichess.org.
     let s = "
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
 00sHx,q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17,e8d7 a2e6 d7d8 f7f8,1760,80,83,72,mate mateIn2 middlegame short,https://lichess.org/yyznGmXs/black#34,Italian_Game Italian_Game_Classical_Variation
@@ -223,6 +226,7 @@ fn test_trainer_do_result_computes_result_without_panic_with_multi_sampler_and_g
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
     let trainer = Trainer::new(sampler, alg, cursor, printer);
+    // Sample of puzzles is from https://database.lichess.org.
     let s = "
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
 00sHx,q3k1nr/1pp1nQpp/3p4/1P2p3/4P3/B1PP1b2/B5PP/5K2 b k - 0 17,e8d7 a2e6 d7d8 f7f8,1760,80,83,72,mate mateIn2 middlegame short,https://lichess.org/yyznGmXs/black#34,Italian_Game Italian_Game_Classical_Variation
