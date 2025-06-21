@@ -27,7 +27,7 @@ pub struct Trainer
 
 impl Trainer
 {
-    pub const MINIBATCH_COUNT_TO_PRINT: u64 = 32;
+    pub const MINIBATCH_COUNT_TO_PRINT: u64 = 4;
     
     pub fn new(sampler: Arc<dyn Sample + Send + Sync>, algorithm: Arc<dyn Algorithm + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> Self
     { Trainer { sampler, algorithm, writer, printer, } }
