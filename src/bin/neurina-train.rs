@@ -98,8 +98,18 @@ fn initialize_trainer(args: &Args) -> Result<Trainer>
     Ok(Trainer::new(sampler, alg, writer, printer))
 }
 
-fn print_duration(s: &str, duration: Duration)
-{ println!("{} time: {}:{}:{}.{:03}", s, (duration.as_secs() / 60) / 60,  (duration.as_secs() / 60) % 60, duration.as_secs() % 60, duration.as_millis() % 1000); }
+fn print_passed_and_errors(passed_output_count: u64, all_output_count: u64, err_count: u64)
+{
+    let perc = if all_output_count != 0 {
+        (passed_output_count * 100) / all_output_count
+    } else {
+        0
+    };
+    println!("passed: {}/{} ({}%), errors: {}", passed_output_count, all_output_count, perc, err_count);
+}
+
+fn print_time(s: &str, duration: Duration)
+{ println!("{} time: {}:{:02}:{:02}.{:03}", s, (duration.as_secs() / 60) / 60,  (duration.as_secs() / 60) % 60, duration.as_secs() % 60, duration.as_millis() % 1000); }
 
 fn finalize_backend_and_exit(status: i32) -> !
 {
@@ -162,14 +172,14 @@ fn main()
         let now = Instant::now();
         match trainer.do_epoch(&mut puzzles) {
             Ok((passed_output_count, all_output_count, err_count)) => {
-                println!("passed: {}/{}, errors: {}", passed_output_count, all_output_count, err_count);
+                print_passed_and_errors(passed_output_count, all_output_count, err_count);
             },
             Err(err) => {
                 eprintln!("{}", err);
                 finalize_backend_and_exit(1);
             },
         }
-        print_duration("epoch", now.elapsed());
+        print_time("epoch", now.elapsed());
         match trainer.save() {
             Ok(()) => (),
             Err(err) => {
@@ -191,14 +201,14 @@ fn main()
         let now = Instant::now();
         match trainer.do_result(&mut puzzles) {
             Ok((passed_output_count, all_output_count, err_count)) => {
-                println!("passed: {}/{}, errors: {}", passed_output_count, all_output_count, err_count);
+                print_passed_and_errors(passed_output_count, all_output_count, err_count);
             },
             Err(err) => {
                 eprintln!("{}", err);
                 finalize_backend_and_exit(1);
             },
         }
-        print_duration("resut", now.elapsed());
+        print_time("resut", now.elapsed());
     }
     match finalize_backend() {
         Ok(()) => (),
