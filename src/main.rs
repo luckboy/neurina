@@ -121,7 +121,7 @@ fn main()
         Err(err) => {
             eprintln!("{}", err);
             exit(1);
-        }
+        },
     };
     let stdout_log = match &args.log {
         Some(log_path) => {
