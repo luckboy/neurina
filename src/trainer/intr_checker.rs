@@ -20,7 +20,12 @@ extern "C" fn neurina_signal_handler(_sig: c_int)
 { unsafe { INTERRUPTION_STOP_FLAG = true; } }
 
 pub fn initialize_intr_checker()
-{ unsafe { signal(SIGINT, neurina_signal_handler as sighandler_t); } }
+{
+    unsafe {
+        INTERRUPTION_STOP_FLAG = false;
+        signal(SIGINT, neurina_signal_handler as sighandler_t);
+    }
+}
 
 pub fn start_intr_checker()
 { unsafe { INTERRUPTION_STOP_FLAG = false; } }
