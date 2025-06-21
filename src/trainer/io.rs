@@ -38,7 +38,11 @@ pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Res
     let file_name = format!("{}{}", prefix, suffix);
     match metadata(file_name.as_str()) {
         Ok(_) => {
-            remove_file(prev_file_name.as_str())?;
+            match remove_file(prev_file_name.as_str()) {
+                Ok(()) => (),
+                Err(err) if err.kind() == ErrorKind::NotFound => (),
+                Err(err) => return Err(err),
+            }
             rename(file_name.as_str(), prev_file_name.as_str())?;
         },
         Err(err) if err.kind() == ErrorKind::NotFound => (),
