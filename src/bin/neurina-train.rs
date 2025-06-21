@@ -101,6 +101,18 @@ fn initialize_trainer(args: &Args) -> Result<Trainer>
 fn print_duration(s: &str, duration: Duration)
 { println!("{} time: {}:{}:{}.{:03}", s, (duration.as_secs() / 60) / 60,  (duration.as_secs() / 60) % 60, duration.as_secs() % 60, duration.as_millis() % 1000); }
 
+fn finalize_backend_and_exit(status: i32) -> !
+{
+    match finalize_backend() {
+        Ok(()) => (),
+        Err(err) => {
+            eprintln!("{}", err);
+            exit(1);
+        },
+    }
+    exit(status)
+}
+
 fn main()
 {
     let args = Args::parse();
@@ -134,7 +146,7 @@ fn main()
         Ok(tmp_trainer) => tmp_trainer,
         Err(err) => {
             eprintln!("{}", err);
-            exit(1);
+            finalize_backend_and_exit(1);
         },
     };
     for _ in 0..args.epochs {
@@ -143,7 +155,7 @@ fn main()
             Ok(tmp_reader) => tmp_reader,
             Err(err) => {
                 eprintln!("{}", err);
-                exit(1);
+                finalize_backend_and_exit(1);
             },
         };
         let mut puzzles = reader.puzzles(args.max_lichess_puzzles);
@@ -154,7 +166,7 @@ fn main()
             },
             Err(err) => {
                 eprintln!("{}", err);
-                exit(1);
+                finalize_backend_and_exit(1);
             },
         }
         print_duration("epoch", now.elapsed());
@@ -162,7 +174,7 @@ fn main()
             Ok(()) => (),
             Err(err) => {
                 eprintln!("{}", err);
-                exit(1);
+                finalize_backend_and_exit(1);
             },
         }
     }
@@ -172,7 +184,7 @@ fn main()
             Ok(tmp_reader) => tmp_reader,
             Err(err) => {
                 eprintln!("{}", err);
-                exit(1);
+                finalize_backend_and_exit(1);
             },
         };
         let mut puzzles = reader.puzzles(args.max_lichess_puzzles);
@@ -183,9 +195,16 @@ fn main()
             },
             Err(err) => {
                 eprintln!("{}", err);
-                exit(1);
+                finalize_backend_and_exit(1);
             },
         }
         print_duration("resut", now.elapsed());
+    }
+    match finalize_backend() {
+        Ok(()) => (),
+        Err(err) => {
+            eprintln!("{}", err);
+            exit(1);
+        },
     }
 }
