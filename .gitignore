@@ -2,3 +2,4 @@
 /Cargo.lock
 /neurina.toml
 *.log
+*.nnet
