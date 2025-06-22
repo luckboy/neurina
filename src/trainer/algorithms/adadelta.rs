@@ -177,9 +177,9 @@ impl<T: Net + Save + Send + Sync, U: GradientAdd + GradientPair<T> + Send + Sync
                 let mut delta_g = self.delta.lock().unwrap();
                 s_g.op_assign(gradient, |s, g| *s = &*s * self.params.rho + g.mul_elems(g) * (1.0 - self.params.rho));
                 let tmp = delta_g.op(&*s_g, |delta, s| (delta + self.params.eps).sqrt().div_elems(&((s - self.params.eps).sqrt())));
-                let grad_prim = tmp.op(gradient, |t, g| t.mul_elems(g));
-                delta_g.op_assign(&grad_prim, |delta, gp| *delta = &*delta * self.params.rho + gp.mul_elems(gp) * (1.0 - self.params.rho));
-                network.op_assign(&grad_prim, |x, gp| *x -= gp);
+                let grad_prime = tmp.op(gradient, |t, g| t.mul_elems(g));
+                delta_g.op_assign(&grad_prime, |delta, gp| *delta = &*delta * self.params.rho + gp.mul_elems(gp) * (1.0 - self.params.rho));
+                network.op_assign(&grad_prime, |x, gp| *x -= gp);
                 let mut state_g = self.state.lock().unwrap();
                 state_g.epoch += 1;
         })
