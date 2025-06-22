@@ -16,6 +16,7 @@ use std::time::Instant;
 use clap::Parser;
 use clap::ValueEnum;
 use neurina::shared::*;
+use neurina::trainer::algorithms::AdadeltaAlgFactory;
 use neurina::trainer::algorithms::AdagradAlgFactory;
 use neurina::trainer::algorithms::ExpSgdAlgFactory;
 use neurina::trainer::algorithms::GdAlgFactory;
@@ -42,6 +43,7 @@ enum Alg
     Momentum,
     Adagrad,
     RmsProp,
+    Adadelta,
 }
 
 #[derive(Parser, Debug)]
@@ -134,6 +136,14 @@ fn initialize_algorithm(args: &Args) -> Result<Arc<dyn Algorithm + Send + Sync>>
             let converter = Converter::new(IndexConverter::new());
             let gradient_adder_factory = GradientAdderFactory::new(NetworkLoader::new(), XavierNetworkFactory::new(args.network_size));
             let alg_factory = RmsPropAlgFactory::new(gradient_adder_factory, NetworkLoader::new(), ZeroNetworkFactory::new(args.network_size));
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::Adadelta => {
+            initialize_intr_checker();
+            let intr_checker = Arc::new(IntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkLoader::new(), XavierNetworkFactory::new(args.network_size));
+            let alg_factory = AdadeltaAlgFactory::new(gradient_adder_factory, NetworkLoader::new(), ZeroNetworkFactory::new(args.network_size));
             Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
         },
     }
