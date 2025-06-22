@@ -10,9 +10,11 @@ pub(crate) mod exp_sgd;
 pub(crate) mod gd;
 pub(crate) mod momentum;
 pub(crate) mod poly_sgd;
+pub(crate) mod rms_prop;
 
 pub use adagrad::*;
 pub use exp_sgd::*;
 pub use gd::*;
 pub use momentum::*;
 pub use poly_sgd::*;
+pub use rms_prop::*;
