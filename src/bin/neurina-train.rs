@@ -111,6 +111,26 @@ fn print_passed_and_errors(passed_output_count: u64, all_output_count: u64, err_
 fn print_time(s: &str, duration: Duration)
 { println!("{} time: {}:{:02}:{:02}.{:03}", s, (duration.as_secs() / 60) / 60,  (duration.as_secs() / 60) % 60, duration.as_secs() % 60, duration.as_millis() % 1000); }
 
+fn append_passed_gnuplot_data(epoch: usize, passed_output_count: u64, all_output_count: u64, is_result: bool) -> Result<()>
+{
+    let perc = if all_output_count != 0 {
+        (passed_output_count * 100) / all_output_count
+    } else {
+        0
+    };
+    if is_result {
+        copy_and_append_gnuplot_data("passed-1.dat", "passed.dat", epoch, passed_output_count)?;
+    } else {
+        append_gnuplot_data("passed-1.dat", epoch, passed_output_count)?;
+    }
+    if is_result {
+        copy_and_append_gnuplot_data("passed_perc-1.dat", "passed_perc.dat", epoch, perc)?;
+    } else {
+        append_gnuplot_data("passed_perc-1.dat", epoch, perc)?;
+    }
+    Ok(())
+}
+
 fn finalize_backend_and_exit(status: i32) -> !
 {
     match finalize_backend() {
@@ -160,7 +180,8 @@ fn main()
         },
     };
     for _ in 0..args.epochs {
-        println!("epoch: {}", trainer.epoch());
+        let epoch = trainer.epoch();
+        println!("epoch: {}", epoch);
         let mut reader = match LichessPuzzleReader::from_path(args.lichess_puzzles.as_str()) {
             Ok(tmp_reader) => tmp_reader,
             Err(err) => {
@@ -173,6 +194,13 @@ fn main()
         match trainer.do_epoch(&mut puzzles) {
             Ok((passed_output_count, all_output_count, err_count)) => {
                 print_passed_and_errors(passed_output_count, all_output_count, err_count);
+                match append_passed_gnuplot_data(epoch - 1,  passed_output_count, all_output_count, false) {
+                    Ok(()) => (),
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        finalize_backend_and_exit(1);
+                    },
+                }
             },
             Err(err) => {
                 eprintln!("{}", err);
@@ -189,6 +217,7 @@ fn main()
         }
     }
     if !args.no_result {
+        let epoch = trainer.epoch();
         println!("result");
         let mut reader = match LichessPuzzleReader::from_path(args.lichess_puzzles.as_str()) {
             Ok(tmp_reader) => tmp_reader,
@@ -202,6 +231,13 @@ fn main()
         match trainer.do_result(&mut puzzles) {
             Ok((passed_output_count, all_output_count, err_count)) => {
                 print_passed_and_errors(passed_output_count, all_output_count, err_count);
+                match append_passed_gnuplot_data(epoch - 1,  passed_output_count, all_output_count, true) {
+                    Ok(()) => (),
+                    Err(err) => {
+                        eprintln!("{}", err);
+                        finalize_backend_and_exit(1);
+                    },
+                }
             },
             Err(err) => {
                 eprintln!("{}", err);

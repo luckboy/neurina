@@ -6,6 +6,7 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use std::fs::File;
+use std::fs::copy;
 use std::fs::metadata;
 use std::fs::remove_file;
 use std::fs::rename;
@@ -92,4 +93,20 @@ pub fn save_state<P: AsRef<Path>, T: Serialize + ?Sized>(path: P, state: &T) -> 
 {
     let mut file = File::create(path)?;
     write_state(&mut file, state)
+}
+
+pub fn append_gnuplot_data<P: AsRef<Path>>(path: P, x: usize, y: u64) -> Result<()>
+{
+    let mut file = File::options().create(true).append(true).open(path)?;
+    writeln!(&mut file, "{} {}", x, y)
+}
+
+pub fn copy_and_append_gnuplot_data<P: AsRef<Path>, Q: AsRef<Path>>(old_path: P, new_path: Q, x: usize, y: u64) -> Result<()>
+{
+    match copy(old_path, new_path.as_ref()) {
+        Ok(_) => (),
+        Err(err) if err.kind() == ErrorKind::NotFound => (),
+        Err(err) => return Err(err),
+    }
+    append_gnuplot_data(new_path, x, y)
 }
