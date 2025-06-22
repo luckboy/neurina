@@ -182,8 +182,8 @@ impl<T: Net + Save + Send + Sync, U: GradientAdd + GradientPair<T> + Send + Sync
                 s_g.op_assign(gradient, |s, g| *s = &*s * self.params.beta2 + g.mul_elems(g) * (1.0 - self.params.beta2));
                 let v_bias_corr = v_g.fun(|v| v / (1.0 - self.params.beta1).powf(state_g.epoch as f32));
                 let s_bias_corr = s_g.fun(|s| s / (1.0 - self.params.beta2).powf(state_g.epoch as f32));
-                let grad_prime = v_bias_corr.op(&s_bias_corr, |vbc, sbc| (vbc * self.params.eta).div_elems(&(sbc.sqrt() + self.params.eps)));
-                network.op_assign(&grad_prime, |x, gp| *x -= gp);
+                let gradient_prime = v_bias_corr.op(&s_bias_corr, |vbc, sbc| (vbc * self.params.eta).div_elems(&(sbc.sqrt() + self.params.eps)));
+                network.op_assign(&gradient_prime, |x, gp| *x -= gp);
                 state_g.epoch += 1;
         })
     }
