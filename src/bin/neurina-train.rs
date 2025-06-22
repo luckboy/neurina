@@ -18,6 +18,7 @@ use clap::ValueEnum;
 use neurina::shared::*;
 use neurina::trainer::algorithms::ExpSgdAlgFactory;
 use neurina::trainer::algorithms::GdAlgFactory;
+use neurina::trainer::algorithms::MomentumAlgFactory;
 use neurina::trainer::algorithms::PolySgdAlgFactory;
 use neurina::trainer::*;
 
@@ -36,6 +37,7 @@ enum Alg
     Gd,
     ExpSgd,
     PolySgd,
+    Momentum,
 }
 
 #[derive(Parser, Debug)]
@@ -104,6 +106,14 @@ fn initialize_algorithm(args: &Args) -> Result<Arc<dyn Algorithm + Send + Sync>>
             let converter = Converter::new(IndexConverter::new());
             let gradient_adder_factory = GradientAdderFactory::new(NetworkLoader::new(), XavierNetworkFactory::new(args.network_size));
             let alg_factory = PolySgdAlgFactory::new(gradient_adder_factory);
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::Momentum => {
+            initialize_intr_checker();
+            let intr_checker = Arc::new(IntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkLoader::new(), XavierNetworkFactory::new(args.network_size));
+            let alg_factory = MomentumAlgFactory::new(gradient_adder_factory, NetworkLoader::new(), ZeroNetworkFactory::new(args.network_size));
             Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
         },
     }

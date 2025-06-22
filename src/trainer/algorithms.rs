@@ -7,8 +7,10 @@
 //
 pub(crate) mod exp_sgd;
 pub(crate) mod gd;
+pub(crate) mod momentum;
 pub(crate) mod poly_sgd;
 
 pub use exp_sgd::*;
 pub use gd::*;
+pub use momentum::*;
 pub use poly_sgd::*;
