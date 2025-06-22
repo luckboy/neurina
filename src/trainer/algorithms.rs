@@ -7,6 +7,7 @@
 //
 pub(crate) mod adadelta;
 pub(crate) mod adagrad;
+pub(crate) mod adam;
 pub(crate) mod exp_sgd;
 pub(crate) mod gd;
 pub(crate) mod momentum;
@@ -15,6 +16,7 @@ pub(crate) mod rms_prop;
 
 pub use adadelta::*;
 pub use adagrad::*;
+pub use adam::*;
 pub use exp_sgd::*;
 pub use gd::*;
 pub use momentum::*;
