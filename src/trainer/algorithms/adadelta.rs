@@ -176,7 +176,7 @@ impl<T: Net + Save + Send + Sync, U: GradientAdd + GradientPair<T> + Send + Sync
                 let mut s_g = self.s.lock().unwrap();
                 let mut delta_g = self.delta.lock().unwrap();
                 s_g.op_assign(gradient, |s, g| *s = &*s * self.params.rho + g.mul_elems(g) * (1.0 - self.params.rho));
-                let tmp = delta_g.op(&*s_g, |delta, s| (delta + self.params.eps).sqrt().div_elems(&((s - self.params.eps).sqrt())));
+                let tmp = delta_g.op(&*s_g, |delta, s| (delta + self.params.eps).sqrt().div_elems(&((s + self.params.eps).sqrt())));
                 let gradient_prime = tmp.op(gradient, |t, g| t.mul_elems(g));
                 delta_g.op_assign(&gradient_prime, |delta, gp| *delta = &*delta * self.params.rho + gp.mul_elems(gp) * (1.0 - self.params.rho));
                 network.op_assign(&gradient_prime, |x, gp| *x -= gp);
