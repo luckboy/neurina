@@ -79,6 +79,9 @@ struct Args
     /// Don't print result
     #[arg(long)]
     no_result: bool,
+    /// Stop for percent of passed outputs
+    #[arg(short = 'p', long, value_name = "PERCENT")]
+    stop_for_percent: Option<u64>,
 }
 
 fn initialize_sampler(args: &Args) -> Arc<dyn Sample + Send + Sync>
@@ -168,35 +171,32 @@ fn initialize_trainer(args: &Args) -> Result<Trainer>
     Ok(Trainer::new(sampler, alg, writer, printer))
 }
 
-fn print_passed_and_errors(passed_output_count: u64, all_output_count: u64, err_count: u64)
+fn perc(x: u64, y: u64) -> u64
 {
-    let perc = if all_output_count != 0 {
-        (passed_output_count * 100) / all_output_count
+    if y != 0 {
+        (x * 100) / y
     } else {
         0
-    };
-    println!("passed: {}/{} ({}%), errors: {}", passed_output_count, all_output_count, perc, err_count);
+    }
 }
+
+fn print_passed_and_errors(passed_output_count: u64, all_output_count: u64, err_count: u64)
+{ println!("passed: {}/{} ({}%), errors: {}", passed_output_count, all_output_count, perc(passed_output_count, all_output_count), err_count); }
 
 fn print_time(s: &str, duration: Duration)
 { println!("{} time: {}:{:02}:{:02}.{:03}", s, (duration.as_secs() / 60) / 60,  (duration.as_secs() / 60) % 60, duration.as_secs() % 60, duration.as_millis() % 1000); }
 
 fn append_passed_gnuplot_data(epoch: usize, passed_output_count: u64, all_output_count: u64, is_result: bool) -> Result<()>
 {
-    let perc = if all_output_count != 0 {
-        (passed_output_count * 100) / all_output_count
-    } else {
-        0
-    };
     if is_result {
         copy_and_append_gnuplot_data("passed-1.dat", "passed.dat", epoch, passed_output_count)?;
     } else {
         append_gnuplot_data("passed-1.dat", epoch, passed_output_count)?;
     }
     if is_result {
-        copy_and_append_gnuplot_data("passed_perc-1.dat", "passed_perc.dat", epoch, perc)?;
+        copy_and_append_gnuplot_data("passed_perc-1.dat", "passed_perc.dat", epoch, perc(passed_output_count, all_output_count))?;
     } else {
-        append_gnuplot_data("passed_perc-1.dat", epoch, perc)?;
+        append_gnuplot_data("passed_perc-1.dat", epoch, perc(passed_output_count, all_output_count))?;
     }
     Ok(())
 }
@@ -261,7 +261,7 @@ fn main()
         };
         let mut puzzles = reader.puzzles(args.max_lichess_puzzles);
         let now = Instant::now();
-        match trainer.do_epoch(&mut puzzles) {
+        let (passed_output_count, all_output_count) = match trainer.do_epoch(&mut puzzles) {
             Ok((passed_output_count, all_output_count, err_count)) => {
                 print_passed_and_errors(passed_output_count, all_output_count, err_count);
                 match append_passed_gnuplot_data(epoch - 1,  passed_output_count, all_output_count, false) {
@@ -271,12 +271,13 @@ fn main()
                         finalize_backend_and_exit(1);
                     },
                 }
+                (passed_output_count, all_output_count)
             },
             Err(err) => {
                 eprintln!("{}", err);
                 finalize_backend_and_exit(1);
             },
-        }
+        };
         print_time("epoch", now.elapsed());
         match trainer.save() {
             Ok(()) => (),
@@ -284,6 +285,14 @@ fn main()
                 eprintln!("{}", err);
                 finalize_backend_and_exit(1);
             },
+        }
+        match args.stop_for_percent {
+            Some(max_perc) => {
+                if perc(passed_output_count, all_output_count) >= max_perc {
+                    break;
+                }
+            },
+            None => (),
         }
     }
     if !args.no_result {
