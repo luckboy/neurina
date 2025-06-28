@@ -35,7 +35,7 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
 }
 
 #[test]
-fn test_selector_select_selects_puzzles_without_panic_for_three_divider()
+fn test_selector_select_selects_puzzles_without_panic_for_divider_that_is_three()
 {
     let intr_checker = Arc::new(EmptyIntrChecker::new());
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
