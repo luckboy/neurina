@@ -11,10 +11,12 @@ use crate::shared::Interruption;
 
 pub(crate) mod lichess_puzzles;
 pub(crate) mod print;
+pub(crate) mod printer;
 pub(crate) mod selector;
 
 pub use lichess_puzzles::*;
 pub use print::*;
+pub use printer::*;
 pub use selector::*;
 
 #[derive(Debug)]
