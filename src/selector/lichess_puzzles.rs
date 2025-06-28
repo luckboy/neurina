@@ -63,8 +63,15 @@ impl<'a, R: Read> Iterator for LichessPuzzles<'a, R>
         };
         if can_read {
             match self.iter.next() {
-                Some(Ok(puzzle)) => Some(Ok(puzzle)),
-                Some(Err(err)) => Some(Err(SelectorError::Io(csv_error_to_io_error(err)))),
+                Some(puzzle) => {
+                    match puzzle {
+                        Ok(puzzle) => {
+                            self.count += 1;
+                            Some(Ok(puzzle))
+                        },
+                        Err(err) => Some(Err(SelectorError::Io(csv_error_to_io_error(err)))),
+                    }
+                },
                 None => None,
             }
         } else {
