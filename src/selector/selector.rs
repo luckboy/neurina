@@ -25,7 +25,7 @@ pub struct Selector
 
 impl Selector
 {
-    pub const PUZZLE_COUNT_TO_PRINT: u64 = 128 * 1024;
+    pub const PUZZLE_COUNT_TO_PRINT: u64 = 64 * 1024;
     
     pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> Self
     { Selector { intr_checker, writer, printer, } }
