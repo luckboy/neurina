@@ -8,6 +8,7 @@
 pub(crate) mod backend;
 pub(crate) mod config;
 pub(crate) mod converter;
+pub(crate) mod ctrl_c_intr_checker;
 pub(crate) mod index_converter;
 pub(crate) mod intr_check;
 pub(crate) mod io;
@@ -22,6 +23,7 @@ pub(crate) mod xavier_init;
 pub use backend::*;
 pub use config::*;
 pub use converter::*;
+pub use ctrl_c_intr_checker::*;
 pub use index_converter::*;
 pub use intr_check::*;
 pub use io::*;

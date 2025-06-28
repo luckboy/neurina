@@ -19,7 +19,7 @@ static mut INTERRUPTION_STOP_FLAG: bool = false;
 extern "C" fn neurina_signal_handler(_sig: c_int)
 { unsafe { INTERRUPTION_STOP_FLAG = true; } }
 
-pub fn initialize_intr_checker()
+pub fn initialize_ctrl_c_intr_checker()
 {
     unsafe {
         INTERRUPTION_STOP_FLAG = false;
@@ -27,22 +27,22 @@ pub fn initialize_intr_checker()
     }
 }
 
-pub fn start_intr_checker()
+pub fn start_ctrl_c_intr_checker()
 { unsafe { INTERRUPTION_STOP_FLAG = false; } }
 
-pub fn stop_intr_checker()
+pub fn stop_ctrl_c_intr_checker()
 { unsafe { INTERRUPTION_STOP_FLAG = true; } }
 
 #[derive(Copy, Clone, Debug)]
-pub struct IntrChecker;
+pub struct CtrlCIntrChecker;
 
-impl IntrChecker
+impl CtrlCIntrChecker
 {
     pub fn new() -> Self
-    { IntrChecker }
+    { CtrlCIntrChecker }
 }
 
-impl IntrCheck for IntrChecker
+impl IntrCheck for CtrlCIntrChecker
 {
     fn check(&self) -> Result<(), Interruption>
     {
