@@ -6,8 +6,6 @@
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 use std::fs::File;
-use std::io::Error;
-use std::io::ErrorKind;
 use std::io::Read;
 use std::io::Result;
 use std::path::Path;
@@ -15,39 +13,11 @@ use csv::DeserializeRecordsIter;
 use csv::Reader;
 use crate::chess::Board;
 use crate::chess::Move;
-use crate::serde::Deserialize;
+use crate::shared::lichess_puzzle::*;
+use crate::shared::private::*;
 use crate::trainer::data_sample::*;
 use crate::trainer::TrainerError;
 use crate::trainer::TrainerResult;
-
-fn csv_error_to_io_error(err: csv::Error) -> Error
-{
-    if err.is_io_error() {
-        match err.into_kind() {
-            csv::ErrorKind::Io(err) => err,
-            _ => Error::new(ErrorKind::InvalidData, String::from("csv error: unknown error")),
-        }
-    } else {
-        Error::new(ErrorKind::InvalidData, format!("csv error: {}", err))
-    }
-}
-
-#[allow(dead_code)]
-#[allow(non_snake_case)]
-#[derive(Deserialize)]
-struct LichessPuzzle
-{
-    PuzzleId: String,
-    FEN: String,
-    Moves: String,
-    Rating: String,
-    RatingDeviation: String,
-    Popularity: String,
-    NbPlays: String,
-    Themes: String,
-    GameUrl: String,
-    OpeningTags: String,
-}
 
 pub struct LichessPuzzleReader<R>
 {
