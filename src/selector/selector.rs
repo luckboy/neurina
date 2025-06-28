@@ -62,3 +62,6 @@ impl Selector
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests;
