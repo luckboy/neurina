@@ -13,6 +13,8 @@ use std::path::Path;
 use csv::DeserializeRecordsIter;
 use csv::Reader;
 use csv::Writer;
+use crate::selector::SelectorError;
+use crate::selector::SelectorResult;
 use crate::shared::lichess_puzzle::*;
 use crate::shared::private::*;
 
@@ -50,7 +52,7 @@ pub struct LichessPuzzles<'a, R>
 
 impl<'a, R: Read> Iterator for LichessPuzzles<'a, R>
 {
-    type Item = Result<LichessPuzzle>;
+    type Item = SelectorResult<LichessPuzzle>;
     
     fn next(&mut self) -> Option<Self::Item>
     {
@@ -62,7 +64,7 @@ impl<'a, R: Read> Iterator for LichessPuzzles<'a, R>
         if can_read {
             match self.iter.next() {
                 Some(Ok(puzzle)) => Some(Ok(puzzle)),
-                Some(Err(err)) => Some(Err(csv_error_to_io_error(err))),
+                Some(Err(err)) => Some(Err(SelectorError::Io(csv_error_to_io_error(err)))),
                 None => None,
             }
         } else {
@@ -92,11 +94,11 @@ impl<W: Write> LichessPuzzleWriter<W>
     pub fn from_writer(w: W) -> Self
     { LichessPuzzleWriter { writer: Writer::from_writer(w), } }
     
-    pub fn write_puzzle(&mut self, puzzle: &LichessPuzzle) -> Result<()>
+    pub fn write_puzzle(&mut self, puzzle: &LichessPuzzle) -> SelectorResult<()>
     {
         match self.writer.serialize(puzzle) {
             Ok(()) => Ok(()),
-            Err(err) => Err(csv_error_to_io_error(err)),
+            Err(err) => Err(SelectorError::Io(csv_error_to_io_error(err))),
         }
     }
 }

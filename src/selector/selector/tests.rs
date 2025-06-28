@@ -11,9 +11,10 @@ use super::*;
 #[test]
 fn test_selector_select_selects_puzzles_without_panic()
 {
+    let intr_checker = Arc::new(EmptyIntrChecker::new());
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
-    let selector = Selector::new(cursor, printer);
+    let selector = Selector::new(intr_checker, cursor, printer);
     // Sample of puzzles is from https://database.lichess.org.
     let s = "
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
@@ -36,9 +37,10 @@ PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,Open
 #[test]
 fn test_selector_select_selects_puzzles_without_panic_for_three_divider()
 {
+    let intr_checker = Arc::new(EmptyIntrChecker::new());
     let cursor = Arc::new(Mutex::new(Cursor::new(Vec::<u8>::new())));
     let printer = Arc::new(EmptyPrinter::new());
-    let selector = Selector::new(cursor, printer);
+    let selector = Selector::new(intr_checker, cursor, printer);
     // Sample of puzzles is from https://database.lichess.org.
     let s = "
 PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl,OpeningTags
