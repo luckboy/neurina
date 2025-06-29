@@ -238,6 +238,7 @@ impl Net for Network
     fn check(&self, input_count: usize, output_count: usize) -> bool
     {
         let middle_count: usize = self.iw.row_count();
+        if middle_count == 0 { return false; }
         if self.iw.col_count() != input_count { return false; }
         if self.ib.row_count() != middle_count { return false; }
         if self.ib.col_count() != 1 { return false; }
