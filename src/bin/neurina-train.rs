@@ -216,6 +216,10 @@ fn finalize_backend_and_exit(status: i32) -> !
 fn main()
 {
     let args = Args::parse();
+    if args.network_size == 0 {
+        eprintln!("network size is zero");
+        exit(1);
+    }
     let config = match load_config(args.config.as_str()) {
         Ok(tmp_config) => tmp_config,
         Err(err) => {

@@ -116,6 +116,13 @@ fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn
 fn main()
 {
     let args = Args::parse();
+    match args.random_network {
+        Some(0) => {
+            eprintln!("network size is zero");
+            exit(1);
+        },
+        _ => (),
+    }
     let config = match load_config(args.config.as_str()) {
         Ok(tmp_config) => tmp_config,
         Err(err) => {
