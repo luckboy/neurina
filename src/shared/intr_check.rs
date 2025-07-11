@@ -11,16 +11,16 @@ use crate::shared::Interruption;
 
 /// A trait of interruption checker.
 ///
-/// The interruption checker checks whether an interruption is occurred.
+/// The interruption checker checks whether an interruption is occurred. Occurence of the
+/// interruption informs about for example the searching stopping. The interruption can be occurred
+/// for:
+///
+/// - timeout
+/// - enabled stop flag
+/// - pressed keys `Ctrl-C`
 pub trait IntrCheck
 {
     /// Checks whether an interruption is occurred.
-    ///
-    /// The interruption can be occurred for:
-    ///
-    /// - timeout
-    /// - enabled stop flag
-    /// - pressed keys `Ctrl-C`
     fn check(&self) -> Result<(), Interruption>;
     
     /// Sets the timeout for the interruption checker.

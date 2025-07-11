@@ -17,21 +17,33 @@ use std::path::Path;
 use crate::matrix::Matrix;
 use crate::shared::Network;
 
+/// A loader trait.
+///
+/// The loader loads a specified data.
 pub trait Load<T>
 {
+    /// Loads the specified data from the file.
     fn load<P: AsRef<Path>>(&self, path: P) -> Result<T>;
 }
 
+/// A saver trait.
+///
+/// The saver saves the specified data.
 pub trait Save
 {
+    /// Saves the specified data to the file.
     fn save<P: AsRef<Path>>(&self, path: P) -> Result<()>;
 }
 
+/// A structure of loader of neural network.
+///
+/// The loader of neural network loads a neural network.
 #[derive(Copy, Clone, Debug)]
 pub struct NetworkLoader;
 
 impl NetworkLoader
 {
+    /// Creates a loader of neural network.
     pub fn new() -> Self
     { NetworkLoader }
 }
@@ -42,6 +54,7 @@ impl Load<Network> for NetworkLoader
     { load_network(path) }
 }
 
+/// Reads a matrix from the reader.
 pub fn read_matrix(r: &mut dyn Read) -> Result<Matrix>
 {
     let mut u64_buf: [u8; 8] = [0; 8];
@@ -70,6 +83,7 @@ pub fn read_matrix(r: &mut dyn Read) -> Result<Matrix>
     Ok(Matrix::new_with_elems(row_count, col_count, elems.as_slice()))
 }
 
+/// Writes the matrix to the writer.
 pub fn write_matrix(w: &mut dyn Write, matrix: &Matrix) -> Result<()>
 {
     let mut u64_buf = (matrix.row_count() as u64).to_le_bytes();
@@ -84,7 +98,7 @@ pub fn write_matrix(w: &mut dyn Write, matrix: &Matrix) -> Result<()>
     Ok(())
 }
 
-
+/// Reads a neural network from the reader.
 pub fn read_network(r: &mut dyn Read) -> Result<Network>
 {
     let mut magic_buf: [u8; 12] = [0; 12];
@@ -103,6 +117,7 @@ pub fn read_network(r: &mut dyn Read) -> Result<Network>
     Ok(Network::new(iw, ib, sw, sb, pw, pb, ow, ob))
 }
 
+/// Writes the neural network to the writer.
 pub fn write_network(w: &mut dyn Write, network: &Network) -> Result<()>
 {
     w.write_all(b"neurina_v001")?;
@@ -117,6 +132,7 @@ pub fn write_network(w: &mut dyn Write, network: &Network) -> Result<()>
     Ok(())
 }
 
+/// Loads a neural network from the file.
 pub fn load_network<P: AsRef<Path>>(path: P) -> Result<Network>
 {
     let file = File::open(path)?;
@@ -124,6 +140,7 @@ pub fn load_network<P: AsRef<Path>>(path: P) -> Result<Network>
     read_network(&mut r)
 }
 
+/// Saves the neural network to the file.
 pub fn save_network<P: AsRef<Path>>(path: P, network: &Network) -> Result<()>
 {
     let file = File::create(path)?;

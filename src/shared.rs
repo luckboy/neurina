@@ -34,10 +34,14 @@ pub use network::*;
 pub use utils::*;
 pub use xavier_init::*;
 
+/// An interruption enumeration.
 #[derive(Copy, Clone, Debug)]
 pub enum Interruption
 {
+    /// Interruption by timeout.
     Timeout,
+    /// Interruption by stop.
     Stop,
+    /// Interruption by pressed keys `Ctrl-C`.
     CtrlC,
 }
