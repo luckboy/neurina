@@ -41,6 +41,10 @@ const QUEEN_STEPS120: [isize; 8] = [-11, -10, -9, -1, 1, 9, 10, 11];
 
 const KNIGHT_STEPS120: [isize; 8] = [-21, -19, -12, -8, 8, 12, 19, 21];
 
+/// A structure of index converter.
+///
+/// The index converter converts a move to a move index. The move index refers to the row in an
+/// output matrix for a neural network.
 #[derive(Clone, Debug)]
 pub struct IndexConverter
 {
@@ -50,6 +54,7 @@ pub struct IndexConverter
 
 impl IndexConverter
 {
+    /// Creates an index converter.
     pub fn new() -> Self
     {
         let mut move_count = 0usize;
@@ -94,9 +99,11 @@ impl IndexConverter
         IndexConverter { move_count, tab_move_indices, }
     }
     
+    /// Returns number of all moves.
     pub fn move_count(&self) -> usize
     { self.move_count }
-    
+
+    /// Converts the move to a move index.
     pub fn move_to_index(&self, mv: Move, color: Color) -> Option<usize>
     {
         match mv.uci() {

@@ -38,6 +38,15 @@ use crate::shared::Interruption;
 // input layer
 //
 
+/// A structure of neural network.
+///
+/// The neural network is a recursive network that is used to searching. Layers of the neural
+/// network are:
+///
+/// - input layer
+/// - search layer(s)
+/// - PV layer(s)
+/// - output layer(s)
 #[derive(Clone, Debug)]
 pub struct Network
 {
@@ -53,30 +62,39 @@ pub struct Network
 
 impl Network
 {
+    /// Creates a neural network.
     pub fn new(iw: Matrix, ib: Matrix, sw: Matrix, sb: Matrix, pw: Matrix, pb: Matrix, ow: Matrix, ob: Matrix) -> Self
     { Network { iw, ib, sw, sb, pw, pb, ow, ob, } }
-    
+
+    /// Returns the matrix of input weights.
     pub fn iw(&self) -> &Matrix
     { &self.iw }
 
+    /// Returns the matrix of input biases.
     pub fn ib(&self) -> &Matrix
     { &self.ib }
     
+    /// Returns the matrix of search weights.
     pub fn sw(&self) -> &Matrix
     { &self.sw }
     
+    /// Returns the matrix of search biases.
     pub fn sb(&self) -> &Matrix
     { &self.sb }
     
+    /// Returns the matrix of PV weights.
     pub fn pw(&self) -> &Matrix
     { &self.pw }
     
+    /// Returns the matrix of PV biases.
     pub fn pb(&self) -> &Matrix
     { &self.pb }
 
+    /// Returns the matrix of output weights.
     pub fn ow(&self) -> &Matrix
     { &self.ow }
     
+    /// Returns the matrix of output biases.
     pub fn ob(&self) -> &Matrix
     { &self.ob }
 }

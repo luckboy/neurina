@@ -14,6 +14,9 @@ use crate::chess::MoveList;
 use crate::shared::index_converter::*;
 use crate::shared::utils::*;
 
+/// A converter structure.
+///
+/// The converter converts a board, a move to a matrix column, and the matrix column to move.
 #[derive(Clone, Debug)]
 pub struct Converter
 {
@@ -22,17 +25,22 @@ pub struct Converter
 
 impl Converter
 {
+    /// Number of board rows.
     pub const BOARD_ROW_COUNT: usize = 64 * 13 + 6 + 9;
 
+    /// Creates a converter.
     pub fn new(index_converter: IndexConverter) -> Self
     { Converter { index_converter, } }
 
+    /// Returns the index converter.
     pub fn index_converter(&self) -> &IndexConverter
     { &self.index_converter }
     
+    /// Returns number of the move rows.
     pub fn move_row_count(&self) -> usize
     { self.index_converter.move_count() }
-    
+
+    /// Converts the board to a column of input martix.
     pub fn board_to_matrix_col(&self, board: &Board, elems: &mut [f32], col: usize, col_count: usize)
     {
         for i in 0..Self::BOARD_ROW_COUNT {
@@ -78,6 +86,7 @@ impl Converter
         }
     }
     
+    /// Converts the move to a column of output matrix.
     pub fn move_to_matrix_col(&self, mv: Move, color: Color, elems: &mut [f32], col: usize, col_count: usize)
     {
         for i in 0..self.move_row_count() {
@@ -89,6 +98,10 @@ impl Converter
         }
     }
 
+    /// Converts the column of output matrix to a move.
+    ///
+    /// The `moves` list should contain legal moves for the current board. The `eps` value defines
+    /// margin of error for move scores.
     pub fn matrix_col_to_move(&self, moves: &MoveList, color: Color, elems: &[f32], col: usize, col_count: usize, eps: f32) -> Option<Move>
     {
         let mut best_move_score = -f32::INFINITY;
