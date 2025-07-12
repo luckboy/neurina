@@ -8,6 +8,7 @@
 use crate::serde::Deserialize;
 use crate::serde::Serialize;
 
+/// A structure of lichess puzzle.
 #[allow(non_snake_case)]
 #[derive(Deserialize, Serialize)]
 pub struct LichessPuzzle

@@ -7,6 +7,7 @@
 //
 use rand::random;
 
+/// Xavier initialization on the matrix elements.
 pub fn xavier_init(elems: &mut [f32], input_count: usize, output_count: usize)
 {
     let u = (6.0 / ((input_count as f32) + (output_count as f32))).sqrt();

@@ -99,7 +99,7 @@ impl IndexConverter
         IndexConverter { move_count, tab_move_indices, }
     }
     
-    /// Returns number of all moves.
+    /// Returns the number of all moves.
     pub fn move_count(&self) -> usize
     { self.move_count }
 

@@ -19,6 +19,7 @@ static mut INTERRUPTION_STOP_FLAG: bool = false;
 extern "C" fn neurina_signal_handler(_sig: c_int)
 { unsafe { INTERRUPTION_STOP_FLAG = true; } }
 
+/// Initializes `Ctrl-C` interruption checker.
 pub fn initialize_ctrl_c_intr_checker()
 {
     unsafe {
@@ -27,17 +28,24 @@ pub fn initialize_ctrl_c_intr_checker()
     }
 }
 
+/// Disbales a stop flag for `Ctrl-C` interruption checker.
 pub fn start_ctrl_c_intr_checker()
 { unsafe { INTERRUPTION_STOP_FLAG = false; } }
 
+/// Enables a stop flag for `Ctrl-C` interruption checker.
 pub fn stop_ctrl_c_intr_checker()
 { unsafe { INTERRUPTION_STOP_FLAG = true; } }
 
+/// A structure of `Ctrl-C` interruption checker.
+///
+/// The `Ctrl-C` interruption checker only reacts on pressing keys `Ctrl-C`. Other interruptions are
+/// ignored.
 #[derive(Copy, Clone, Debug)]
 pub struct CtrlCIntrChecker;
 
 impl CtrlCIntrChecker
 {
+    /// Creates a `Ctrl-C` interruption checker.
     pub fn new() -> Self
     { CtrlCIntrChecker }
 }

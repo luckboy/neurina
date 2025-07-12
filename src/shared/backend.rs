@@ -55,6 +55,7 @@ fn initialize_opencl_backend(platform_idx: usize, device_idx: usize) -> Result<(
     set_default_backend(Arc::new(ClBackend::new_with_context(context)?))
 }
 
+/// Initializes a backend for operations on matrices.
 #[allow(unused_assignments)]
 pub fn initialize_backend(config: &Option<Config>) -> Result<()>
 {
@@ -103,5 +104,6 @@ pub fn initialize_backend(config: &Option<Config>) -> Result<()>
     res.unwrap()
 }
 
+/// Finalizes a backend for operations on matrices.
 pub fn finalize_backend() -> Result<()>
 { unset_default_backend() }

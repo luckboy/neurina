@@ -25,7 +25,7 @@ pub struct Converter
 
 impl Converter
 {
-    /// Number of board rows.
+    /// The number of board rows.
     pub const BOARD_ROW_COUNT: usize = 64 * 13 + 6 + 9;
 
     /// Creates a converter.
@@ -36,7 +36,7 @@ impl Converter
     pub fn index_converter(&self) -> &IndexConverter
     { &self.index_converter }
     
-    /// Returns number of the move rows.
+    /// Returns the number of move rows.
     pub fn move_row_count(&self) -> usize
     { self.index_converter.move_count() }
 

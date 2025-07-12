@@ -10,6 +10,11 @@ use crate::matrix::Matrix;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+/// A structure of matrix buffer.
+///
+/// The matrix buffer buffers elements of matrices. The matrix buffer contains buffer of elements of
+/// input matrix, buffers of elements of output matrices, and a middle buffer.
+/// 
 pub struct MatrixBuffer<T>
 {
     input_row_count: usize,
@@ -22,6 +27,7 @@ pub struct MatrixBuffer<T>
 
 impl<T> MatrixBuffer<T>
 {
+    /// Creates a matrix buffer.
     pub fn new(input_row_count: usize, output_row_count: usize, max_col_count: usize, max_output_count: usize, middle_buf: T) -> Self
     {
         MatrixBuffer {
@@ -34,24 +40,36 @@ impl<T> MatrixBuffer<T>
         }
     }
 
+    /// Returns the number of input rows.
     pub fn input_row_count(&self) -> usize
     { self.input_row_count }
 
+    /// Returns the number of output rows.
     pub fn output_row_count(&self) -> usize
     { self.output_row_count }
 
+    /// Returns the maximal number of columns.
     pub fn max_col_count(&self) -> usize
     { self.max_col_count }
 
+    /// Returns the maximal number of outputs.
     pub fn max_output_count(&self) -> usize
     { self.output_bufs.len() }
     
+    /// Resizes the output buffers.
     pub fn resize_output_bufs(&mut self, max_output_count: usize)
     { self.output_bufs.resize(max_output_count, vec![0.0f32; self.output_row_count * self.max_col_count]); }
     
+    /// Returns `true` if the number of elements is greater than the maximal number of columns,
+    /// otherwise `false`.
     pub fn elems_are_full(&self, elem_count: usize) -> bool
     { elem_count >= self.max_col_count }
     
+    /// Processes the elements with using the buffers of elements of matrices.
+    ///
+    /// The first closure converts the elements and sets the elements of matrices in buffers. The
+    /// second clusore processes matrices which are created from the elements of matrices with using
+    /// the middle buffer.
     pub fn do_elems<U, F, G>(&mut self, elems: &mut [U], output_count: usize, intr_checker: &dyn IntrCheck, mut f: F, mut g: G) -> Result<(), Interruption>
         where F: FnMut(&U, &mut [f32], &mut [Vec<f32>], usize, usize),
             G: FnMut(Matrix, &[Matrix], &mut T, &mut [U]) -> Result<(), Interruption>

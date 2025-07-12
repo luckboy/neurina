@@ -9,6 +9,7 @@ use crate::chess::Cell;
 use crate::chess::Color;
 use crate::chess::Coord;
 
+/// Converts the square coordinate to an index for a matrix.
 pub fn coord_to_index(coord: Coord, color: Color) -> usize
 {
     let idx = coord.index();
@@ -22,6 +23,7 @@ pub fn coord_to_index(coord: Coord, color: Color) -> usize
     }
 }
 
+/// Converts the board cell to an index for a matrix.
 pub fn cell_to_index(cell: Cell, color: Color) -> usize
 {
     let tmp_cell = match color {
