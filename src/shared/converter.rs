@@ -103,7 +103,7 @@ impl Converter
     /// The `moves` list should contain legal moves for the current board. The `eps` value defines
     /// margin of error for move scores. If there is one legal move or absolute difference of the
     /// best score and the worst score is greater than product of the absolute best score and the
-    /// `eps` value, the best move is selected.
+    /// `eps` value, the best move is returned.
     pub fn matrix_col_to_move(&self, moves: &MoveList, color: Color, elems: &[f32], col: usize, col_count: usize, eps: f32) -> Option<Move>
     {
         let mut best_move_score = -f32::INFINITY;
