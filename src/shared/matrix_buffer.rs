@@ -59,8 +59,8 @@ impl<T> MatrixBuffer<T>
     pub fn resize_output_bufs(&mut self, max_output_count: usize)
     { self.output_bufs.resize(max_output_count, vec![0.0f32; self.output_row_count * self.max_col_count]); }
     
-    /// Returns `true` if the number of elements is greater than the maximal number of columns,
-    /// otherwise `false`.
+    /// Returns `true` if the number of elements is greater than or equal to the maximal number of
+    /// columns, otherwise `false`.
     pub fn elems_are_full(&self, elem_count: usize) -> bool
     { elem_count >= self.max_col_count }
     
