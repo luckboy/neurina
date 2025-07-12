@@ -12,9 +12,8 @@ use crate::shared::Interruption;
 
 /// A structure of matrix buffer.
 ///
-/// The matrix buffer buffers elements of matrices. The matrix buffer contains buffer of elements of
-/// input matrix, buffers of elements of output matrices, and a middle buffer.
-/// 
+/// The matrix buffer contains a buffer of elements of input matrix, buffers of elements of output
+/// matrices, and a middle buffer.
 pub struct MatrixBuffer<T>
 {
     input_row_count: usize,
