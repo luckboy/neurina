@@ -19,7 +19,7 @@ use crate::shared::Network;
 
 /// A loader trait.
 ///
-/// The loader loads a specified data.
+/// This trait provides method that loads the specified data from the file.
 pub trait Load<T>
 {
     /// Loads the specified data from the file.
@@ -28,7 +28,7 @@ pub trait Load<T>
 
 /// A saver trait.
 ///
-/// The saver saves the specified data.
+/// This trait provides method that saves the specified data to the file.
 pub trait Save
 {
     /// Saves the specified data to the file.
