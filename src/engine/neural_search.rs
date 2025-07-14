@@ -13,8 +13,8 @@ use crate::shared::Interruption;
 
 /// A trait of neural searcher.
 ///
-/// The neural search is a search that uses neural network to search a game tree. The neural network
-/// returns an outputs from which the best moves is selected as principal varations.
+/// The neural search is a search that uses a neural network. The neural network returns outputs
+/// from which the best moves is selected as principal varations.
 pub trait NeuralSearch
 {
     /// Returns the interruption checker.
