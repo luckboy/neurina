@@ -16,6 +16,9 @@ use crate::engine::neural_search::*;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+/// A trait of middle searcher.
+///
+/// The middle search is a search that is between a classical tree search and a neural search.
 #[derive(Clone)]
 pub struct MiddleSearcher
 {
@@ -25,17 +28,22 @@ pub struct MiddleSearcher
 
 impl MiddleSearcher
 {
+    /// The number of nodes to check interruption.
     pub const NODE_COUNT_TO_INTR_CHECK: u64 = 1024;
-    
+
+    /// Creates a a middle searcher.
     pub fn new(eval_fun: Arc<dyn Eval + Send + Sync>, neural_searcher: Arc<dyn NeuralSearch + Send + Sync>) -> Self
     { MiddleSearcher { eval_fun, neural_searcher, } }
 
+    /// Returns the interruption checker.
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
     { self.neural_searcher.intr_checker() }
     
+    /// Returns the evaluation function.
     pub fn eval_fun(&self) -> &Arc<dyn Eval + Send + Sync>
     { &self.eval_fun }
 
+    /// Returns the neural searcher.
     pub fn neural_searcher(&self) -> &Arc<dyn NeuralSearch + Send + Sync>
     { &self.neural_searcher }
     
@@ -103,6 +111,10 @@ impl MiddleSearcher
         where F: FnMut(&Board, &[Move], usize) -> i32
     { self.nega_max_with_fun_ref(board, current_pv, pvs, node_count, leaf_count, ply, middle_depth, &mut f) }
 
+    /// Searches a game tree from the board.
+    ///
+    /// This method returns a value, a number of nodes of middle search, a number of nodes, and
+    /// a principal variation.
     pub fn search(&self, board: &Board, middle_depth: usize, depth: usize) -> Result<(i32, u64, u64, Vec<Move>), Interruption>
     {
         let mut current_pv: Vec<Move> = Vec::new();

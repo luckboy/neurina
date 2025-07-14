@@ -12,7 +12,7 @@ use crate::shared::Interruption;
 /// A trait of interruption checker.
 ///
 /// The interruption checker checks whether an interruption is occurred. Occurence of the
-/// interruption informs about for example the searching stopping. The interruption can be occurred
+/// interruption informs about for example the search stopping. The interruption can be occurred
 /// for:
 ///
 /// - timeout

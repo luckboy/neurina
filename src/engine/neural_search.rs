@@ -11,9 +11,17 @@ use crate::chess::Move;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+/// A trait of neural searcher.
+///
+/// The neural search is a search that uses neural network to search a game tree. The neural network
+/// returns an outputs from which the best moves is selected as principal varations.
 pub trait NeuralSearch
 {
+    /// Returns the interruption checker.
     fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>;
     
+    /// Searches a game tree from the board by the neural search.
+    ///
+    /// The principal variations are from a middle search and updated by the neural search.
     fn search(&self, board: &Board, pvs: &mut [Vec<Move>], depth: usize) -> Result<(), Interruption>;
 }
