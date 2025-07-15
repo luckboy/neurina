@@ -327,7 +327,7 @@ fn main()
                 finalize_backend_and_exit(1);
             },
         }
-        print_time("resut", now.elapsed());
+        print_time("result", now.elapsed());
     }
     match finalize_backend() {
         Ok(()) => (),
