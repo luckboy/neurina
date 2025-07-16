@@ -13,7 +13,7 @@ use crate::shared::Interruption;
 
 /// A search trait.
 ///
-/// This trait provides method that searches a game tree. 
+/// This trait provides method that searches a game tree and other methods.
 pub trait Search
 {
     /// Returns the interruption checker.
@@ -27,7 +27,7 @@ pub trait Search
     
     /// Calculates a number of moves to checkmate.
     ///
-    /// The number of moves to checkmate is calculated from a search value and a depth.
+    /// The number of half moves to checkmate is calculated from a search value and a depth.
     fn move_count_to_checkmate(&self, value: i32, depth: usize) -> Option<usize>;
     
     /// Returns a minimal depth that can be used in search.

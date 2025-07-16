@@ -18,7 +18,8 @@ use crate::shared::Interruption;
 
 /// A structure of middle searcher.
 ///
-/// The middle search is a search that is between a classical tree search and a neural search.
+/// The middle search is a search of game tree that is between a classical tree search and a neural
+/// search.
 #[derive(Clone)]
 pub struct MiddleSearcher
 {
