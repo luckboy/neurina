@@ -16,7 +16,7 @@ use crate::engine::neural_search::*;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
-/// A trait of middle searcher.
+/// A structure of middle searcher.
 ///
 /// The middle search is a search that is between a classical tree search and a neural search.
 #[derive(Clone)]

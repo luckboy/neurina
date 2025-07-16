@@ -19,6 +19,9 @@ use crate::shared::matrix_buffer::*;
 use crate::shared::net::*;
 use crate::shared::Interruption;
 
+/// A structure of neural searcher.
+///
+/// The neural searcher searches a geme tree by using a neural network.
 pub struct NeuralSearcher<T>
 {
     intr_checker: Arc<dyn IntrCheck + Send + Sync>,
@@ -29,10 +32,13 @@ pub struct NeuralSearcher<T>
 
 impl<T> NeuralSearcher<T>
 {
+    /// The maximal number of columns.
     pub const MAX_COL_COUNT: usize = 1024;
     
+    /// The move epsilon.
     pub const MOVE_EPS: f32 = 0.01;
     
+    /// Creates a neural searcher.
     pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T) -> Self
     {
         let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, (vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT], vec![None; Self::MAX_COL_COUNT])));
@@ -44,9 +50,11 @@ impl<T> NeuralSearcher<T>
         }
     }
     
+    /// Returns the converter.
     pub fn converter(&self) -> &Converter
     { &self.converter }
 
+    /// Returns the neural network.
     pub fn network(&self) -> &T
     { &self.network }
 }
