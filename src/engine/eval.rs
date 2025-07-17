@@ -19,7 +19,11 @@ pub const MIN_EVAL_MIDDLE_MATE_VALUE: i32 = MIN_EVAL_VALUE + 256;
 pub const MAX_EVAL_ROOT_MATE_VALUE: i32 = MAX_EVAL_VALUE - 128;
 pub const MIN_EVAL_ROOT_MATE_VALUE: i32 = MIN_EVAL_VALUE + 128;
 
+/// A trait of evaluation function.
+///
+/// The evaulation function evaluates a board.
 pub trait Eval
 {
+    /// Evaluates the board.
     fn evaluate(&self, board: &Board) -> i32;
 }

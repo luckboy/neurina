@@ -104,10 +104,15 @@ const PIECE_MATERIAL_VALUES: [i32; 6] = [
     1000    // Queen
 ];
 
+/// A structure of simple evaluation function.
+///
+/// The simple evaluation function uses material values and piece/square tables to a board
+/// evaluation.
 pub struct SimpleEvalFun;
 
 impl SimpleEvalFun
 {
+    /// Creates a simple evaluation function.
     pub fn new() -> Self
     { SimpleEvalFun }
 }

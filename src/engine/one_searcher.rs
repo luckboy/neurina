@@ -17,6 +17,10 @@ use crate::engine::search::*;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+/// A structure of searcher for depth one.
+///
+/// The searcher classically searches a game tree to depth one and then uses a middle search and a
+/// neural search.
 #[derive(Clone)]
 pub struct OneSearcher
 {
@@ -26,9 +30,11 @@ pub struct OneSearcher
 
 impl OneSearcher
 {
+    /// Creates a searcher for depth one.
     pub fn new(middle_searcher: MiddleSearcher, middle_depth: usize) -> Self
     { OneSearcher { middle_searcher, middle_depth, } }
-    
+
+    /// Returns the middle searcher.
     pub fn middle_searcher(&self) -> &MiddleSearcher
     { &self.middle_searcher }
 }
