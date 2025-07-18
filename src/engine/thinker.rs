@@ -15,6 +15,7 @@ use std::time::Instant;
 use crate::chess::types::OutcomeFilter;
 use crate::chess::Move;
 use crate::chess::MoveChain;
+use crate::engine::eval::*;
 use crate::engine::print::*;
 use crate::engine::search::*;
 use crate::engine::syzygy::*;
@@ -123,6 +124,9 @@ impl Thinker
                                 let mut writer_g = self.writer.lock().unwrap();
                                 self.printer.print_pv(&mut *writer_g, move_chain_g.last(), depth, value, now.elapsed(), node_count, pv.as_slice())?;
                                 writer_g.flush()?;
+                            }
+                            if value <= MIN_EVAL_MIDDLE_MATE_VALUE || value >= MAX_EVAL_MIDDLE_MATE_VALUE {
+                                break;
                             }
                             match max_depth {
                                 Some(max_depth) if depth + 1 > max_depth =>  break,

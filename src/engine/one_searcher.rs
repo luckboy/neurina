@@ -46,6 +46,7 @@ impl Search for OneSearcher
     
     fn search(&self, move_chain: &mut MoveChain, depth: usize, search_moves: &Option<Vec<Move>>) -> Result<(i32, u64, u64, Vec<Move>), Interruption>
     {
+        self.middle_searcher.intr_checker().check()?;
         let moves = semilegal::gen_all(move_chain.last());
         let mut middle_node_count = 1u64;
         let mut node_count = 1u64;

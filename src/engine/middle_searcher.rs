@@ -60,7 +60,7 @@ impl MiddleSearcher
             pvs[ply] = Vec::new();
             if !board.has_legal_moves() {
                 if board.is_check() {
-                    Ok((MAX_EVAL_MIDDLE_MATE_VALUE, None))
+                    Ok((MIN_EVAL_MIDDLE_MATE_VALUE, None))
                 } else {
                     Ok((0, None))
                 }
@@ -98,7 +98,7 @@ impl MiddleSearcher
             }
             if !are_moves {
                 if board.is_check() {
-                    Ok((MAX_EVAL_MIDDLE_MATE_VALUE - (middle_depth as i32),  None))
+                    Ok((MIN_EVAL_MIDDLE_MATE_VALUE - (middle_depth as i32),  None))
                 } else {
                     Ok((0, None))
                 }
@@ -139,19 +139,19 @@ impl MiddleSearcher
         leaf_count = 0usize;
         let (value, leaf_idx) = self.nega_max(board, &mut current_pv, pvs.as_mut_slice(), &mut middle_node_count, &mut leaf_count, 0, middle_depth, |new_board, _, leaf_idx| {
                 let mut tmp_board = new_board.clone();
-                let mut neural_depth = 0usize;
+                let mut neural_ply = 0usize;
                 for mv in &neural_pvs[leaf_idx][middle_depth..] {
                     match tmp_board.make_move(*mv) {
                         Ok(tmp_new_board) => tmp_board = tmp_new_board,
                         Err(_) => break,
                     }
                     neural_node_count += 1;
-                    neural_depth += 1;
+                    neural_ply += 1;
                 }
                 let value = if !tmp_board.has_legal_moves() {
                     if tmp_board.is_check() {
-                        if neural_depth > 0 {
-                            MIN_EVAL_MATE_VALUE + (neural_depth as i32)
+                        if neural_ply > 0 {
+                            MIN_EVAL_MATE_VALUE - ((depth - middle_depth - neural_ply) as i32)
                         } else {
                             MIN_EVAL_MIDDLE_MATE_VALUE
                         }
@@ -161,7 +161,7 @@ impl MiddleSearcher
                 } else {
                     self.eval_fun.evaluate(&tmp_board)
                 };
-                if neural_depth % 2 == 0 {
+                if neural_ply % 2 == 0 {
                     value
                 } else {
                     -value
