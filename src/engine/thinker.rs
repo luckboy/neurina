@@ -21,6 +21,9 @@ use crate::engine::search::*;
 use crate::engine::syzygy::*;
 use crate::shared::intr_check::*;
 
+/// A thinker structure.
+///
+/// The thinker iteratively searches a game tree.  
 pub struct Thinker
 {
     searcher: Arc<dyn Search + Send + Sync>,
@@ -33,6 +36,7 @@ pub struct Thinker
 
 impl Thinker
 {
+    /// Creates a thinker.
     pub fn new(searcher: Arc<dyn Search + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print  + Send + Sync>, syzygy: Arc<Mutex<Option<Syzygy>>>) -> Self
     {
         Thinker {
@@ -45,21 +49,27 @@ impl Thinker
         }
     }
 
+    /// Returns the searcher.
     pub fn searcher(&self) -> &Arc<dyn Search + Send + Sync>
     { &self.searcher }
     
+    /// Returns the writer.
     pub fn writer(&self) -> &Arc<Mutex<dyn Write + Send + Sync>>
     { &self.writer }
     
+    /// Returns the printer.
     pub fn printer(&self) -> &Arc<dyn Print  + Send + Sync>
     { &self.printer }
     
+    /// Returns the Syzygy endgame tablebases.
     pub fn syzygy(&self) -> &Arc<Mutex<Option<Syzygy>>>
     { &self.syzygy }
-    
+
+    /// Returns the interruption checker.
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
     { self.searcher.intr_checker() }
 
+    /// Prepares to iterative search.
     pub fn start(&self)
     {
         {
@@ -69,6 +79,7 @@ impl Thinker
         self.searcher.intr_checker().start();
     }
 
+    /// Waits for stopping of iterative search.
     pub fn wait(&self)
     {
         let mut is_stopped_g = self.is_stopped.lock().unwrap();
@@ -76,20 +87,27 @@ impl Thinker
             is_stopped_g = self.condvar.wait(is_stopped_g).unwrap();
         }
     }
-    
+
+    /// Stops iterative search.
     pub fn stop(&self)
     {
         let mut is_stopped_g = self.is_stopped.lock().unwrap();
         *is_stopped_g = true;
         self.condvar.notify_one();
     }
-    
+
+    /// Returns `true` if iterative search
     pub fn is_stopped(&self) -> bool
     {
         let is_stopped_g = self.is_stopped.lock().unwrap();
         *is_stopped_g
     }
     
+    /// Iteratively searches a game tree.
+    ///
+    /// The search moves are moves from which the search begins. The maximal depth, the maximal
+    /// nodes, and the timeout are the limitations of iterative search. This method searches for a
+    /// checkmate in the moves if these moves is specified.
     pub fn think(&self, move_chain: &Arc<Mutex<MoveChain>>, search_moves: &Option<Vec<Move>>, max_depth: Option<usize>, max_node_count: Option<u64>, move_count_to_checkmate: Option<usize>, now: Instant, timeout: Option<Duration>, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool) -> Result<()>
     {
         {

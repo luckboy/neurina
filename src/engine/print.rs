@@ -12,20 +12,32 @@ use crate::chess::Board;
 use crate::chess::Move;
 use crate::chess::Outcome;
 
+/// A printer trait.
+///
+/// This trait provides methods which prints a line of principal variation, a best move, and a game
+/// outcome.
 pub trait Print
 {
+    /// Prints line of principal variation from the depth, the value, the time, the nodes, and
+    /// the principal variation.
     fn print_pv(&self, w: &mut dyn Write, board: &Board, depth: usize, value: i32, time: Duration, node_count: u64, pv: &[Move]) -> Result<()>;
     
+    /// Prints the best move.
     fn print_best_move(&self, w: &mut dyn Write, board: &Board, mv: Move) -> Result<()>;
     
+    /// Prints the game outcome.
     fn print_outcome(&self, w: &mut dyn Write, outcome: Outcome) -> Result<()>;
 }
 
+/// A structure of empty printer.
+///
+/// The empty printer is dummy that doesn't print anything.
 #[derive(Copy, Clone, Debug)]
 pub struct EmptyPrinter;
 
 impl EmptyPrinter
 {
+    /// Creates an empty printer.
     pub fn new() -> Self
     { EmptyPrinter }
 }
