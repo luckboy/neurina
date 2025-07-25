@@ -104,6 +104,8 @@ impl IndexConverter
     { self.move_count }
 
     /// Converts the move to a move index.
+    ///
+    /// The color is a side of converted board.
     pub fn move_to_index(&self, mv: Move, color: Color) -> Option<usize>
     {
         match mv.uci() {

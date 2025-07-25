@@ -19,10 +19,13 @@ use crate::chess::MoveChain;
 use crate::engine::print::*;
 use crate::engine::thinker::*;
 
+/// An enumeration of time control.
 #[derive(Copy, Clone, Debug)]
 pub enum TimeControl
 {
+    /// A level time control contains the number of moves per time control and the time.
     Level(usize, Duration),
+    /// A fixed time control contains the time on one move.
     Fixed(Duration),
 }
 
@@ -47,6 +50,9 @@ enum ThreadCommand
     Quit,
 }
 
+/// An engine structure.
+///
+/// The engine controls a game and a time. An iterative search is executed in other thread.
 pub struct Engine
 {
     thread: JoinHandle<()>,
@@ -60,6 +66,7 @@ pub struct Engine
 
 impl Engine
 {
+    /// Creates an engine.
     pub fn new(thinker: Arc<Thinker>) -> Self
     {
         let move_chain = Arc::new(Mutex::new(MoveChain::new_initial()));
@@ -93,33 +100,45 @@ impl Engine
         }
     }
     
+    /// Returns the thinker.
     pub fn thinker(&self) -> &Arc<Thinker>
     { &self.thinker }
 
+    /// Returns the move chain.
     pub fn move_chain(&self) -> &Arc<Mutex<MoveChain>>
     { &self.move_chain }
     
+    /// Returns the time control.
     pub fn time_control(&self) -> TimeControl
     { self.time_control }
 
+    /// Sets the time control.
     pub fn set_time_control(&mut self, time_control: TimeControl)
     { self.time_control = time_control; }
 
+    /// Returns the remaining time.
     pub fn remaining_time(&self) -> Duration
     { self.remaining_time }
 
+    /// Sets the remaining time.
     pub fn set_remaining_time(&mut self, remaining_time: Duration)
     { self.remaining_time = remaining_time; }
 
+    /// Returns the number of move to go.
     pub fn move_count_to_go(&self) -> usize
     { self.move_count_to_go }
 
+    /// Sets the number of move to go.
     pub fn set_move_count_to_go(&mut self, move_count_to_go: usize)
     { self.move_count_to_go = move_count_to_go; }
 
+    /// Returns the printer.
     pub fn printer(&self) -> &Arc<dyn Print + Send + Sync>
     { self.thinker.printer() }
     
+    /// Operates on the move chain.
+    ///
+    /// This method waits for thinker before the operation on the move chain.
     pub fn do_move_chain<T, F>(&self, f: F) -> T
         where F: FnOnce(&mut MoveChain) -> T
     {
@@ -128,9 +147,11 @@ impl Engine
         f(&mut *move_chain_g)
     }
     
+    /// Stops an iterative search.
     pub fn stop(&self)
     { self.thinker.intr_checker().stop(); }
     
+    /// Returns `true` if an iterative search is stopped, otherwise `false`.
     pub fn is_stopped(&self) -> bool
     { self.thinker.is_stopped() } 
     
@@ -168,6 +189,12 @@ impl Engine
         }
     }
     
+    /// Iteratively searchs a game tree.
+    ///
+    /// The search moves are moves from which the search begins. The maximal depth and the maximal
+    /// nodes are the limitations of iterative search. This method searches for a checkmate in the
+    /// moves if these moves is specified. This method stops an iterative search and waits for the thinker
+    /// before the iterative search.
     pub fn go(&self, search_moves: Option<Vec<Move>>, depth: Option<usize>, node_count: Option<u64>, move_count_to_checkmate: Option<usize>, is_timeout: bool, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool)
     {
         self.stop();
@@ -199,6 +226,10 @@ impl Engine
         }
     }
     
+    /// Quits from the engine.
+    ///
+    /// This method stops an iterative search, waits for the thinker, and sends the exit message to
+    /// the thread.
     pub fn quit(&self)
     {
         self.stop();
@@ -206,6 +237,7 @@ impl Engine
         self.sender.send(ThreadCommand::Quit).unwrap();
     }
     
+    /// Wait for the thread to finish.
     pub fn join_thread(self)
     { self.thread.join().unwrap(); }
 }

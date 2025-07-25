@@ -87,6 +87,8 @@ impl Converter
     }
     
     /// Converts the move to a column of output matrix.
+    ///
+    /// The color is a side of converted board.
     pub fn move_to_matrix_col(&self, mv: Move, color: Color, elems: &mut [f32], col: usize, col_count: usize)
     {
         for i in 0..self.move_row_count() {
@@ -100,10 +102,10 @@ impl Converter
 
     /// Converts the column of output matrix to a move.
     ///
-    /// The `moves` list should contain legal moves for the current board. The `eps` value defines
-    /// margin of error for move scores. If there is one legal move or absolute difference of the
-    /// best score and the worst score is greater than product of the absolute best score and the
-    /// `eps` value, the best move is returned.
+    /// The moves should be legal moves for the current board. The color is a side of converted 
+    /// board. The epsilon defines margin of error for move scores. If there is one legal move or
+    /// absolute difference of the best score and the worst score is greater than product of the
+    /// absolute best score and the epsilon, the best move is returned.
     pub fn matrix_col_to_move(&self, moves: &MoveList, color: Color, elems: &[f32], col: usize, col_count: usize, eps: f32) -> Option<Move>
     {
         let mut best_move_score = -f32::INFINITY;
