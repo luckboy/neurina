@@ -107,7 +107,9 @@ impl Thinker
     ///
     /// The search moves are moves from which the search begins. The maximal depth, the maximal
     /// nodes, and the timeout are the limitations of iterative search. This method searches for a
-    /// checkmate in the moves if these moves is specified.
+    /// checkmate in the moves if these moves is specified. The flags infrom this method whether it
+    /// should make a best move, print a principal variation, and print the best move and an
+    /// outcome.
     pub fn think(&self, move_chain: &Arc<Mutex<MoveChain>>, search_moves: &Option<Vec<Move>>, max_depth: Option<usize>, max_node_count: Option<u64>, move_count_to_checkmate: Option<usize>, now: Instant, timeout: Option<Duration>, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool) -> Result<()>
     {
         {

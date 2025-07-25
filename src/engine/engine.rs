@@ -52,7 +52,8 @@ enum ThreadCommand
 
 /// An engine structure.
 ///
-/// The engine controls a game and a time. An iterative search is executed in other thread.
+/// The engine controls a game, a time, and an iterative search. The iterative search is executed
+/// in other thread.
 pub struct Engine
 {
     thread: JoinHandle<()>,
@@ -193,8 +194,10 @@ impl Engine
     ///
     /// The search moves are moves from which the search begins. The maximal depth and the maximal
     /// nodes are the limitations of iterative search. This method searches for a checkmate in the
-    /// moves if these moves is specified. This method stops an iterative search and waits for the thinker
-    /// before the iterative search.
+    /// moves if these moves is specified. The timeout flag determites whether timeout should be
+    /// calculated and used. Other flags infrom this method whether it should make a best move,
+    /// print a principal variation, and print the best move and an outcome. This method stops an
+    /// iterative search and waits for the thinker before the iterative search.
     pub fn go(&self, search_moves: Option<Vec<Move>>, depth: Option<usize>, node_count: Option<u64>, move_count_to_checkmate: Option<usize>, is_timeout: bool, can_make_best_move: bool, can_print_pv: bool, can_print_best_move_and_outcome: bool)
     {
         self.stop();
