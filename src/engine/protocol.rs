@@ -27,6 +27,9 @@ use crate::engine::xboard::*;
 use crate::engine::LoopError;
 use crate::engine::LoopResult;
 
+/// Performs a loop for a detected protocol with the engine identifier.
+///
+/// See [`protocol_loop`].
 pub fn protocol_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
@@ -59,6 +62,10 @@ pub fn protocol_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine
     }
 }
 
+/// Performs a loop for a detected protocol.
+///
+/// This function detectes the used procotol and then performs a loop for the detected protocol. The
+/// closure creates an engine for this loop.
 pub fn protocol_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 { protocol_loop_with_engine_id(stdout_log, NEURINA_ID, f) }

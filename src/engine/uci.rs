@@ -29,11 +29,16 @@ use crate::engine::utils::*;
 use crate::engine::LoopError;
 use crate::engine::LoopResult;
 
+/// A structure of UCI printer.
+///
+/// The UCI printer prints a line of principal variation, a best move, and a game outcome for the
+/// UCI protocol.
 #[derive(Copy, Clone, Debug)]
 pub struct UciPrinter;
 
 impl UciPrinter
 {
+    /// Creates an UCI printer.
     pub fn new() -> Self
     { UciPrinter }
 }
@@ -407,6 +412,9 @@ fn uci_display(stdout_log: &Arc<Mutex<StdoutLog>>, engine: &mut Engine, _args: &
     Ok(false)
 }
 
+/// Performs a loop for the UCI protocol with the engine identifier.
+///
+/// See [`uci_loop`].
 pub fn uci_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
@@ -513,6 +521,10 @@ pub fn uci_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: 
     }
 }
 
+/// Performs a loop for the UCI protocol.
+///
+/// The loop receives commands from the GUI program and sends commands to the GUI program. The 
+/// closure creates an engine for this loop.
 pub fn uci_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 { uci_loop_with_engine_id(stdout_log, NEURINA_ID, f) }

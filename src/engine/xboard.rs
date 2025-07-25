@@ -66,11 +66,16 @@ fn write_outcome(w: &mut dyn Write, outcome: Outcome) -> Result<()>
     Ok(())
 }
 
+/// A structure of xboard printer.
+///
+/// The xboard printer prints a line of principal variation, a best move, and a game outcome for
+/// the xboard protocol.
 #[derive(Copy, Clone, Debug)]
 pub struct XboardPrinter;
 
 impl XboardPrinter
 {
+    /// Creates a xboard printer.
     pub fn new() -> Self
     { XboardPrinter }
 }
@@ -555,6 +560,9 @@ fn xboard_make_move(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, s
     Ok(())
 }
 
+/// Performs a loop for the xboard protocol with the engine identifier.
+///
+/// See [`xboard_loop`].
 pub fn xboard_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
@@ -696,6 +704,10 @@ pub fn xboard_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_i
     }
 }
 
+/// Performs a loop for the xboard protocol.
+///
+/// The loop receives commands from the GUI program and sends commands to the GUI program. The
+/// closure creates an engine for this loop.
 pub fn xboard_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 { xboard_loop_with_engine_id(stdout_log, NEURINA_ID, f) }

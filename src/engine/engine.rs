@@ -23,7 +23,8 @@ use crate::engine::thinker::*;
 #[derive(Copy, Clone, Debug)]
 pub enum TimeControl
 {
-    /// A level time control contains the number of moves per time control and the time.
+    /// A level time control contains the number of moves per time control and the time. If the
+    /// number of moves per time control is zero, the time is on all game.
     Level(usize, Duration),
     /// A fixed time control contains the time on one move.
     Fixed(Duration),
@@ -52,8 +53,8 @@ enum ThreadCommand
 
 /// An engine structure.
 ///
-/// The engine controls a game, a time, and an iterative search. The iterative search is executed
-/// in other thread.
+/// The engine controls a game, a time, and iterative searches. The iterative searches are
+/// performed in other thread.
 pub struct Engine
 {
     thread: JoinHandle<()>,

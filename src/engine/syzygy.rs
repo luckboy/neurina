@@ -123,7 +123,8 @@ pub struct Syzygy
 
 impl Syzygy
 {
-    /// Creates an object of Syzygy endgame tablebases and loads the Syzygy endgame tablebases.
+    /// Creates an object of Syzygy endgame tablebases and loads the Syzygy endgame tablebases to
+    /// the object.
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Syzygy, fathom::Error>
     { Ok(Syzygy { fathom: fathom::Fathom::new(path)?, }) }
 
