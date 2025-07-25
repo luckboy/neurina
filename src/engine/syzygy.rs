@@ -115,7 +115,7 @@ fn fathom_move_to_move(board: &Board, fathom_move: fathom::Move) -> Option<Move>
     }
 }
 
-/// A structure of Syzygy endgame tablebases.
+/// A structure of object of Syzygy endgame tablebases.
 pub struct Syzygy
 {
     fathom: fathom::Fathom,
@@ -132,7 +132,7 @@ impl Syzygy
     pub fn reload<P: AsRef<Path>>(self, path: P) -> Result<Syzygy, fathom::Error>
     { Ok(Syzygy { fathom: self.fathom.reload(path)?, }) }
     
-    /// Probes whether the board is in endgame tablebases.
+    /// Probes whether the board with a best move are in the Syzygy endgame tablebases.
     pub fn probe(&mut self, board: &Board) -> Option<Move>
     {
         let (mut root_probe, _) = self.fathom.get_probers();

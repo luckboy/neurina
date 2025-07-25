@@ -23,7 +23,7 @@ use crate::shared::intr_check::*;
 
 /// A thinker structure.
 ///
-/// The thinker iteratively searches a game tree.  
+/// The thinker iteratively searches a game tree.
 pub struct Thinker
 {
     searcher: Arc<dyn Search + Send + Sync>,
