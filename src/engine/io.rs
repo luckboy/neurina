@@ -11,6 +11,10 @@ use std::io::Write;
 use std::io::stdout;
 use crate::engine::utils::*;
 
+/// A structure of writer of standard output with logging.
+///
+/// The writer allows to automatically write a data to a log file while writing the data to
+/// a standard output. Also, a data from a standard input can be written to the log file.
 pub struct StdoutLog
 {
     stdout: Stdout,
@@ -20,9 +24,11 @@ pub struct StdoutLog
 
 impl StdoutLog
 {
+    /// Creates a writer of standard output with logging.
     pub fn new(log: Option<Box<dyn Write + Send + Sync>>) -> Self
     { StdoutLog { stdout: stdout(), log, has_output_prefix: true, } }
     
+    /// Writes the line from the standard input to the log file.
     pub fn log_input_line(&mut self, line: &str) -> Result<()>
     {
         match &mut self.log {

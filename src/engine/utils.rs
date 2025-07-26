@@ -5,6 +5,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
+/// Returns the string slice without newline.
 pub fn str_without_nl(s: &str) -> &str
 {
     if s.ends_with('\n') {
@@ -14,6 +15,7 @@ pub fn str_without_nl(s: &str) -> &str
     }
 }
 
+/// Returns the string slice without carriage return and newline.
 pub fn str_without_crnl(s: &str) -> &str
 {
     if s.ends_with('\n') {

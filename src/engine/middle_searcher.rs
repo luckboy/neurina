@@ -29,7 +29,7 @@ pub struct MiddleSearcher
 
 impl MiddleSearcher
 {
-    /// The number of nodes to check interruption.
+    /// A number of nodes to check interruption.
     pub const NODE_COUNT_TO_INTR_CHECK: u64 = 1024;
 
     /// Creates a a middle searcher.

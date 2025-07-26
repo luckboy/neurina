@@ -32,10 +32,10 @@ pub struct NeuralSearcher<T>
 
 impl<T> NeuralSearcher<T>
 {
-    /// The maximal number of columns.
+    /// A maximal number of columns.
     pub const MAX_COL_COUNT: usize = 1024;
     
-    /// The move epsilon.
+    /// A move epsilon.
     pub const MOVE_EPS: f32 = 0.01;
     
     /// Creates a neural searcher.

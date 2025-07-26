@@ -27,7 +27,7 @@ use crate::engine::xboard::*;
 use crate::engine::LoopError;
 use crate::engine::LoopResult;
 
-/// Performs a loop for a detected protocol with the engine identifier.
+/// Performs a loop for a regocnized protocol with the engine identifier.
 ///
 /// See [`protocol_loop`].
 pub fn protocol_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, f: F) -> LoopResult<()>
@@ -62,9 +62,9 @@ pub fn protocol_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine
     }
 }
 
-/// Performs a loop for a detected protocol.
+/// Performs a loop for a recognized protocol.
 ///
-/// This function detectes the used procotol and then performs a loop for the detected protocol. The
+/// This function recognizes a protocol and then performs a loop for the recognized protocol. The
 /// closure creates an engine for this loop.
 pub fn protocol_loop<F>(stdout_log: Arc<Mutex<StdoutLog>>, f: F) -> LoopResult<()>
     where F: FnMut(Arc<Mutex<dyn Write + Send + Sync>>, Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>

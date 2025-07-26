@@ -7,16 +7,24 @@
 //
 use crate::chess::Board;
 
+/// A maximal evaluation value.
 pub const MAX_EVAL_VALUE: i32 = 32767;
+/// A minimal evaluation value.
 pub const MIN_EVAL_VALUE: i32 = -32767;
 
+/// A maximal evaluation value of checkmate.
 pub const MAX_EVAL_MATE_VALUE: i32 = MAX_EVAL_VALUE - 384;
+/// A minimal evaluation value of checkmate.
 pub const MIN_EVAL_MATE_VALUE: i32 = MIN_EVAL_VALUE + 384;
 
+/// A maximal evaluation value of checkmate of middle search.
 pub const MAX_EVAL_MIDDLE_MATE_VALUE: i32 = MAX_EVAL_VALUE - 256;
+/// A minimal evaluation value of checkmate of middle search.
 pub const MIN_EVAL_MIDDLE_MATE_VALUE: i32 = MIN_EVAL_VALUE + 256;
 
+/// A maximal evaluation value of root checkmate.
 pub const MAX_EVAL_ROOT_MATE_VALUE: i32 = MAX_EVAL_VALUE - 128;
+/// A minimal evaluation value of root checkmate.
 pub const MIN_EVAL_ROOT_MATE_VALUE: i32 = MIN_EVAL_VALUE + 128;
 
 /// A trait of evaluation function.

@@ -13,6 +13,10 @@ use std::time::Instant;
 use crate::shared::intr_check::*;
 use crate::shared::Interruption;
 
+/// A structure of interruption checker.
+///
+/// The interruption checker checks whether a timeout or a searching stopping occurs. Pressing keys
+/// `Ctrl-C` is ignored.
 #[derive(Debug)]
 pub struct IntrChecker
 {
@@ -23,6 +27,7 @@ pub struct IntrChecker
 
 impl IntrChecker
 {
+    /// Creates an interruption checker.
     pub fn new() -> Self
     {
         IntrChecker {

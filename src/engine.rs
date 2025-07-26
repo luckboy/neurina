@@ -49,14 +49,21 @@ pub use uci::*;
 pub use utils::*;
 pub use xboard::*;
 
+/// An enumeration of loop error.
 #[derive(Debug)]
 pub enum LoopError
 {
+    /// A neural network is invalid.
     InvalidNetwork,
+    /// An input/output error.
     Io(std::io::Error),
+    /// A matrix error.
     Matrix(matrix::Error),
+    /// A fathom error.
     Fathom(fathom::Error),
+    /// Can't initialize a loop context.
     UninitializedLoopContext,
+    /// Can't recognize a protocol.
     UnrecognizedProtocol,
 }
 
@@ -78,4 +85,5 @@ impl fmt::Display for LoopError
     }
 }
 
+/// A type of loop result.
 pub type LoopResult<T> = Result<T, LoopError>;
