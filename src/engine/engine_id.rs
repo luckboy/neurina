@@ -11,11 +11,11 @@
 #[derive(Copy, Clone, Debug)]
 pub struct EngineId
 {
-    /// The engine name.
+    /// An engine name.
     pub name: &'static str,
-    /// The first engine author(s).
+    /// First engine author(s).
     pub first_author: Option<&'static str>,
-    /// The last engine author(s).
+    /// Last engine author(s).
     pub last_author: Option<&'static str>,
 }
 

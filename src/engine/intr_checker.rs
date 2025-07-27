@@ -15,8 +15,8 @@ use crate::shared::Interruption;
 
 /// A structure of interruption checker.
 ///
-/// The interruption checker checks whether a timeout or a searching stopping occurs. Pressing keys
-/// `Ctrl-C` is ignored.
+/// The interruption checker checks whether a timeout or a searching stopping is occurred. Pressed
+/// keys `Ctrl-C` are ignored.
 #[derive(Debug)]
 pub struct IntrChecker
 {
