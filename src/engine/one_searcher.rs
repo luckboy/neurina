@@ -81,7 +81,7 @@ impl Search for OneSearcher
                                 Outcome::Win { .. } => MAX_EVAL_MIDDLE_MATE_VALUE,
                                 Outcome::Draw(_) => 0,
                             };
-                            if value >= best_value {
+                            if value > best_value {
                                 best_value = value;
                                 pv = vec![*mv];
                             }
@@ -95,7 +95,7 @@ impl Search for OneSearcher
                     match res {
                         Ok((neg_value, tmp_middle_node_count, tmp_node_count, tmp_pv)) => {
                             let value = -neg_value;
-                            if value >= best_value {
+                            if value > best_value {
                                 best_value = value;
                                 pv = vec![*mv];
                                 pv.extend_from_slice(tmp_pv.as_slice());
