@@ -57,7 +57,7 @@ impl Trainer
     pub fn epoch(&self) -> usize
     { self.algorithm.epoch() }
     
-    /// Saves an epoch state and a computed neural network.
+    /// Saves a current state of epoch and a current version of neural network.
     pub fn save(&self) -> Result<()>
     { self.algorithm.save() }
     
@@ -170,11 +170,12 @@ impl Trainer
         Ok((passed_output_count, all_output_count, err_count))
     }
     
-    /// Computes the epoch for data.
+    /// Computes an epoch for data.
     ///
     /// This method returns a number of passed outputs, a number of all outputs, and a number of
     /// errors. The number of passed outputs and the number of all outputs are computed for a
-    /// previous neural network.
+    /// current version of neural network. The errors from the number of errors are errors of 
+    /// invalid FEN and illegal move.
     pub fn do_epoch(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     {
         let tuple = self.do_data(data, true)?;
@@ -183,11 +184,9 @@ impl Trainer
         Ok(tuple)
     }
 
-    /// Computes the result of computation of neural network for data.
+    /// Computes a result of neural network for data.
     ///
-    /// This method returns a number of passed outputs, a number of all outputs, and a number of
-    /// errors. The number of passed outputs and the number of all outputs are computed for a
-    /// last neural network. 
+    /// See [`do_epoch`](Self::do_epoch).
     pub fn do_result(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     { self.do_data(data, false) }
 }

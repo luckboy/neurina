@@ -8,11 +8,15 @@
 use crate::trainer::data_sample::*;
 use crate::trainer::sample::*;
 
+/// A structure of single sampler.
+///
+/// The single sampler creates one data sample from one data sample.
 #[derive(Copy, Clone, Debug)]
 pub struct SingleSampler;
 
 impl SingleSampler
 {
+    /// Creates a single sampler.
     pub fn new() -> Self
     { SingleSampler }
 }
