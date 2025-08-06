@@ -10,7 +10,7 @@ use crate::trainer::sample::*;
 
 /// A structure of single sampler.
 ///
-/// The single sampler creates one data sample from one data sample.
+/// The single sampler copies one data sample.
 #[derive(Copy, Clone, Debug)]
 pub struct SingleSampler;
 

@@ -10,8 +10,7 @@ use crate::trainer::sample::*;
 
 /// A structure of multi sampler.
 ///
-/// The multi sampler creates data samples for a board with all moves to a board with a last move
-/// from one data sample.
+/// The multi sampler creates data samples from a board with all moves to a board with a last move.
 #[derive(Copy, Clone, Debug)]
 pub struct MultiSampler;
 
