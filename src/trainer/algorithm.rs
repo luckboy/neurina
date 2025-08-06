@@ -19,13 +19,20 @@ pub const STATE_NAME: &'static str = "state.toml";
 pub const STATE_NAME_PREFIX: &'static str = "state";
 pub const STATE_NAME_SUFFIX: &'static str = ".toml";
 
+/// An algorithm trait.
+///
+/// The algorithm determines how a neural network will be trained.
 pub trait Algorithm
 {
+    /// Returns the gradient adder.
     fn gradient_adder(&self) -> &(dyn GradientAdd + Send + Sync);
 
+    /// Returns the epoch number.
     fn epoch(&self) -> usize;
     
+    /// Saves an epoch state and a computed neural network.
     fn save(&self) -> Result<()>;
 
+    /// Performs the algorithm.
     fn do_algorithm(&self) -> TrainerResult<()>;
 }

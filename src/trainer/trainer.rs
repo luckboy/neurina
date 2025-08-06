@@ -17,6 +17,9 @@ use crate::trainer::sample::*;
 use crate::trainer::TrainerError;
 use crate::trainer::TrainerResult;
 
+/// A trainer structure.
+///
+/// The trainer trains a neural network on data.
 pub struct Trainer
 {
     sampler: Arc<dyn Sample + Send + Sync>,
@@ -27,26 +30,34 @@ pub struct Trainer
 
 impl Trainer
 {
+    /// A number of minimatches to print.
     pub const MINIBATCH_COUNT_TO_PRINT: u64 = 4;
     
+    /// Creates a trainer.
     pub fn new(sampler: Arc<dyn Sample + Send + Sync>, algorithm: Arc<dyn Algorithm + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> Self
     { Trainer { sampler, algorithm, writer, printer, } }
     
+    /// Returns the sampler.
     pub fn sampler(&self) -> &Arc<dyn Sample + Send + Sync>
     { &self.sampler }
 
+    /// Returns the algorithm.
     pub fn algorithm(&self) -> &Arc<dyn Algorithm + Send + Sync>
     { &self.algorithm }
 
+    /// Returns the writer.
     pub fn writer(&self) -> &Arc<Mutex<dyn Write + Send + Sync>>
     { &self.writer }
 
+    /// Returns the printer.
     pub fn printer(&self) -> &Arc<dyn Print + Send + Sync>
     { &self.printer }
     
+    /// Returns the epoch number.
     pub fn epoch(&self) -> usize
     { self.algorithm.epoch() }
     
+    /// Saves an epoch state and a computed neural network.
     pub fn save(&self) -> Result<()>
     { self.algorithm.save() }
     
@@ -159,6 +170,11 @@ impl Trainer
         Ok((passed_output_count, all_output_count, err_count))
     }
     
+    /// Computes the epoch for data.
+    ///
+    /// This method returns a number of passed outputs, a number of all outputs, and a number of
+    /// errors. The number of passed outputs and the number of all outputs are computed for a
+    /// previous neural network.
     pub fn do_epoch(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     {
         let tuple = self.do_data(data, true)?;
@@ -167,6 +183,11 @@ impl Trainer
         Ok(tuple)
     }
 
+    /// Computes the result of computation of neural network for data.
+    ///
+    /// This method returns a number of passed outputs, a number of all outputs, and a number of
+    /// errors. The number of passed outputs and the number of all outputs are computed for a
+    /// last neural network. 
     pub fn do_result(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     { self.do_data(data, false) }
 }

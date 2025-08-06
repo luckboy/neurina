@@ -7,7 +7,11 @@
 //
 use crate::trainer::data_sample::*;
 
+/// A sample trait.
+///
+/// This trait provides method that creates data samples from one data sample.
 pub trait Sample
 {
+    /// Creates data samples from one data sample.
     fn samples(&self, sample: &DataSample) -> Option<Vec<DataSample>>;
 }
