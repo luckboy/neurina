@@ -9,6 +9,9 @@ use crate::matrix::Matrix;
 use crate::shared::network::*;
 use crate::trainer::net_create::*;
 
+/// A structure of factory of neural network with zero matrices.
+///
+/// The factory of neural network creates a neural network with zero matrices.
 #[derive(Copy, Clone, Debug)]
 pub struct ZeroNetworkFactory
 {
@@ -17,6 +20,7 @@ pub struct ZeroNetworkFactory
 
 impl ZeroNetworkFactory
 {
+    /// Creates a factory of neural network.
     pub fn new(middle_count: usize) -> Self
     { ZeroNetworkFactory { middle_count, } }
 }

@@ -47,11 +47,15 @@ pub use trainer::*;
 pub use xavier_network_factory::*;
 pub use zero_network_factory::*;
 
+/// An enumeration of trainer error.
 #[derive(Debug)]
 pub enum TrainerError
 {
+    /// An interruption error.
     Interruption(Interruption),
+    /// No gradient.
     NoGradient,
+    /// An input/output error.
     Io(std::io::Error),
 }
 
@@ -72,4 +76,5 @@ impl fmt::Display for TrainerError
     }
 }
 
+/// A type of trainer result.
 pub type TrainerResult<T> = Result<T, TrainerError>;

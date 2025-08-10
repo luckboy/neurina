@@ -19,6 +19,7 @@ use crate::trainer::data_sample::*;
 use crate::trainer::TrainerError;
 use crate::trainer::TrainerResult;
 
+/// A structure of reader of lichess puzzles.
 pub struct LichessPuzzleReader<R>
 {
     reader: Reader<R>,
@@ -26,6 +27,7 @@ pub struct LichessPuzzleReader<R>
 
 impl LichessPuzzleReader<File>
 {
+    /// Creates a reader of lichess puzzle from the path.
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self>
     {
         match Reader::from_path(path) {
@@ -37,13 +39,16 @@ impl LichessPuzzleReader<File>
 
 impl<R: Read> LichessPuzzleReader<R>
 {
+    /// Creates a reader of lichess puzzle from the reader.
     pub fn from_reader(r: R) -> Self
     { LichessPuzzleReader { reader: Reader::from_reader(r), } }
-    
+
+    /// Returns a borrowed iterotor over data samples from lichess puzzles.
     pub fn puzzles(&mut self, max_count: Option<u64>) -> LichessPuzzles<'_, R>
     { LichessPuzzles { iter: self.reader.deserialize(), count: 0, max_count, } }
 }
 
+/// A structure of borrowed iterator over data samples from lichess puzzles.
 pub struct LichessPuzzles<'a, R>
 {
     iter: DeserializeRecordsIter<'a, R, LichessPuzzle>,

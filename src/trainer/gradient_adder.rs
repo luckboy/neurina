@@ -28,6 +28,9 @@ use crate::trainer::net_create::*;
 use crate::trainer::TrainerError;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of gradient adder.
+///
+/// The factory of gradient adder creates a gradient adder.
 #[derive(Copy, Clone, Debug)]
 pub struct GradientAdderFactory<T, NL, NF>
 {
@@ -38,6 +41,7 @@ pub struct GradientAdderFactory<T, NL, NF>
 
 impl<T, NL, NF> GradientAdderFactory<T, NL, NF>
 {
+    /// Creates a factory of gradient adder.
     pub fn new(net_loader: NL, xavier_net_factory: NF) -> Self
     {
         GradientAdderFactory {
@@ -57,6 +61,9 @@ impl<T, NL: Load<T>, NF: NetCreate<T>> GradientAddCreate<GradientAdder<T>> for G
     }
 }
 
+/// A structure of gradient adder.
+///
+/// The gradient adder adds minibatch gradients to a gradient.
 pub struct GradientAdder<T>
 {
     intr_checker: Arc<dyn IntrCheck + Send + Sync>,
@@ -69,11 +76,14 @@ pub struct GradientAdder<T>
 
 impl<T> GradientAdder<T>
 {
+    /// A maximal number of columns.
     pub const MAX_COL_COUNT: usize = 1024;
     
+    /// Creates a gradient adder.
     pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T) -> Self
     { Self::new_with_max_col_count(intr_checker, converter, network, Self::MAX_COL_COUNT) }
     
+    /// Creates a gradient adder with the maximal number of columns.
     pub fn new_with_max_col_count(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T, max_col_count: usize) -> Self
     {
         let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, converter.move_row_count(), max_col_count, 0, (vec![0.0; converter.move_row_count() * max_col_count], vec![0.0; converter.move_row_count() * max_col_count])));
@@ -87,12 +97,15 @@ impl<T> GradientAdder<T>
         }
     }
     
+    /// Returns the converter.
     pub fn converter(&self) -> &Converter
     { &self.converter }
 
+    /// Returns the neural network.
     pub fn network(&self) -> &Mutex<T>
     { &self.network }
 
+    /// Returns the gradient.
     pub fn gradient(&self) -> &Mutex<Option<T>>
     { &self.gradient }
 }

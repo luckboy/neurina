@@ -10,6 +10,10 @@ use crate::shared::network::*;
 use crate::shared::xavier_init::*;
 use crate::trainer::net_create::*;
 
+/// A structure of factory of neural network with Xavier initialization.
+///
+/// The factory of neural network creates a neural network with matrices which are set by Xavier
+/// initialization.
 #[derive(Copy, Clone, Debug)]
 pub struct XavierNetworkFactory
 {
@@ -18,6 +22,7 @@ pub struct XavierNetworkFactory
 
 impl XavierNetworkFactory
 {
+    /// Creates a factory of neural network.
     pub fn new(middle_count: usize) -> Self
     { XavierNetworkFactory { middle_count, } }
 }
