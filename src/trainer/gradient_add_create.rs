@@ -10,7 +10,11 @@ use std::sync::Arc;
 use crate::shared::converter::*;
 use crate::shared::intr_check::*;
 
+/// A trait of factory of gradient adder.
+///
+/// This trait provides method that creates a gradient adder.
 pub trait GradientAddCreate<T>
 {
+    /// Creates a gradient adder.
     fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<T>;
 }

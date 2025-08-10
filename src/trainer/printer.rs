@@ -9,10 +9,14 @@ use std::io::Result;
 use std::io::Write;
 use crate::trainer::print::*;
 
+/// A printer structure.
+///
+/// The printer prints an information about a computation progress.
 pub struct Printer;
 
 impl Printer
 {
+    /// Creates a printer.
     pub fn new() -> Self
     { Printer }
 }

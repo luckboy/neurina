@@ -8,15 +8,21 @@
 use crate::chess::Board;
 use crate::chess::Move;
 
+/// A structure of data sample.
+///
+/// The data sample contains a board and moves.
 #[derive(Clone, Debug)]
 pub struct DataSample
 {
+    /// A board.
     pub board: Board,
+    /// Moves.
     pub moves: Vec<Move>,
 }
 
 impl DataSample
 {
+    /// Creates a data sample.
     pub fn new(board: Board, moves: Vec<Move>) -> Self
     { DataSample { board, moves, } }
 }

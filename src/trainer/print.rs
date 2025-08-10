@@ -8,15 +8,27 @@
 use std::io::Result;
 use std::io::Write;
 
+/// A printer trait.
+///
+/// This trait provides method that prints an information about a computation progress.
 pub trait Print
 {
+    /// Prints the number of samples, the number of computed minibatches, and the number of
+    /// minibatches.
+    ///
+    /// This method prints carriage return as the last character if the completion flag is disabled,
+    /// otherwise newline as the character.
     fn print(&self, w: &mut dyn Write, sample_count: u64, computed_minibatch_count: u64, minibatch_count: u64, is_done: bool) -> Result<()>;
 }
 
+/// A structure of empty printer.
+///
+/// The empty printer is dummy that doesn't print anything.
 pub struct EmptyPrinter;
 
 impl EmptyPrinter
 {
+    /// Creates an empty printer.
     pub fn new() -> Self
     { EmptyPrinter }
 }
