@@ -12,8 +12,8 @@ use crate::trainer::net_create::*;
 
 /// A structure of factory of neural network with Xavier initialization.
 ///
-/// The factory of neural network creates a neural network with matrices which are set by Xavier
-/// initialization.
+/// The factory of neural network creates a neural network with matrices which are initialized by 
+/// Xavier initialization.
 #[derive(Copy, Clone, Debug)]
 pub struct XavierNetworkFactory
 {
