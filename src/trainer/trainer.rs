@@ -57,7 +57,7 @@ impl Trainer
     pub fn epoch(&self) -> usize
     { self.algorithm.epoch() }
     
-    /// Saves a current state of epoch and a current version of neural network.
+    /// Saves a current state of epoch and a current neural network.
     pub fn save(&self) -> Result<()>
     { self.algorithm.save() }
     
@@ -174,8 +174,8 @@ impl Trainer
     ///
     /// This method returns a number of passed outputs, a number of all outputs, and a number of
     /// errors. The number of passed outputs and the number of all outputs are computed for a
-    /// current version of neural network. The errors from the number of errors are errors of 
-    /// invalid FEN and illegal move.
+    /// current neural network. The errors from the number of errors are errors of invalid FEN and
+    /// illegal move.
     pub fn do_epoch(&self, data: &mut dyn Iterator<Item = TrainerResult<Option<DataSample>>>) -> TrainerResult<(u64, u64, u64)>
     {
         let tuple = self.do_data(data, true)?;

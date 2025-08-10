@@ -30,7 +30,7 @@ pub trait Algorithm
     /// Returns the epoch number.
     fn epoch(&self) -> usize;
     
-    /// Saves a current state of epoch and a current version of neural network.
+    /// Saves a current state of epoch and a current neural network.
     fn save(&self) -> Result<()>;
 
     /// Performs the algorithm.

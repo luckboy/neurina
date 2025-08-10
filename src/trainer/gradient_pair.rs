@@ -7,14 +7,20 @@
 //
 use crate::trainer::TrainerResult;
 
+/// A trait of gradient pair.
+///
+/// This trait provides methods which allow access to a neural network and a gradient.
 pub trait GradientPair<T>
 {
+    /// Calls the closure with the neural network.
     fn network_in<U, F>(&self, f: F) -> U
         where F: FnOnce(&mut T) -> U;
     
+    /// Calls the closure with the gradient.
     fn gradient_in<U, F>(&self, f: F) -> TrainerResult<U>
         where F: FnOnce(&T) -> U;
 
+    /// Calls the closure with the neural network and the gradient.
     fn network_and_gradient_in<U, F>(&self, f: F) -> TrainerResult<U>
         where F: FnOnce(&mut T, &T) -> U;
 }

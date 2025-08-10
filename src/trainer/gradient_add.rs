@@ -10,15 +10,27 @@ use crate::shared::intr_check::*;
 use crate::trainer::data_sample::*;
 use crate::trainer::TrainerResult;
 
+/// A trait of gradient adder.
+///
+/// This trait provides method that adds gradients and other methods. 
 pub trait GradientAdd
 {
+    /// Returns the interruption checker.
     fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>;
     
+    /// Returns `true` if the number of samples is greater than or equal to the maximal number of
+    /// columns, otherwise `false`.
     fn samples_are_full(&self, sample_count: usize) -> bool;
 
+    /// Prepares to gradient addition.
     fn start(&self);
-    
+
+    /// Computes and adds the gradients from the data samples if the gradient flag is enabled.
+    ///
+    /// This method also computes a result of neural network and returns the number of passed
+    /// outputs and the number of all outputs for the neural network.
     fn compute(&self, samples: &mut [DataSample], move_count: usize, are_gradients: bool) -> TrainerResult<(u64, u64)>;
-    
+
+    /// Divides the gradient.
     fn divide(&self) -> TrainerResult<()>;
 }

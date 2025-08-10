@@ -10,7 +10,7 @@ use crate::shared::Interruption;
 
 /// A trait of neural network.
 ///
-/// This trait provides methods which operates on the neural network.
+/// This trait provides methods which operate on the neural network.
 pub trait Net
 {
     /// Computes matrices of hidden layers and output matrices for the neural network.

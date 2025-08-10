@@ -14,7 +14,7 @@ use crate::chess::Outcome;
 
 /// A printer trait.
 ///
-/// This trait provides methods which prints a line of principal variation, a best move, and a game
+/// This trait provides methods which print a line of principal variation, a best move, and a game
 /// outcome.
 pub trait Print
 {
