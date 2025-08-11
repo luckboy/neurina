@@ -20,8 +20,8 @@ use crate::serde::de::DeserializeOwned;
 use crate::serde::ser::Serialize;
 use crate::shared::io::*;
 
-/// Loads the specified data from the file if the file is existent, otherwise returns the
-/// returned specified data by the closure.
+/// Loads the specified data from the file if the file exists, otherwise returns the returned value
+/// by the closure.
 pub fn load_or_else<T, L: Load<T>, F>(loader: &L, file_name: &str, f: F) -> Result<T>
     where F: FnOnce() -> T
 {
@@ -32,17 +32,16 @@ pub fn load_or_else<T, L: Load<T>, F>(loader: &L, file_name: &str, f: F) -> Resu
     }
 }
 
-/// Loads the specified data from the file if the file is existent, otherwise returns the specified
-/// data.
+/// Loads the specified data from the file if the file exists, otherwise returns the value.
 pub fn load_or<T, L: Load<T>>(loader: &L, file_name: &str, value: T) -> Result<T>
 { load_or_else(loader, file_name, || value) }
 
 /// Renames the current file to the previous file and saves the specified data to the current file.
 ///
-/// The previous file is removed if the previous file and the current file are existent. The
-/// current is renamed to the previous file if the current file is existent. The speciefied data is
-/// saved as the current file. The previous file name consists of the prefix, the `"-2"` string,
-/// and the suffix. The current file name only consists of the prefix and the suffix. 
+/// The previous file is removed if the previous file and the current file exist. The current is
+/// renamed to the previous file if the current file exists. The speciefied data is saved to the
+/// current file. The previous file name consists of the prefix, the `"-2"` string, and the suffix.
+/// The current file name only consists of the prefix and the suffix. 
 pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Result<()>
 {
     let prev_file_name = format!("{}-2{}", prefix, suffix);
@@ -73,11 +72,11 @@ fn read_params_or_state<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
     }
 }
 
-/// Reads the parameters from the reader.
+/// Reads parameters from the reader.
 pub fn read_params<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
 { read_params_or_state(r) }
 
-/// Reads the state from the reader.
+/// Reads a state from the reader.
 pub fn read_state<T: DeserializeOwned>(r: &mut dyn Read) -> Result<T>
 { read_params_or_state(r) }
 
@@ -90,14 +89,14 @@ pub fn write_state<T: Serialize + ?Sized>(w: &mut dyn Write, state: &T) -> Resul
     }
 }
 
-/// Loads the parameters from the file.
+/// Loads parameters from the file.
 pub fn load_params<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> Result<T>
 {
     let mut file = File::open(path)?;
     read_params(&mut file)
 }
 
-/// Loads the state from the file.
+/// Loads a state from the file.
 pub fn load_state<P: AsRef<Path>, T: DeserializeOwned>(path: P) -> Result<T>
 {
     let mut file = File::open(path)?;
@@ -118,10 +117,9 @@ pub fn append_gnuplot_data<P: AsRef<Path>>(path: P, x: usize, y: u64) -> Result<
     writeln!(&mut file, "{} {}", x, y)
 }
 
-/// Copies the gnuplot data from the old file to the new file and appends the gnuplot data to the
-/// new file.
+/// Copies the old file to the new file and appends the gnuplot data to the new file.
 ///
-/// Copies the gnuplot data from the old file to the new file if the old file is existent. The
+/// The old file with the gnuplot data is copied to the new file if the old file exists. The
 /// gnuplot data is appended to the new file.
 pub fn copy_and_append_gnuplot_data<P: AsRef<Path>, Q: AsRef<Path>>(old_path: P, new_path: Q, x: usize, y: u64) -> Result<()>
 {
