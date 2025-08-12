@@ -24,6 +24,7 @@ use crate::trainer::io::*;
 use crate::trainer::net_create::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of Adagrad algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdagradAlgFactory<T, U, GAF, NL, NF>
 {
@@ -38,6 +39,7 @@ pub struct AdagradAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF, NL, NF> AdagradAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a factory of Adagrad algorithm.
     pub fn new(gradient_adder_factory: GAF, net_loader: NL, zero_net_factory: NF) -> Self
     {
         AdagradAlgFactory {
@@ -54,6 +56,7 @@ impl<T, U, GAF, NL, NF> AdagradAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> AdagradAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates an Adagrad algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<AdagradAlg<T, U>>
     {
         let s = load_or_else(&self.net_loader, "s.nnet", || self.zero_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?; 
@@ -64,11 +67,13 @@ impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> AdagradAlgF
     }
 }
 
+/// A structure of loader of parameters of Adagrad algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdagradParamsLoader;
 
 impl AdagradParamsLoader
 {
+    /// Creates a loader of parameters of Adagrad algorithm.
     pub fn new() -> Self
     { AdagradParamsLoader }
 }
@@ -79,6 +84,7 @@ impl Load<AdagradParams> for AdagradParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of Adagrad algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct AdagradParams
 {
@@ -86,11 +92,13 @@ pub struct AdagradParams
     pub eps: f32,
 }
 
+/// A structure of loader of state of Adagrad algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdagradStateLoader;
 
 impl AdagradStateLoader
 {
+    /// Creates a loader of state of Adagrad algorithm.
     pub fn new() -> Self
     { AdagradStateLoader }
 }
@@ -101,6 +109,7 @@ impl Load<AdagradState> for AdagradStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of Adagrad algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct AdagradState
 {
@@ -113,6 +122,7 @@ impl Save for AdagradState
     { save_state(path, &self) }
 }
 
+/// A structure of Adagrad algorithm.
 pub struct AdagradAlg<T, U>
 {
     gradient_adder: U,
@@ -124,6 +134,7 @@ pub struct AdagradAlg<T, U>
 
 impl<T, U> AdagradAlg<T, U>
 {
+    /// Creates an Adagrad algorithm.
     pub fn new(gradient_adder: U, params: AdagradParams, state: AdagradState, s: T) -> Self
     {
         AdagradAlg {

@@ -23,6 +23,7 @@ use crate::trainer::gradient_pair::*;
 use crate::trainer::io::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of exponential stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct ExpSgdAlgFactory<T, U, GAF>
 {
@@ -35,6 +36,7 @@ pub struct ExpSgdAlgFactory<T, U, GAF>
 
 impl<T, U, GAF> ExpSgdAlgFactory<T, U, GAF>
 {
+    /// Creates of factory of exponential stochastic gradient descent algorithm.
     pub fn new(gradient_adder_factory: GAF) -> Self
     {
         ExpSgdAlgFactory {
@@ -49,6 +51,7 @@ impl<T, U, GAF> ExpSgdAlgFactory<T, U, GAF>
 
 impl<T, U, GAF: GradientAddCreate<U>> ExpSgdAlgFactory<T, U, GAF>
 {
+    /// Creates an exponential stochastic gradient descent algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<ExpSgdAlg<T, U>>
     {
         let gradient_adder = self.gradient_adder_factory.create(intr_checker, converter)?;
@@ -58,11 +61,13 @@ impl<T, U, GAF: GradientAddCreate<U>> ExpSgdAlgFactory<T, U, GAF>
     }
 }
 
+/// A structure of loader of parameters of exponential stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct ExpSgdParamsLoader;
 
 impl ExpSgdParamsLoader
 {
+    /// Creates a loader of parameters of exponential stochastic gradient descent algorithm.
     pub fn new() -> Self
     { ExpSgdParamsLoader }
 }
@@ -73,6 +78,7 @@ impl Load<ExpSgdParams> for ExpSgdParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of exponential stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct ExpSgdParams
 {
@@ -80,11 +86,13 @@ pub struct ExpSgdParams
     pub lambda: f32,
 }
 
+/// A structure of loader of state of exponential stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct ExpSgdStateLoader;
 
 impl ExpSgdStateLoader
 {
+    /// Creates a loader of state of exponential stochastic gradient descent algorithm.
     pub fn new() -> Self
     { ExpSgdStateLoader }
 }
@@ -95,6 +103,7 @@ impl Load<ExpSgdState> for ExpSgdStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of exponential stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct ExpSgdState
 {
@@ -107,6 +116,7 @@ impl Save for ExpSgdState
     { save_state(path, &self) }
 }
 
+/// A structure of exponential stochastic gradient descent algorithm.
 pub struct ExpSgdAlg<T, U>
 {
     gradient_adder: U,
@@ -117,6 +127,7 @@ pub struct ExpSgdAlg<T, U>
 
 impl<T, U> ExpSgdAlg<T, U>
 {
+    /// Creates an exponential stochastic gradient descent algorithm.
     pub fn new(gradient_adder: U, params: ExpSgdParams, state: ExpSgdState) -> Self
     {
         ExpSgdAlg {

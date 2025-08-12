@@ -24,6 +24,7 @@ use crate::trainer::io::*;
 use crate::trainer::net_create::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of Adadelta algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdadeltaAlgFactory<T, U, GAF, NL, NF>
 {
@@ -38,6 +39,7 @@ pub struct AdadeltaAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF, NL, NF> AdadeltaAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a factory of Adadelta algorithm.
     pub fn new(gradient_adder_factory: GAF, net_loader: NL, zero_net_factory: NF) -> Self
     {
         AdadeltaAlgFactory {
@@ -54,6 +56,7 @@ impl<T, U, GAF, NL, NF> AdadeltaAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> AdadeltaAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates an Adadelta algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<AdadeltaAlg<T, U>>
     {
         let s = load_or_else(&self.net_loader, "s.nnet", || self.zero_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?; 
@@ -65,11 +68,13 @@ impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> AdadeltaAlg
     }
 }
 
+/// A structure of loader of parameters of Adadelta algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdadeltaParamsLoader;
 
 impl AdadeltaParamsLoader
 {
+    /// Creates a loader of parameters of Adadelta algorithm.
     pub fn new() -> Self
     { AdadeltaParamsLoader }
 }
@@ -80,6 +85,7 @@ impl Load<AdadeltaParams> for AdadeltaParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of Adadelta algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct AdadeltaParams
 {
@@ -87,11 +93,13 @@ pub struct AdadeltaParams
     pub eps: f32,
 }
 
+/// A structure of loader of state of Adadelta algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdadeltaStateLoader;
 
 impl AdadeltaStateLoader
 {
+    /// Creates a loader of state of Adadelta algorithm.
     pub fn new() -> Self
     { AdadeltaStateLoader }
 }
@@ -102,6 +110,7 @@ impl Load<AdadeltaState> for AdadeltaStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of Adadelta algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct AdadeltaState
 {
@@ -114,6 +123,7 @@ impl Save for AdadeltaState
     { save_state(path, &self) }
 }
 
+/// A structure of Adadelta algorithm.
 pub struct AdadeltaAlg<T, U>
 {
     gradient_adder: U,
@@ -126,6 +136,7 @@ pub struct AdadeltaAlg<T, U>
 
 impl<T, U> AdadeltaAlg<T, U>
 {
+    /// Creates an Adadelta algorithm.
     pub fn new(gradient_adder: U, params: AdadeltaParams, state: AdadeltaState, s: T, delta: T) -> Self
     {
         AdadeltaAlg {

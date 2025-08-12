@@ -24,6 +24,7 @@ use crate::trainer::io::*;
 use crate::trainer::net_create::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of Adam algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdamAlgFactory<T, U, GAF, NL, NF>
 {
@@ -38,6 +39,7 @@ pub struct AdamAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF, NL, NF> AdamAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a factory of Adam algorithm.
     pub fn new(gradient_adder_factory: GAF, net_loader: NL, zero_net_factory: NF) -> Self
     {
         AdamAlgFactory {
@@ -54,6 +56,7 @@ impl<T, U, GAF, NL, NF> AdamAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> AdamAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates an Adam algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<AdamAlg<T, U>>
     {
         let v = load_or_else(&self.net_loader, "v.nnet", || self.zero_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?; 
@@ -65,11 +68,13 @@ impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> AdamAlgFact
     }
 }
 
+/// A structure of loader of parameters of Adam algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdamParamsLoader;
 
 impl AdamParamsLoader
 {
+    /// Creates a loader of parameters of Adam algorithm.
     pub fn new() -> Self
     { AdamParamsLoader }
 }
@@ -80,6 +85,7 @@ impl Load<AdamParams> for AdamParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of Adam algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct AdamParams
 {
@@ -89,11 +95,13 @@ pub struct AdamParams
     pub eps: f32,
 }
 
+/// A structure of loader of state of Adam algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct AdamStateLoader;
 
 impl AdamStateLoader
 {
+    /// Creates of loader of state of Adam algorithm.
     pub fn new() -> Self
     { AdamStateLoader }
 }
@@ -104,6 +112,7 @@ impl Load<AdamState> for AdamStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of Adam algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct AdamState
 {
@@ -116,6 +125,7 @@ impl Save for AdamState
     { save_state(path, &self) }
 }
 
+/// A structure of Adam algorithm.
 pub struct AdamAlg<T, U>
 {
     gradient_adder: U,
@@ -128,6 +138,7 @@ pub struct AdamAlg<T, U>
 
 impl<T, U> AdamAlg<T, U>
 {
+    /// Creates an Adam algorithm.
     pub fn new(gradient_adder: U, params: AdamParams, state: AdamState, v: T, s: T) -> Self
     {
         AdamAlg {

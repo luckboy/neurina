@@ -24,6 +24,7 @@ use crate::trainer::io::*;
 use crate::trainer::net_create::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of RMSProp algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct RmsPropAlgFactory<T, U, GAF, NL, NF>
 {
@@ -38,6 +39,7 @@ pub struct RmsPropAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF, NL, NF> RmsPropAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a factory of RMSProp algorithm.
     pub fn new(gradient_adder_factory: GAF, net_loader: NL, zero_net_factory: NF) -> Self
     {
         RmsPropAlgFactory {
@@ -54,6 +56,7 @@ impl<T, U, GAF, NL, NF> RmsPropAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> RmsPropAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a RMSProp algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<RmsPropAlg<T, U>>
     {
         let s = load_or_else(&self.net_loader, "s.nnet", || self.zero_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?; 
@@ -64,11 +67,13 @@ impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> RmsPropAlgF
     }
 }
 
+/// A structure of loader of parameters of RMSProp algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct RmsPropParamsLoader;
 
 impl RmsPropParamsLoader
 {
+    /// Creates a loader of parameters of RMSProp algorithm.
     pub fn new() -> Self
     { RmsPropParamsLoader }
 }
@@ -79,6 +84,7 @@ impl Load<RmsPropParams> for RmsPropParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of RMSProp algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct RmsPropParams
 {
@@ -87,11 +93,13 @@ pub struct RmsPropParams
     pub eps: f32,
 }
 
+/// A structure of loader of state of RMSProp algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct RmsPropStateLoader;
 
 impl RmsPropStateLoader
 {
+    /// Creates a loader of state of RMSProp algorithm.
     pub fn new() -> Self
     { RmsPropStateLoader }
 }
@@ -102,6 +110,7 @@ impl Load<RmsPropState> for RmsPropStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of RMSProp algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct RmsPropState
 {
@@ -114,6 +123,7 @@ impl Save for RmsPropState
     { save_state(path, &self) }
 }
 
+/// A structure of RMSProp algorithm.
 pub struct RmsPropAlg<T, U>
 {
     gradient_adder: U,
@@ -125,6 +135,7 @@ pub struct RmsPropAlg<T, U>
 
 impl<T, U> RmsPropAlg<T, U>
 {
+    /// Creates a RMSProp algorithm.
     pub fn new(gradient_adder: U, params: RmsPropParams, state: RmsPropState, s: T) -> Self
     {
         RmsPropAlg {

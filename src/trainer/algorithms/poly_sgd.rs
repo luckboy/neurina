@@ -23,6 +23,7 @@ use crate::trainer::gradient_pair::*;
 use crate::trainer::io::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of polynomial stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct PolySgdAlgFactory<T, U, GAF>
 {
@@ -35,6 +36,7 @@ pub struct PolySgdAlgFactory<T, U, GAF>
 
 impl<T, U, GAF> PolySgdAlgFactory<T, U, GAF>
 {
+    /// Creates a factory of polynomial stochastic gradient descent algorithm.
     pub fn new(gradient_adder_factory: GAF) -> Self
     {
         PolySgdAlgFactory {
@@ -49,6 +51,7 @@ impl<T, U, GAF> PolySgdAlgFactory<T, U, GAF>
 
 impl<T, U, GAF: GradientAddCreate<U>> PolySgdAlgFactory<T, U, GAF>
 {
+    /// Creates a polynomial stochastic gradient descent algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<PolySgdAlg<T, U>>
     {
         let gradient_adder = self.gradient_adder_factory.create(intr_checker, converter)?;
@@ -58,11 +61,13 @@ impl<T, U, GAF: GradientAddCreate<U>> PolySgdAlgFactory<T, U, GAF>
     }
 }
 
+/// A structure of loader of parameters of polynomial stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct PolySgdParamsLoader;
 
 impl PolySgdParamsLoader
 {
+    /// Creates a loader of parameters of polynomial stochastic gradient descent algorithm.
     pub fn new() -> Self
     { PolySgdParamsLoader }
 }
@@ -73,6 +78,7 @@ impl Load<PolySgdParams> for PolySgdParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of polynomial stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct PolySgdParams
 {
@@ -81,11 +87,13 @@ pub struct PolySgdParams
     pub beta: f32,
 }
 
+/// A structure of loader of state of polynomial stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct PolySgdStateLoader;
 
 impl PolySgdStateLoader
 {
+    /// Creates a loader of state of polynomial stochastic gradient descent algorithm.
     pub fn new() -> Self
     { PolySgdStateLoader }
 }
@@ -96,6 +104,7 @@ impl Load<PolySgdState> for PolySgdStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of polynomial stochastic gradient descent algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct PolySgdState
 {
@@ -108,6 +117,7 @@ impl Save for PolySgdState
     { save_state(path, &self) }
 }
 
+/// A structure of polynomial stochastic gradient descent algorithm.
 pub struct PolySgdAlg<T, U>
 {
     gradient_adder: U,
@@ -118,6 +128,7 @@ pub struct PolySgdAlg<T, U>
 
 impl<T, U> PolySgdAlg<T, U>
 {
+    /// Creates a polynomial stochastic gradient descent algorithm.
     pub fn new(gradient_adder: U, params: PolySgdParams, state: PolySgdState) -> Self
     {
         PolySgdAlg {

@@ -24,6 +24,7 @@ use crate::trainer::io::*;
 use crate::trainer::net_create::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of Momentum algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct MomentumAlgFactory<T, U, GAF, NL, NF>
 {
@@ -38,6 +39,7 @@ pub struct MomentumAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF, NL, NF> MomentumAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a factory of Momentum algorithm.
     pub fn new(gradient_adder_factory: GAF, net_loader: NL, zero_net_factory: NF) -> Self
     {
         MomentumAlgFactory {
@@ -54,6 +56,7 @@ impl<T, U, GAF, NL, NF> MomentumAlgFactory<T, U, GAF, NL, NF>
 
 impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> MomentumAlgFactory<T, U, GAF, NL, NF>
 {
+    /// Creates a Momentum algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<MomentumAlg<T, U>>
     {
         let v = load_or_else(&self.net_loader, "v.nnet", || self.zero_net_factory.create(Converter::BOARD_ROW_COUNT, converter.move_row_count()))?; 
@@ -64,11 +67,13 @@ impl<T, U, GAF: GradientAddCreate<U>, NL: Load<T>, NF: NetCreate<T>> MomentumAlg
     }
 }
 
+/// A structure of loader of parameters of Momentum algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct MomentumParamsLoader;
 
 impl MomentumParamsLoader
 {
+    /// Creates a loader of parameters of Momentum algorithm.
     pub fn new() -> Self
     { MomentumParamsLoader }
 }
@@ -79,6 +84,7 @@ impl Load<MomentumParams> for MomentumParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of Momentum algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct MomentumParams
 {
@@ -86,11 +92,13 @@ pub struct MomentumParams
     pub beta: f32,
 }
 
+/// A structure of loader of state of Momentum algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct MomentumStateLoader;
 
 impl MomentumStateLoader
 {
+    /// Creates a loader of state of Momentum algorithm.
     pub fn new() -> Self
     { MomentumStateLoader }
 }
@@ -101,6 +109,7 @@ impl Load<MomentumState> for MomentumStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of Momentum algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct MomentumState
 {
@@ -113,6 +122,7 @@ impl Save for MomentumState
     { save_state(path, &self) }
 }
 
+/// A structure of Momentum algorithm.
 pub struct MomentumAlg<T, U>
 {
     gradient_adder: U,
@@ -124,6 +134,7 @@ pub struct MomentumAlg<T, U>
 
 impl<T, U> MomentumAlg<T, U>
 {
+    /// Creates a Momentum algorithm.
     pub fn new(gradient_adder: U, params: MomentumParams, state: MomentumState, v: T) -> Self
     {
         MomentumAlg {

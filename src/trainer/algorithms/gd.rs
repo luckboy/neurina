@@ -23,6 +23,7 @@ use crate::trainer::gradient_pair::*;
 use crate::trainer::io::*;
 use crate::trainer::TrainerResult;
 
+/// A structure of factory of gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct GdAlgFactory<T, U, GAF>
 {
@@ -35,6 +36,7 @@ pub struct GdAlgFactory<T, U, GAF>
 
 impl<T, U, GAF> GdAlgFactory<T, U, GAF>
 {
+    /// Creates a factory of gradient descent algorithm.
     pub fn new(gradient_adder_factory: GAF) -> Self
     {
         GdAlgFactory {
@@ -49,6 +51,7 @@ impl<T, U, GAF> GdAlgFactory<T, U, GAF>
 
 impl<T, U, GAF: GradientAddCreate<U>> GdAlgFactory<T, U, GAF>
 {
+    /// Creates a gradient descent algorithm.
     pub fn create(&self, intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter) -> Result<GdAlg<T, U>>
     {
         let gradient_adder = self.gradient_adder_factory.create(intr_checker, converter)?;
@@ -58,11 +61,13 @@ impl<T, U, GAF: GradientAddCreate<U>> GdAlgFactory<T, U, GAF>
     }
 }
 
+/// A structure of loader of parameters of gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct GdParamsLoader;
 
 impl GdParamsLoader
 {
+    /// Creates a loader of parameters of gradient descent algorithm.
     pub fn new() -> Self
     { GdParamsLoader }
 }
@@ -73,17 +78,20 @@ impl Load<GdParams> for GdParamsLoader
     { load_params(path) }
 }
 
+/// A structure of parameters of gradient descent algorithm.
 #[derive(Copy, Clone, Debug, Deserialize)]
 pub struct GdParams
 {
     pub eta: f32,
 }
 
+/// A structure of loader of state of gradient descent algorithm.
 #[derive(Copy, Clone, Debug)]
 pub struct GdStateLoader;
 
 impl GdStateLoader
 {
+    /// Creates a loader of state of gradient descent algorithm.
     pub fn new() -> Self
     { GdStateLoader }
 }
@@ -94,6 +102,7 @@ impl Load<GdState> for GdStateLoader
     { load_state(path) }
 }
 
+/// A structure of state of gradient descent algorithm.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 pub struct GdState
 {
@@ -106,6 +115,7 @@ impl Save for GdState
     { save_state(path, &self) }
 }
 
+/// A structure of gradient descent algorithm.
 pub struct GdAlg<T, U>
 {
     gradient_adder: U,
@@ -116,6 +126,7 @@ pub struct GdAlg<T, U>
 
 impl<T, U> GdAlg<T, U>
 {
+    /// Creates a gradient descent algorithm.
     pub fn new(gradient_adder: U, params: GdParams, state: GdState) -> Self
     {
         GdAlg {
