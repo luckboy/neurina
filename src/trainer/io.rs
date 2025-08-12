@@ -38,8 +38,8 @@ pub fn load_or<T, L: Load<T>>(loader: &L, file_name: &str, value: T) -> Result<T
 
 /// Renames the current file to the previous file and saves the specified data to the current file.
 ///
-/// The previous file is removed if the previous file and the current file exist. The current is
-/// renamed to the previous file if the current file exists. The speciefied data is saved to the
+/// The previous file is removed if the previous file and the current file exist. The current file
+/// is renamed to the previous file if the current file exists. The speciefied data is saved to the
 /// current file. The previous file name consists of the prefix, the `"-2"` string, and the suffix.
 /// The current file name only consists of the prefix and the suffix.
 pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Result<()>
