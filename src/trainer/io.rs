@@ -20,7 +20,7 @@ use crate::serde::de::DeserializeOwned;
 use crate::serde::ser::Serialize;
 use crate::shared::io::*;
 
-/// Loads the specified data from the file if the file exists, otherwise returns the returned value
+/// Loads a specified data from the file if the file exists, otherwise returns the returned value
 /// by the closure.
 pub fn load_or_else<T, L: Load<T>, F>(loader: &L, file_name: &str, f: F) -> Result<T>
     where F: FnOnce() -> T
@@ -32,7 +32,7 @@ pub fn load_or_else<T, L: Load<T>, F>(loader: &L, file_name: &str, f: F) -> Resu
     }
 }
 
-/// Loads the specified data from the file if the file exists, otherwise returns the value.
+/// Loads a specified data from the file if the file exists, otherwise returns the value.
 pub fn load_or<T, L: Load<T>>(loader: &L, file_name: &str, value: T) -> Result<T>
 { load_or_else(loader, file_name, || value) }
 
@@ -41,7 +41,7 @@ pub fn load_or<T, L: Load<T>>(loader: &L, file_name: &str, value: T) -> Result<T
 /// The previous file is removed if the previous file and the current file exist. The current is
 /// renamed to the previous file if the current file exists. The speciefied data is saved to the
 /// current file. The previous file name consists of the prefix, the `"-2"` string, and the suffix.
-/// The current file name only consists of the prefix and the suffix. 
+/// The current file name only consists of the prefix and the suffix.
 pub fn move_prev_and_save<T: Save>(prefix: &str, suffix: &str, value: &T) -> Result<()>
 {
     let prev_file_name = format!("{}-2{}", prefix, suffix);

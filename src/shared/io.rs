@@ -19,16 +19,16 @@ use crate::shared::Network;
 
 /// A loader trait.
 ///
-/// This trait provides method that loads the specified data from the file.
+/// This trait provides method that loads a specified data from the file.
 pub trait Load<T>
 {
-    /// Loads the specified data from the file.
+    /// Loads a specified data from the file.
     fn load<P: AsRef<Path>>(&self, path: P) -> Result<T>;
 }
 
 /// A saver trait.
 ///
-/// This trait provides method that saves the specified data to the file.
+/// This trait provides method that saves a specified data to the file.
 pub trait Save
 {
     /// Saves the specified data to the file.
