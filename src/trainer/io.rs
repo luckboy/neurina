@@ -110,17 +110,17 @@ pub fn save_state<P: AsRef<Path>, T: Serialize + ?Sized>(path: P, state: &T) -> 
     write_state(&mut file, state)
 }
 
-/// Appends the gnuplot data to the file.
+/// Appends the Gnuplot data to the file.
 pub fn append_gnuplot_data<P: AsRef<Path>>(path: P, x: usize, y: u64) -> Result<()>
 {
     let mut file = File::options().create(true).append(true).open(path)?;
     writeln!(&mut file, "{} {}", x, y)
 }
 
-/// Copies the old file to the new file and appends the gnuplot data to the new file.
+/// Copies the old file to the new file and appends the Gnuplot data to the new file.
 ///
-/// The old file with the gnuplot data is copied to the new file if the old file exists. The
-/// gnuplot data is appended to the new file.
+/// The old file with the Gnuplot data is copied to the new file if the old file exists. The
+/// Gnuplot data is appended to the new file.
 pub fn copy_and_append_gnuplot_data<P: AsRef<Path>, Q: AsRef<Path>>(old_path: P, new_path: Q, x: usize, y: u64) -> Result<()>
 {
     match copy(old_path, new_path.as_ref()) {

@@ -66,16 +66,16 @@ fn write_outcome(w: &mut dyn Write, outcome: Outcome) -> Result<()>
     Ok(())
 }
 
-/// A structure of xboard printer.
+/// A structure of Xboard printer.
 ///
-/// The xboard printer prints a line of principal variation, a best move, and a game outcome for
-/// the xboard protocol.
+/// The Xboard printer prints a line of principal variation, a best move, and a game outcome for
+/// the Xboard protocol.
 #[derive(Copy, Clone, Debug)]
 pub struct XboardPrinter;
 
 impl XboardPrinter
 {
-    /// Creates a xboard printer.
+    /// Creates a Xboard printer.
     pub fn new() -> Self
     { XboardPrinter }
 }
@@ -560,7 +560,7 @@ fn xboard_make_move(stdout_log: &Arc<Mutex<StdoutLog>>, context: &mut Context, s
     Ok(())
 }
 
-/// Performs a loop for the xboard protocol with the engine identifier.
+/// Performs a loop for the Xboard protocol with the engine identifier.
 ///
 /// See [`xboard_loop`].
 pub fn xboard_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_id: EngineId, mut f: F) -> LoopResult<()>
@@ -704,7 +704,7 @@ pub fn xboard_loop_with_engine_id<F>(stdout_log: Arc<Mutex<StdoutLog>>, engine_i
     }
 }
 
-/// Performs a loop for the xboard protocol.
+/// Performs a loop for the Xboard protocol.
 ///
 /// The loop receives commands from the GUI program and sends commands to the GUI program. The
 /// closure creates an engine for this loop.
