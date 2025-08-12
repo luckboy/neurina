@@ -63,7 +63,8 @@ impl<T, NL: Load<T>, NF: NetCreate<T>> GradientAddCreate<GradientAdder<T>> for G
 
 /// A structure of gradient adder.
 ///
-/// The gradient adder adds minibatch gradients to a gradient.
+/// The gradient adder adds minibatch gradients to a gradient and divides the gradient by a number
+/// of all samples.
 pub struct GradientAdder<T>
 {
     intr_checker: Arc<dyn IntrCheck + Send + Sync>,
