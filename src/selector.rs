@@ -19,10 +19,13 @@ pub use print::*;
 pub use printer::*;
 pub use selector::*;
 
+/// An enumeration of selector error.
 #[derive(Debug)]
 pub enum SelectorError
 {
+    /// An interruption error.
     Interruption(Interruption),
+    /// An input/output error.
     Io(std::io::Error),
 }
 

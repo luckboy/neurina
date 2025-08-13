@@ -16,6 +16,9 @@ use crate::selector::SelectorResult;
 use crate::shared::intr_check::*;
 use crate::shared::lichess_puzzle::*;
 
+/// A selector structure.
+///
+/// The selector randomly selects Lichess puzzles.
 pub struct Selector
 {
     intr_checker: Arc<dyn IntrCheck + Send + Sync>,
@@ -25,20 +28,30 @@ pub struct Selector
 
 impl Selector
 {
+    /// A number of puzzles to print.
     pub const PUZZLE_COUNT_TO_PRINT: u64 = 64 * 1024;
     
+    /// Creates a selector.
     pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> Self
     { Selector { intr_checker, writer, printer, } }
 
+    /// Returns the interruption checker.
     pub fn intr_checker(&self) -> &Arc<dyn IntrCheck + Send + Sync>
     { &self.intr_checker }
     
+    /// Returns the writer.
     pub fn writer(&self) -> &Arc<Mutex<dyn Write + Send + Sync>>
     { &self.writer }
 
+    /// Returns the printer.
     pub fn printer(&self) -> &Arc<dyn Print + Send + Sync>
     { &self.printer }
     
+    /// Randomly selects the Lichess puzzles.
+    ///
+    /// The Lichess puzzles are divided into parts from which the puzzles is randomly selected. The
+    /// divider is a number of puzzles for the part. The last part can have less the puzzles than
+    /// the number of puzzles for the part.
     pub fn select(&self, puzzles: &mut dyn Iterator<Item = SelectorResult<LichessPuzzle>>, writer: &mut dyn Write, divider: u64) -> SelectorResult<()>
     {
         let mut puzzle_writer = LichessPuzzleWriter::from_writer(writer);

@@ -9,10 +9,14 @@ use std::io::Result;
 use std::io::Write;
 use crate::selector::print::*;
 
+/// A printer structure.
+///
+/// The printer prints an information about a selection progress.
 pub struct Printer;
 
 impl Printer
 {
+    /// Creates a printer.
     pub fn new() -> Self
     { Printer }
 }

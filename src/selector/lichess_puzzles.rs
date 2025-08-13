@@ -18,6 +18,9 @@ use crate::selector::SelectorResult;
 use crate::shared::lichess_puzzle::*;
 use crate::shared::private::*;
 
+/// A structure of reader of Lichess puzzles.
+///
+/// The reader of Lichess puzzles allows to read Lichess puzzles.
 pub struct LichessPuzzleReader<R>
 {
     reader: Reader<R>,
@@ -25,6 +28,7 @@ pub struct LichessPuzzleReader<R>
 
 impl LichessPuzzleReader<File>
 {
+    /// Creates a reader of Lichess puzzle from the path.
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self>
     {
         match Reader::from_path(path) {
@@ -36,13 +40,18 @@ impl LichessPuzzleReader<File>
 
 impl<R: Read> LichessPuzzleReader<R>
 {
+    /// Creates a reader of Lichess puzzle from the reader.
     pub fn from_reader(r: R) -> Self
     { LichessPuzzleReader { reader: Reader::from_reader(r), } }
     
+    /// Creates an iterotor over Lichess puzzles.
     pub fn puzzles(&mut self, max_count: Option<u64>) -> LichessPuzzles<'_, R>
     { LichessPuzzles { iter: self.reader.deserialize(), count: 0, max_count, } }
 }
 
+/// A structure of iterator over Lichess puzzles.
+///
+/// The iterator reads Lichess puzzles.
 pub struct LichessPuzzles<'a, R>
 {
     iter: DeserializeRecordsIter<'a, R, LichessPuzzle>,
@@ -80,6 +89,9 @@ impl<'a, R: Read> Iterator for LichessPuzzles<'a, R>
     }
 }
 
+/// A structure of writer of Lichess puzzles.
+///
+/// The writer of Lichess puzzles allows to write Lichess puzzles.
 pub struct LichessPuzzleWriter<W: Write>
 {
     writer: Writer<W>,
@@ -87,6 +99,7 @@ pub struct LichessPuzzleWriter<W: Write>
 
 impl LichessPuzzleWriter<File>
 {
+    /// Creates a writer of Lichess puzzle from the path.
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self>
     {
         match Writer::from_path(path) {
@@ -98,9 +111,11 @@ impl LichessPuzzleWriter<File>
 
 impl<W: Write> LichessPuzzleWriter<W>
 {
+    /// Creates a writer of Lichess puzzle from the writer.
     pub fn from_writer(w: W) -> Self
     { LichessPuzzleWriter { writer: Writer::from_writer(w), } }
     
+    /// Writes the Lichess puzzle.
     pub fn write_puzzle(&mut self, puzzle: &LichessPuzzle) -> SelectorResult<()>
     {
         match self.writer.serialize(puzzle) {
