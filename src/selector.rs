@@ -45,4 +45,5 @@ impl fmt::Display for SelectorError
     }
 }
 
+/// A type of selector result.
 pub type SelectorResult<T> = Result<T, SelectorError>;
