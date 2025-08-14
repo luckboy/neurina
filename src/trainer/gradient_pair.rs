@@ -9,7 +9,8 @@ use crate::trainer::TrainerResult;
 
 /// A trait of gradient pair.
 ///
-/// This trait provides methods which allow access to a neural network and a gradient.
+/// This trait provides methods which allow access to a neural network and a gradient. Algorithms
+/// have access to the neural network and the gradient by this trait.
 pub trait GradientPair<T>
 {
     /// Calls the closure with the neural network.

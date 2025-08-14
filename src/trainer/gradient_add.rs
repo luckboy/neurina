@@ -12,7 +12,8 @@ use crate::trainer::TrainerResult;
 
 /// A trait of gradient adder.
 ///
-/// This trait provides method that adds minibatch gradients to a gradient and other methods. 
+/// This trait provides method that adds minibatch gradients to a gradient and other methods.
+/// Algorithms use the gradient to train a neural network.
 pub trait GradientAdd
 {
     /// Returns the interruption checker.
