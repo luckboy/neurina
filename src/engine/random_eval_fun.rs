@@ -10,6 +10,9 @@ use rand::random_range;
 use crate::chess::Board;
 use crate::engine::eval::*;
 
+/// A structure of random evaluation function.
+///
+/// The random evaluation function adds a random component to a value of evaluation function.
 #[derive(Clone)]
 pub struct RandomEvalFun
 {
@@ -19,6 +22,7 @@ pub struct RandomEvalFun
 
 impl RandomEvalFun
 {
+    /// Creates a random evaluation function.
     pub fn new(eval_fun: Arc<dyn Eval + Send + Sync>, range: i32) -> Self
     { RandomEvalFun { eval_fun, range, } }
 }
