@@ -23,7 +23,7 @@ pub struct OneNeuralSearcher<T>
 {
     intr_checker: Arc<dyn IntrCheck + Send + Sync>,
     converter: Converter,
-    matrix_buf: Mutex<MatrixBuffer<(Vec<f32>, Vec<Board>)>>,
+    matrix_buf: Mutex<MatrixBuffer<(Vec<f32>, Vec<f32>, Vec<Board>)>>,
     network: T,
 }
 
@@ -35,7 +35,7 @@ impl<T> OneNeuralSearcher<T>
     
     pub fn new(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T) -> Self
     {
-        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, (vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT], vec![Board::initial(); Self::MAX_COL_COUNT])));
+        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, 0, Self::MAX_COL_COUNT, 0, (vec![0.0; Converter::BOARD_ROW_COUNT * Self::MAX_COL_COUNT], vec![0.0; converter.move_row_count() * Self::MAX_COL_COUNT], vec![Board::initial(); Self::MAX_COL_COUNT])));
         OneNeuralSearcher {
             intr_checker,
             converter,
@@ -68,8 +68,8 @@ impl<T: Net> NeuralSearch for OneNeuralSearcher<T>
                     }
                 }
                 self.converter.board_to_matrix_col(&tmp_board, elems, j, col_count);
-        }, |i, _, pair, pvs| {
-                let (output_elems, boards) = pair;
+        }, |i, _, tuple, pvs| {
+                let (input_elems, output_elems, boards) = tuple;
                 let col_count = pvs.len();
                 for (j, pv) in pvs.iter().enumerate() {
                     let mut tmp_board = board.clone();
@@ -85,11 +85,10 @@ impl<T: Net> NeuralSearch for OneNeuralSearcher<T>
                 let mut is_first = true;
                 for _ in 0..depth {
                     if !is_first {
-                        let mut elems = vec![0.0f32; Converter::BOARD_ROW_COUNT * col_count];
                         for (j, board) in boards.iter().enumerate() {
-                            self.converter.board_to_matrix_col(board, elems.as_mut_slice(), j, col_count);
+                            self.converter.board_to_matrix_col(board, &mut input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)], j, col_count);
                         }
-                        tmp_i = Matrix::new_with_elems(Converter::BOARD_ROW_COUNT, col_count, elems.as_slice());
+                        tmp_i = Matrix::new_with_elems(Converter::BOARD_ROW_COUNT, col_count, &input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)]);
                     }
                     self.network.compute(&tmp_i, 1, 1, |_| self.intr_checker.check(), |o| {
                             self.intr_checker.check()?;

@@ -62,7 +62,7 @@ pub struct OneGradientAdder<T>
 {
     intr_checker: Arc<dyn IntrCheck + Send + Sync>,
     converter: Converter,
-    matrix_buf: Mutex<MatrixBuffer<(Vec<f32>, Vec<f32>, Vec<Board>)>>,
+    matrix_buf: Mutex<MatrixBuffer<(Vec<f32>, Vec<f32>, Vec<f32>, Vec<Board>)>>,
     network: Mutex<T>,
     gradient: Mutex<Option<T>>,
     all_output_count: AtomicU64,
@@ -77,7 +77,7 @@ impl<T> OneGradientAdder<T>
     
     pub fn new_with_max_col_count(intr_checker: Arc<dyn IntrCheck + Send + Sync>, converter: Converter, network: T, max_col_count: usize) -> Self
     {
-        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, converter.move_row_count(), max_col_count, 0, (vec![0.0; converter.move_row_count() * max_col_count], vec![0.0; converter.move_row_count() * max_col_count], vec![Board::initial(); max_col_count])));
+        let matrix_buf = Mutex::new(MatrixBuffer::new(Converter::BOARD_ROW_COUNT, converter.move_row_count(), max_col_count, 0, (vec![0.0; Converter::BOARD_ROW_COUNT * max_col_count], vec![0.0; converter.move_row_count() * max_col_count], vec![0.0; converter.move_row_count() * max_col_count], vec![Board::initial(); max_col_count])));
         OneGradientAdder {
             intr_checker,
             converter,
@@ -135,7 +135,7 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
                 }
         }, |i, ys, tuple, samples| {
             let col_count = samples.len();
-            let (o_elems, y_elems, boards) = tuple;
+            let (input_elems, o_elems, y_elems, boards) = tuple;
             for (sample, board) in samples.iter().zip(boards.iter_mut()) {
                 *board = sample.board.clone();
             }
@@ -145,11 +145,10 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
                 let mut hs: Vec<Matrix> = Vec::new();
                 let mut os: Vec<Matrix> = Vec::new();
                 if !is_first {
-                    let mut elems = vec![0.0f32; Converter::BOARD_ROW_COUNT * col_count];
                     for (j, board) in boards.iter().enumerate() {
-                        self.converter.board_to_matrix_col(board, elems.as_mut_slice(), j, col_count);
+                        self.converter.board_to_matrix_col(board, &mut input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)], j, col_count);
                     }
-                    tmp_i = Matrix::new_with_elems(Converter::BOARD_ROW_COUNT, col_count, elems.as_slice());
+                    tmp_i = Matrix::new_with_elems(Converter::BOARD_ROW_COUNT, col_count, &input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)]);
                 }
                 network_g.compute(&tmp_i, 1, 1, |h| {
                         if are_gradients {
