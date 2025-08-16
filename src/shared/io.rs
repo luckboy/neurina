@@ -15,7 +15,8 @@ use std::io::Result;
 use std::io::Write;
 use std::path::Path;
 use crate::matrix::Matrix;
-use crate::shared::Network;
+use crate::shared::network::Network;
+use crate::shared::network_v2::NetworkV2;
 
 /// A loader trait.
 ///
@@ -52,6 +53,21 @@ impl Load<Network> for NetworkLoader
 {
     fn load<P: AsRef<Path>>(&self, path: P) -> Result<Network>
     { load_network(path) }
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct NetworkV2Loader;
+
+impl NetworkV2Loader
+{
+    pub fn new() -> Self
+    { NetworkV2Loader }
+}
+
+impl Load<NetworkV2> for NetworkV2Loader
+{
+    fn load<P: AsRef<Path>>(&self, path: P) -> Result<NetworkV2>
+    { load_network_v2(path) }
 }
 
 /// Reads a matrix from the reader.
@@ -146,6 +162,44 @@ pub fn save_network<P: AsRef<Path>>(path: P, network: &Network) -> Result<()>
     let file = File::create(path)?;
     let mut w = BufWriter::new(file);
     write_network(&mut w, network)
+}
+
+pub fn read_network_v2(r: &mut dyn Read) -> Result<NetworkV2>
+{
+    let mut magic_buf: [u8; 12] = [0; 12];
+    r.read_exact(&mut magic_buf)?;
+    if &magic_buf != b"neurina_v002" {
+        return Err(Error::new(ErrorKind::InvalidData, "invalid network format"));
+    }
+    let iw = read_matrix(r)?;
+    let ib = read_matrix(r)?;
+    let ow = read_matrix(r)?;
+    let ob = read_matrix(r)?;
+    Ok(NetworkV2::new(iw, ib, ow, ob))
+}
+
+pub fn write_network_v2(w: &mut dyn Write, network: &NetworkV2) -> Result<()>
+{
+    w.write_all(b"neurina_v002")?;
+    write_matrix(w, network.iw())?;
+    write_matrix(w, network.ib())?;
+    write_matrix(w, network.ow())?;
+    write_matrix(w, network.ob())?;
+    Ok(())
+}
+
+pub fn load_network_v2<P: AsRef<Path>>(path: P) -> Result<NetworkV2>
+{
+    let file = File::open(path)?;
+    let mut r = BufReader::new(file);
+    read_network_v2(&mut r)
+}
+
+pub fn save_network_v2<P: AsRef<Path>>(path: P, network: &NetworkV2) -> Result<()>
+{
+    let file = File::create(path)?;
+    let mut w = BufWriter::new(file);
+    write_network_v2(&mut w, network)
 }
 
 #[cfg(test)]
