@@ -189,7 +189,7 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
                 if are_gradients {
                     let one_elems = vec![0.0f32; col_count];
                     let one = Matrix::new_with_elems(col_count, 1, one_elems.as_slice());
-                    let dj_dnet = network_g.backpropagate(&i, hs.as_slice(), os.as_slice(), &ys[ply..(ply + 1)], &one);
+                    let dj_dnet = network_g.backpropagate(&tmp_i, hs.as_slice(), os.as_slice(), &ys[ply..(ply + 1)], &one);
                     match &mut *gradient_g {
                         Some(gradient) => gradient.op_assign(&dj_dnet, |a, b| *a += b),
                         None => *gradient_g = Some(dj_dnet),
