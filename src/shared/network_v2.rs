@@ -65,7 +65,7 @@ impl Net for NetworkV2
         let dj_do = os[0].softmax() - &ys[0];
         let dj_dow = (&dj_do * hs[0].t()).mul_elems(&(&self.ow * -2.0));
         let dj_dob = (&dj_do * one).mul_elems(&(&self.ob * -2.0));
-        let dj_dh = self.ow.mul_elems(&self.ow).t() * &dj_do;
+        let dj_dh = (-self.ow.mul_elems(&self.ow)).t() * &dj_do;
         let dj_dz = dj_dh.mul_elems(&(hs[0].mul_elems(&hs[0]).rsub(1.0)));
         let dj_diw = &dj_dz * i.t();
         let dj_dib = &dj_dz * one;
