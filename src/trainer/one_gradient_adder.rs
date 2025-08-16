@@ -128,8 +128,10 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
         }
         let res = matrix_buf_g.do_elems(samples, move_count, &*self.intr_checker, |sample, input_elems, output_elems, j, col_count| {
                 self.converter.board_to_matrix_col(&sample.board, input_elems, j, col_count);
+                let mut color = sample.board.side();
                 for k in 0..output_elems.len() {
-                    self.converter.move_to_matrix_col(sample.moves[k], sample.board.side(), output_elems[k].as_mut_slice(), j, col_count);
+                    self.converter.move_to_matrix_col(sample.moves[k], color, output_elems[k].as_mut_slice(), j, col_count);
+                    color = color.inv();
                 }
         }, |i, ys, tuple, samples| {
             let col_count = samples.len();
