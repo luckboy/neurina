@@ -49,7 +49,7 @@ impl Net for NetworkV2
         assert_eq!(1, pv_count);
         let ib = if i.col_count() > 1 { self.ib.repeat(i.col_count()) } else { self.ib.clone() };
         let ob = if i.col_count() > 1 { self.ob.repeat(i.col_count()) } else { self.ob.clone() };
-        let z = &self.iw * i + ib;
+        let z = &self.iw * i + &ib;
         let h = z.tanh();
         hf(h.clone())?;
         let o = -(self.ow.mul_elems(&self.ow) * &h + ob.mul_elems(&ob));
