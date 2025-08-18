@@ -7,10 +7,12 @@
 //
 use crate::matrix::Matrix;
 use crate::engine::neural_searcher::*;
+use crate::engine::one_neural_searcher::*;
 use crate::engine::simple_eval_fun::*;
 use crate::shared::converter::*;
 use crate::shared::index_converter::*;
 use crate::shared::network::*;
+use crate::shared::network_v2::*;
 use crate::shared::xavier_init::*;
 use super::*;
 
@@ -46,6 +48,44 @@ fn test_middle_searcher_search_searches_without_panic_with_neural_searcher()
     let intr_checker = Arc::new(EmptyIntrChecker::new());
     let eval_fun = Arc::new(SimpleEvalFun::new());
     let neural_searcher = Arc::new(NeuralSearcher::new(intr_checker, converter, network));
+    let middle_searcher = MiddleSearcher::new(eval_fun, neural_searcher);
+    let board = Board::from_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2").unwrap();
+    let (_, middle_node_count, node_count, pv) = middle_searcher.search(&board, 2, 5).unwrap();
+    assert_eq!(1732, middle_node_count);
+    assert!(1732 <= node_count);
+    assert!(2 <= pv.len());
+    let mut tmp_board = board.clone();
+    for mv in &pv {
+        match tmp_board.make_move(*mv) {
+            Ok(tmp_new_board) => {
+                tmp_board = tmp_new_board;
+                assert!(true);
+            },
+            Err(_) => assert!(false),
+        }
+    }
+}
+
+#[test]
+fn test_middle_searcher_search_searches_without_panic_with_one_neural_searcher()
+{
+    let converter = Converter::new(IndexConverter::new());
+    let mut iw_elems = vec![0.0f32; 256 * Converter::BOARD_ROW_COUNT];
+    xavier_init(iw_elems.as_mut_slice(), Converter::BOARD_ROW_COUNT, 256);
+    let iw = Matrix::new_with_elems(256, Converter::BOARD_ROW_COUNT, iw_elems.as_slice());
+    let mut ib_elems = vec![0.0f32; 256];
+    xavier_init(ib_elems.as_mut_slice(), Converter::BOARD_ROW_COUNT, 256);
+    let ib = Matrix::new_with_elems(256, 1, ib_elems.as_slice());
+    let mut ow_elems = vec![0.0f32; converter.move_row_count() * 256];
+    xavier_sqrt_init(ow_elems.as_mut_slice(), 256, converter.move_row_count());
+    let ow = Matrix::new_with_elems(converter.move_row_count(), 256, ow_elems.as_slice());
+    let mut ob_elems = vec![0.0f32; converter.move_row_count()];
+    xavier_sqrt_init(ob_elems.as_mut_slice(), 256, converter.move_row_count());
+    let ob = Matrix::new_with_elems(converter.move_row_count(), 1, ob_elems.as_slice());
+    let network = NetworkV2::new(iw, ib, ow, ob);
+    let intr_checker = Arc::new(EmptyIntrChecker::new());
+    let eval_fun = Arc::new(SimpleEvalFun::new());
+    let neural_searcher = Arc::new(OneNeuralSearcher::new(intr_checker, converter, network));
     let middle_searcher = MiddleSearcher::new(eval_fun, neural_searcher);
     let board = Board::from_fen("rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2").unwrap();
     let (_, middle_node_count, node_count, pv) = middle_searcher.search(&board, 2, 5).unwrap();

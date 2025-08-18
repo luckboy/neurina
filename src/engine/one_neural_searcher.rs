@@ -85,8 +85,8 @@ impl<T: Net> NeuralSearch for OneNeuralSearcher<T>
                 let mut is_first = true;
                 for _ in 0..depth {
                     if !is_first {
-                        for (j, board) in boards.iter().enumerate() {
-                            self.converter.board_to_matrix_col(board, &mut input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)], j, col_count);
+                        for j in 0..col_count {
+                            self.converter.board_to_matrix_col(&boards[j], &mut input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)], j, col_count);
                         }
                         tmp_i = Matrix::new_with_elems(Converter::BOARD_ROW_COUNT, col_count, &input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)]);
                     }
@@ -95,14 +95,14 @@ impl<T: Net> NeuralSearch for OneNeuralSearcher<T>
                             let frontend = Frontend::new().unwrap();
                             let mut is_transposed = false;
                             frontend.get_elems_and_transpose_flag(&o, &mut output_elems[0..(self.converter.move_row_count() * col_count)], &mut is_transposed).unwrap();
-                            for (j, (pv, board)) in pvs.iter_mut().zip(boards.iter_mut()).enumerate() {
-                                let moves = legal::gen_all(board);
-                                match self.converter.matrix_col_to_move(&moves, board.side(), output_elems.as_slice(), j, col_count, Self::MOVE_EPS) {
+                            for (j, pv) in pvs.iter_mut().enumerate() {
+                                let moves = legal::gen_all(&boards[j]);
+                                match self.converter.matrix_col_to_move(&moves, boards[j].side(), output_elems.as_slice(), j, col_count, Self::MOVE_EPS) {
                                     Some(mv) => {
-                                        match board.make_move(mv) {
-                                            Ok(new_board) => {
+                                        match boards[j].make_move(mv) {
+                                            Ok(tmp_new_board) => {
                                                 pv.push(mv);
-                                                *board = new_board;
+                                                boards[j] = tmp_new_board;
                                             },
                                             Err(_) => (),
                                         }
