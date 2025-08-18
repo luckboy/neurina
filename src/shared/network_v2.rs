@@ -128,3 +128,6 @@ impl Save for NetworkV2
     fn save<P: AsRef<Path>>(&self, path: P) -> io::Result<()>
     { save_network_v2(path, self) }
 }
+
+#[cfg(test)]
+mod tests;
