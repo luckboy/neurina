@@ -136,8 +136,8 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
         }, |i, ys, tuple, samples| {
             let col_count = samples.len();
             let (input_elems, o_elems, y_elems, boards) = tuple;
-            for (sample, board) in samples.iter().zip(boards.iter_mut()) {
-                *board = sample.board.clone();
+            for (j, sample) in samples.iter().enumerate() {
+                boards[j] = sample.board.clone();
             }
             let mut tmp_i = i.clone();
             let mut is_first = true;
@@ -145,8 +145,8 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
                 let mut hs: Vec<Matrix> = Vec::new();
                 let mut os: Vec<Matrix> = Vec::new();
                 if !is_first {
-                    for (j, board) in boards.iter().enumerate() {
-                        self.converter.board_to_matrix_col(board, &mut input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)], j, col_count);
+                    for j in 0..col_count {
+                        self.converter.board_to_matrix_col(&boards[j], &mut input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)], j, col_count);
                     }
                     tmp_i = Matrix::new_with_elems(Converter::BOARD_ROW_COUNT, col_count, &input_elems[0..(Converter::BOARD_ROW_COUNT * col_count)]);
                 }
@@ -196,9 +196,9 @@ impl<T: Net> GradientAdd for OneGradientAdder<T>
                         None => *gradient_g = Some(dj_dnet),
                     }
                 }
-                for (sample, board) in samples.iter().zip(boards.iter_mut()) {
-                    match board.make_move(sample.moves[ply]) {
-                        Ok(new_board) => *board = new_board,
+                for (j, sample) in samples.iter().enumerate() {
+                    match boards[j].make_move(sample.moves[ply]) {
+                        Ok(tmp_new_board) => boards[j] = tmp_new_board,
                         Err(_) => (),
                     }
                 }
