@@ -34,7 +34,7 @@ fn test_write_matrix_and_read_matrix_writes_matrix_and_reads_matrix()
 }
 
 #[test]
-fn test_write_network_and_read_matrix_writes_network_and_reads_network()
+fn test_write_network_and_read_network_writes_network_and_reads_network()
 {
     let mut iw_elems = vec![0.0f32; 200 * 100];
     xavier_init(iw_elems.as_mut_slice(), 100, 200);
