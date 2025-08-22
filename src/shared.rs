@@ -17,6 +17,7 @@ pub(crate) mod matrix_buffer;
 pub(crate) mod net;
 pub(crate) mod network;
 pub(crate) mod network_v2;
+pub(crate) mod network_v3;
 pub(crate) mod private;
 pub(crate) mod utils;
 pub(crate) mod xavier_init;
@@ -33,6 +34,7 @@ pub use matrix_buffer::*;
 pub use net::*;
 pub use network::*;
 pub use network_v2::*;
+pub use network_v3::*;
 pub use utils::*;
 pub use xavier_init::*;
 

@@ -29,8 +29,10 @@ pub(crate) mod single_sampler;
 pub(crate) mod trainer;
 pub(crate) mod xavier_network_factory;
 pub(crate) mod xavier_network_v2_factory;
+pub(crate) mod xavier_network_v3_factory;
 pub(crate) mod zero_network_factory;
 pub(crate) mod zero_network_v2_factory;
+pub(crate) mod zero_network_v3_factory;
 
 pub use algorithm::*;
 pub use data_sample::*;
@@ -50,8 +52,10 @@ pub use single_sampler::*;
 pub use trainer::*;
 pub use xavier_network_factory::*;
 pub use xavier_network_v2_factory::*;
+pub use xavier_network_v3_factory::*;
 pub use zero_network_factory::*;
 pub use zero_network_v2_factory::*;
+pub use zero_network_v3_factory::*;
 
 /// An enumeration of trainer error.
 #[derive(Debug)]
