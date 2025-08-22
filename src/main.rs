@@ -22,6 +22,7 @@ enum NetworkVersion
 {
     V1,
     V2,
+    V3,
 }
 
 #[derive(Parser, Debug)]
@@ -44,7 +45,7 @@ struct Args
     #[arg(short, long, value_name = "SYZYGY_PATH")]
     syzygy: Option<String>,
     /// Network version
-    #[arg(short = 'v', long, value_name = "VERSION", value_enum, default_value_t = NetworkVersion::V2)]
+    #[arg(short = 'v', long, value_name = "VERSION", value_enum, default_value_t = NetworkVersion::V3)]
     network_version: NetworkVersion,
 }
 
@@ -192,11 +193,88 @@ fn initialize_engine_v2(args: &Args, config: &Option<Config>, writer: Arc<Mutex<
     Ok(Engine::new(thinker))
 }
 
+fn initialize_engine_v3(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
+{
+    match initialize_backend(config) {
+        Ok(()) => (),
+        Err(err) => return Err(LoopError::Matrix(err)),
+    }
+    let converter = Converter::new(IndexConverter::new());
+    let network = match args.random_network {
+        Some(count) => {
+            let mut iw_elems = vec![0.0f32; count * Converter::BOARD_ROW_COUNT];
+            xavier_init(iw_elems.as_mut_slice(), Converter::BOARD_ROW_COUNT, count);
+            let iw = Matrix::new_with_elems(count, Converter::BOARD_ROW_COUNT, iw_elems.as_slice());
+            let mut ib_elems = vec![0.0f32; count];
+            xavier_init(ib_elems.as_mut_slice(), Converter::BOARD_ROW_COUNT, count);
+            let ib = Matrix::new_with_elems(count, 1, ib_elems.as_slice());
+            let mut sw_elems = vec![0.0f32; count * count];
+            xavier_init(sw_elems.as_mut_slice(), count, count);
+            let sw = Matrix::new_with_elems(count, count, sw_elems.as_slice());
+            let mut sb_elems = vec![0.0f32; count];
+            xavier_init(sb_elems.as_mut_slice(), count, count);
+            let sb = Matrix::new_with_elems(count, 1, sb_elems.as_slice());
+            let mut pw_elems = vec![0.0f32; count * count];
+            xavier_init(pw_elems.as_mut_slice(), count, count);
+            let pw = Matrix::new_with_elems(count, count, pw_elems.as_slice());
+            let mut pb_elems = vec![0.0f32; count];
+            xavier_init(pb_elems.as_mut_slice(), count, count);
+            let pb = Matrix::new_with_elems(count, 1, pb_elems.as_slice());
+            let mut ow_elems = vec![0.0f32; converter.move_row_count() * count];
+            xavier_sqrt_init(ow_elems.as_mut_slice(), count, converter.move_row_count());
+            let ow = Matrix::new_with_elems(converter.move_row_count(), count, ow_elems.as_slice());
+            let mut ob_elems = vec![0.0f32; converter.move_row_count()];
+            xavier_sqrt_init(ob_elems.as_mut_slice(), count, converter.move_row_count());
+            let ob = Matrix::new_with_elems(converter.move_row_count(), 1, ob_elems.as_slice());
+            NetworkV3::new(iw, ib, sw, sb, pw, pb, ow, ob)
+        },
+        None => {
+            match load_network_v3(args.network.as_str()) {
+                Ok(tmp_network) => {
+                    if !tmp_network.check(Converter::BOARD_ROW_COUNT, converter.move_row_count()) {
+                        return Err(LoopError::InvalidNetwork);
+                    }
+                    tmp_network
+                },
+                Err(err) => return Err(LoopError::Io(err)),
+            }
+        },
+    };
+    let mut config_syzygy_path: Option<String> = None;
+    match config {
+        Some(config) => {
+            match &config.syzygy {
+                Some(syzygy) => config_syzygy_path = syzygy.path.clone(),
+                None => (),
+            }
+        },
+        None => (),
+    }
+    let syzygy = match args.syzygy.as_ref().or(config_syzygy_path.as_ref()) {
+        Some(syzygy_path) => {
+            match Syzygy::new(syzygy_path) {
+                Ok(tmp_syzygy) => Arc::new(Mutex::new(Some(tmp_syzygy))),
+                Err(err) => return Err(LoopError::Fathom(err)),
+            }
+        },
+        None => Arc::new(Mutex::new(None)),
+    };
+    let intr_checker = Arc::new(IntrChecker::new());
+    let simple_eval_fun = Arc::new(SimpleEvalFun::new());
+    let eval_fun = Arc::new(RandomEvalFun::new(simple_eval_fun, RANDOM_EVAL_FUN_RANGE));
+    let neural_searcher = Arc::new(NeuralSearcher::new(intr_checker, converter, network));
+    let middle_searcher = MiddleSearcher::new(eval_fun, neural_searcher);
+    let one_searcher = Arc::new(OneSearcher::new(middle_searcher, MIDDLE_DEPTH));
+    let thinker = Arc::new(Thinker::new(one_searcher, writer, printer, syzygy));
+    Ok(Engine::new(thinker))
+}
+
 fn initialize_engine(args: &Args, config: &Option<Config>, writer: Arc<Mutex<dyn Write + Send + Sync>>, printer: Arc<dyn Print + Send + Sync>) -> LoopResult<Engine>
 {
     match args.network_version {
         NetworkVersion::V1 => initialize_engine_v1(args, config, writer, printer),
         NetworkVersion::V2 => initialize_engine_v2(args, config, writer, printer),
+        NetworkVersion::V3 => initialize_engine_v3(args, config, writer, printer),
     }
 }
 
