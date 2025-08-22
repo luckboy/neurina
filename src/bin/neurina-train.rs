@@ -54,6 +54,7 @@ enum NetworkVersion
 {
     V1,
     V2,
+    V3,
 }
 
 #[derive(Parser, Debug)]
@@ -91,7 +92,7 @@ struct Args
     #[arg(short = 'p', long, value_name = "PERCENT")]
     stop_for_percent: Option<u64>,
     /// Network version
-    #[arg(short = 'v', long, value_name = "VERSION", value_enum, default_value_t = NetworkVersion::V2)]
+    #[arg(short = 'v', long, value_name = "VERSION", value_enum, default_value_t = NetworkVersion::V3)]
     network_version: NetworkVersion,
 }
 
@@ -243,11 +244,82 @@ fn initialize_algorithm_v2(args: &Args) -> Result<Arc<dyn Algorithm + Send + Syn
     }
 }
 
+fn initialize_algorithm_v3(args: &Args) -> Result<Arc<dyn Algorithm + Send + Sync>>
+{
+    match args.algorithm {
+        Alg::Gd => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = GdAlgFactory::new(gradient_adder_factory);
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::ExpSgd => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = ExpSgdAlgFactory::new(gradient_adder_factory);
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::PolySgd => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = PolySgdAlgFactory::new(gradient_adder_factory);
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::Momentum => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = MomentumAlgFactory::new(gradient_adder_factory, NetworkV3Loader::new(), ZeroNetworkV3Factory::new(args.network_size));
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::Adagrad => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = AdagradAlgFactory::new(gradient_adder_factory, NetworkV3Loader::new(), ZeroNetworkV3Factory::new(args.network_size));
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::RmsProp => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = RmsPropAlgFactory::new(gradient_adder_factory, NetworkV3Loader::new(), ZeroNetworkV3Factory::new(args.network_size));
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::Adadelta => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = AdadeltaAlgFactory::new(gradient_adder_factory, NetworkV3Loader::new(), ZeroNetworkV3Factory::new(args.network_size));
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+        Alg::Adam => {
+            initialize_ctrl_c_intr_checker();
+            let intr_checker = Arc::new(CtrlCIntrChecker::new());
+            let converter = Converter::new(IndexConverter::new());
+            let gradient_adder_factory = GradientAdderFactory::new(NetworkV3Loader::new(), XavierNetworkV3Factory::new(args.network_size));
+            let alg_factory = AdamAlgFactory::new(gradient_adder_factory, NetworkV3Loader::new(), ZeroNetworkV3Factory::new(args.network_size));
+            Ok(Arc::new(alg_factory.create(intr_checker, converter)?))
+        },
+    }
+}
+
 fn initialize_algorithm(args: &Args) -> Result<Arc<dyn Algorithm + Send + Sync>>
 {
     match args.network_version {
         NetworkVersion::V1 => initialize_algorithm_v1(args),
         NetworkVersion::V2 => initialize_algorithm_v2(args),
+        NetworkVersion::V3 => initialize_algorithm_v3(args),
     }
 }
 
