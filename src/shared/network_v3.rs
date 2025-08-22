@@ -122,7 +122,7 @@ impl Net for NetworkV3
         let mut dj_do = os[pv_count - 1].softmax() - &ys[pv_count - 1];
         let mut dj_dow = (&dj_do * hs[j].t()).mul_elems(&ow_2);
         let mut dj_dob = (&dj_do * one).mul_elems(&ob_2);
-        // dj/dz = ((ow (*) ow)^T * dj/do) (*) phi'(z)
+        // dj/dz = ((-ow (*) ow)^T * dj/do) (*) phi'(z)
         let mut dj_dh = (-&ow2).t() * &dj_do;
         let mut dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
         j -= 1;
@@ -136,7 +136,7 @@ impl Net for NetworkV3
                 dj_do = os[pv_count - k - 1].softmax() - &ys[pv_count - k - 1];
                 dj_dow += (&dj_do * hs[j].t()).mul_elems(&ow_2);
                 dj_dob += (&dj_do * one).mul_elems(&ob_2);
-                // dj/dz = ((ow (*) ow)^T * dj/do) (*) phi'(z)
+                // dj/dz = ((-ow (*) ow)^T * dj/do) (*) phi'(z)
                 dj_dh = (-&ow2).t() * &dj_do;
                 dj_dz = dj_dh.mul_elems(&(hs[j].mul_elems(&hs[j]).rsub(1.0)));
                 // dj/dpw += ((pw^T * dj2/dz22) (*) phi'(z2) + dj1/dz1) * h^T
