@@ -15,13 +15,13 @@ use crate::shared::Interruption;
 //
 // output layer
 //   ^ ^ ^ ^
-//   |X|X|X|  (ow (*) ow) * h[depth + pv_count] + (ob (*) ob)
+//   |X|X|X|  -((ow (*) ow) * h[depth + pv_count] + (ob (*) ob))
 //   pv layer
 //   ^ ^ ^ ^
 //   |X|X|X|  pw * h[depth + pv_count - 1] + pb
-//   pv layer -> (ow (*) ow) * h[depth + pv_count - 1] + (ob (*) ob) -> output layer
+//   pv layer -> -((ow (*) ow) * h[depth + pv_count - 1] + (ob (*) ob)) -> output layer
 //     ...
-//   pv layer -> (ow (*) ow) * h[depth + 1] + (ob (*) ob) -> output layer
+//   pv layer -> -((ow (*) ow) * h[depth + 1] + (ob (*) ob)) -> output layer
 //   ^ ^ ^ ^
 //   |X|X|X|  pw * h[depth] + pb
 //   pv layer
